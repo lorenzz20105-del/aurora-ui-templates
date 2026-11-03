@@ -1,0 +1,22 @@
+# Dependencies / tooling
+node_modules/
+__pycache__/
+*.pyc
+sourcemap.json
+
+# Editor / OS noise
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Roblox place files and Studio locks (the kit ships as source, not a place)
+*.rbxl
+*.rbxlx
+*.rbxm
+*.rbxmx
+*.rbxlx.lock
+*.rbxl.lock
+
+# Local screenshot scratch space (docs/ is committed on purpose)
+shots/

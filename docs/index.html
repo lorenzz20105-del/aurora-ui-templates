@@ -1,0 +1,2919 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="midnight">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Aurora UI — Interactive Preview</title>
+<style>
+/* ==================================================================
+   AURORA UI  •  PREVIEW STYLESHEET
+   Mirrors the in-engine layout 1:1 (same paddings, radii and type
+   scale as Theme.luau / Theme.Layout).
+   ================================================================== */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+:root {
+  --r-tiny: 4px;
+  --r-sm: 8px;
+  --r-md: 12px;
+  --r-lg: 16px;
+  --r-xl: 22px;
+  --rail-w: 74px;
+  --titlebar-h: 58px;
+  --footer-h: 38px;
+  --font: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  --ease: cubic-bezier(.22, .61, .36, 1);
+  --spring: cubic-bezier(.34, 1.56, .64, 1);
+}
+
+/* ------------------------------- THEMES --------------------------- */
+[data-theme="midnight"] {
+  --backdrop: #05060a;
+  --backdrop-2: #0b0f1a;
+  --panel: #0f121b;
+  --surface: #161a26;
+  --surface-hover: #1c2130;
+  --surface-active: #232a3c;
+  --elevated: #1b2030;
+  --stroke: #252c3e;
+  --stroke-soft: #1a1f2d;
+  --stroke-bright: #39435c;
+  --text: #eaeef9;
+  --muted: #8b95ae;
+  --dim: #5a6379;
+  --accent: #7c5cff;
+  --accent-2: #22d3ee;
+  --accent-soft: #2a2350;
+  --accent-text: #ffffff;
+  --success: #34d399;
+  --warning: #fbbf24;
+  --danger: #fb7185;
+  --info: #60a5fa;
+  --glass: rgba(255,255,255,.03);
+  --shadow: 0 50px 90px -30px rgba(0,0,0,.95), 0 10px 30px -10px rgba(0,0,0,.6);
+}
+
+[data-theme="nebula"] {
+  --backdrop: #0a0410;
+  --backdrop-2: #170a24;
+  --panel: #170c24;
+  --surface: #22122f;
+  --surface-hover: #2b183c;
+  --surface-active: #37204c;
+  --elevated: #2a1740;
+  --stroke: #3a2053;
+  --stroke-soft: #2a1740;
+  --stroke-bright: #5a3479;
+  --text: #f6ecff;
+  --muted: #a78fc0;
+  --dim: #6e5588;
+  --accent: #ff5cc8;
+  --accent-2: #a855f7;
+  --accent-soft: #3e1244;
+  --accent-text: #ffffff;
+  --success: #4ade80;
+  --warning: #fcd34d;
+  --danger: #ff6b81;
+  --info: #c084fc;
+  --glass: rgba(255,255,255,.03);
+  --shadow: 0 50px 90px -30px rgba(20,0,30,.95), 0 10px 30px -10px rgba(20,0,30,.7);
+}
+
+[data-theme="emerald"] {
+  --backdrop: #04090a;
+  --backdrop-2: #08161a;
+  --panel: #0b1414;
+  --surface: #10201e;
+  --surface-hover: #152a27;
+  --surface-active: #1b3631;
+  --elevated: #142823;
+  --stroke: #1d3a34;
+  --stroke-soft: #152a26;
+  --stroke-bright: #2f5a50;
+  --text: #e6fbf4;
+  --muted: #82a79c;
+  --dim: #547066;
+  --accent: #10b981;
+  --accent-2: #5eead4;
+  --accent-soft: #0f3a2f;
+  --accent-text: #03120e;
+  --success: #34d399;
+  --warning: #fbbf24;
+  --danger: #f87171;
+  --info: #38bdf8;
+  --glass: rgba(255,255,255,.03);
+  --shadow: 0 50px 90px -30px rgba(0,10,8,.95), 0 10px 30px -10px rgba(0,10,8,.7);
+}
+
+[data-theme="daylight"] {
+  --backdrop: #dde2ef;
+  --backdrop-2: #eef2fa;
+  --panel: #ffffff;
+  --surface: #f2f5fb;
+  --surface-hover: #e8edf8;
+  --surface-active: #dce3f3;
+  --elevated: #ffffff;
+  --stroke: #dce2f0;
+  --stroke-soft: #e7ebf5;
+  --stroke-bright: #c3cce0;
+  --text: #111827;
+  --muted: #6b7690;
+  --dim: #98a1b5;
+  --accent: #6d5bff;
+  --accent-2: #12b5d6;
+  --accent-soft: #edebff;
+  --accent-text: #ffffff;
+  --success: #12b76a;
+  --warning: #e2a008;
+  --danger: #f04438;
+  --info: #2e90fa;
+  --glass: rgba(255,255,255,.6);
+  --shadow: 0 50px 90px -35px rgba(80,95,130,.45), 0 10px 24px -12px rgba(80,95,130,.35);
+}
+
+/* ------------------------------- BASE ----------------------------- */
+html, body { height: 100%; margin: 0; overflow: hidden; }
+
+body {
+  font-family: var(--font);
+  background:
+    radial-gradient(900px 600px at 18% 0%, color-mix(in srgb, var(--accent) 22%, transparent), transparent 60%),
+    radial-gradient(800px 700px at 88% 100%, color-mix(in srgb, var(--accent-2) 16%, transparent), transparent 62%),
+    linear-gradient(160deg, var(--backdrop), var(--backdrop-2));
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 26px;
+  overflow: hidden;
+  transition: background .5s var(--ease);
+  -webkit-font-smoothing: antialiased;
+}
+
+.stage {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  perspective: 1600px;
+}
+
+.grid-overlay {
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(to right, rgba(255,255,255,.055) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255,255,255,.055) 1px, transparent 1px);
+  background-size: 46px 46px;
+  mask-image: radial-gradient(circle at 50% 45%, black, transparent 72%);
+  -webkit-mask-image: radial-gradient(circle at 50% 45%, black, transparent 72%);
+  opacity: .55;
+  pointer-events: none;
+}
+
+[data-theme="daylight"] .grid-overlay { opacity: .5; }
+
+.stage-hint {
+  position: absolute;
+  top: 18px;
+  left: 22px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 11px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--dim);
+  font-weight: 600;
+  user-select: none;
+}
+
+.stage-hint .pulse {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--success);
+  box-shadow: 0 0 0 0 color-mix(in srgb, var(--success) 60%, transparent);
+  animation: pulse 2.4s infinite;
+}
+
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--success) 55%, transparent); }
+  70% { box-shadow: 0 0 0 9px transparent; }
+  100% { box-shadow: 0 0 0 0 transparent; }
+}
+
+/* ------------------------------- WINDOW --------------------------- */
+.window {
+  position: relative;
+  width: min(900px, 96vw);
+  height: min(580px, 82vh);
+  min-width: 620px;
+  min-height: 420px;
+  background: linear-gradient(180deg, var(--glass), transparent 140px), var(--panel);
+  border: 1px solid var(--stroke);
+  border-radius: 18px;
+  box-shadow: var(--shadow), 0 0 0 1px rgba(255,255,255,.03) inset;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transform-origin: center;
+  transition: opacity .2s var(--ease), transform .35s var(--spring), height .32s var(--ease);
+  z-index: 2;
+}
+
+.window::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--accent) 60%, transparent), transparent);
+  opacity: .7;
+}
+
+.resize-grip {
+  position: absolute;
+  right: 3px; bottom: 3px;
+  width: 16px; height: 16px;
+  display: grid;
+  place-items: center;
+  cursor: nwse-resize;
+  z-index: 40;
+  opacity: .55;
+  transition: opacity .16s;
+}
+
+.resize-grip:hover { opacity: 1; }
+
+.resize-grip::before,
+.resize-grip::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--stroke-bright);
+  transform: rotate(-45deg);
+  transform-origin: right center;
+}
+
+.resize-grip::before { width: 7px; bottom: 3px; }
+.resize-grip::after { width: 12px; bottom: 7px; }
+
+.window.closed { opacity: 0; transform: scale(.94); pointer-events: none; }
+.window.minimized { height: var(--titlebar-h); }
+
+.window.dragging { transition: none; }
+
+/* Title bar --------------------------------------------------------- */
+.titlebar {
+  height: var(--titlebar-h);
+  min-height: var(--titlebar-h);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 14px;
+  cursor: grab;
+  user-select: none;
+  position: relative;
+  z-index: 30;
+}
+
+.titlebar:active { cursor: grabbing; }
+
+.logo {
+  width: 30px; height: 30px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  display: grid;
+  place-items: center;
+  color: var(--accent-text);
+  box-shadow: 0 6px 16px -6px color-mix(in srgb, var(--accent) 90%, transparent);
+  flex: none;
+}
+
+.logo svg { width: 15px; height: 15px; }
+
+.titles { line-height: 1.1; margin-right: auto; }
+.titles h1 {
+  font-size: 14px;
+  font-weight: 700;
+  margin: 0 0 3px;
+  letter-spacing: -.01em;
+}
+.titles p {
+  margin: 0;
+  font-size: 10px;
+  color: var(--dim);
+  font-weight: 500;
+  letter-spacing: .01em;
+}
+
+.searchbox {
+  position: relative;
+  width: 168px;
+  height: 30px;
+  flex: none;
+  display: flex;
+  align-items: center;
+  border-radius: 9px;
+  background: var(--surface);
+  border: 1px solid var(--stroke);
+  transition: border-color .18s, box-shadow .18s, width .2s var(--ease);
+}
+
+.searchbox:focus-within {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 16%, transparent);
+}
+
+.searchbox svg { width: 12px; height: 12px; color: var(--dim); margin-left: 10px; flex: none; }
+
+.searchbox input {
+  all: unset;
+  flex: 1;
+  height: 100%;
+  padding: 0 10px 0 8px;
+  font-size: 12px;
+  color: var(--text);
+  min-width: 0;
+}
+
+.searchbox input::placeholder { color: var(--dim); }
+
+.kbd-hint {
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--dim);
+  border: 1px solid var(--stroke);
+  border-radius: 5px;
+  padding: 2px 5px;
+  margin-right: 8px;
+  letter-spacing: .04em;
+  background: var(--panel);
+}
+
+.controls { display: flex; align-items: center; gap: 5px; flex: none; }
+
+.icon-btn {
+  width: 30px; height: 30px;
+  border-radius: 9px;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  transition: background .16s, color .16s, transform .16s var(--spring);
+}
+
+.icon-btn svg { width: 13px; height: 13px; }
+.icon-btn:hover { background: var(--surface-hover); color: var(--text); }
+.icon-btn:active { transform: scale(.92); }
+.icon-btn.danger:hover { background: var(--danger); color: #fff; }
+.icon-btn .dot {
+  position: absolute;
+  width: 5px; height: 5px; border-radius: 50%;
+  background: var(--danger);
+  transform: translate(9px, -9px);
+  box-shadow: 0 0 0 2px var(--panel);
+}
+
+/* Body -------------------------------------------------------------- */
+.body {
+  flex: 1;
+  display: flex;
+  min-height: 0;
+  transition: opacity .2s var(--ease);
+}
+
+.window.minimized .body,
+.window.minimized .footer { opacity: 0; pointer-events: none; }
+
+/* Rail -------------------------------------------------------------- */
+.rail {
+  width: var(--rail-w);
+  flex: none;
+  border-right: 1px solid var(--stroke-soft);
+  padding: 12px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: center;
+  position: relative;
+}
+
+.rail-btn {
+  width: 52px; height: 52px;
+  border: 0;
+  border-radius: 15px;
+  background: transparent;
+  color: var(--muted);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  position: relative;
+  transition: background .18s var(--ease), color .18s, transform .18s var(--spring);
+}
+
+.rail-btn svg { width: 20px; height: 20px; transition: transform .2s var(--spring); }
+.rail-btn:hover { background: var(--surface-hover); color: var(--text); }
+.rail-btn:active { transform: scale(.94); }
+
+.rail-btn.active {
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  color: var(--accent-text);
+  box-shadow: 0 10px 22px -12px color-mix(in srgb, var(--accent) 95%, transparent);
+}
+
+.rail-btn .badge {
+  position: absolute;
+  top: 3px; right: 3px;
+  box-shadow: 0 0 0 2px var(--panel);
+  min-width: 15px; height: 15px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: var(--danger);
+  color: #fff;
+  font-size: 9px;
+  font-weight: 800;
+  display: grid;
+  place-items: center;
+  box-shadow: 0 0 0 2px var(--panel);
+}
+
+.rail-indicator {
+  position: absolute;
+  left: 0;
+  width: 3px; height: 24px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, var(--accent), var(--accent-2));
+  transition: top .42s var(--spring);
+  pointer-events: none;
+}
+
+.rail-spacer { flex: 1; }
+
+.avatar {
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 35% 30%, color-mix(in srgb, var(--accent-2) 85%, #fff), transparent 60%),
+    linear-gradient(140deg, var(--accent), var(--accent-soft));
+  border: 1px solid var(--stroke);
+  position: relative;
+  flex: none;
+  cursor: pointer;
+  transition: transform .2s var(--spring), box-shadow .2s;
+  display: grid;
+  place-items: center;
+  color: var(--accent-text);
+  font-weight: 800;
+  font-size: 13px;
+}
+
+.avatar:hover { transform: translateY(-2px); box-shadow: 0 10px 20px -12px color-mix(in srgb, var(--accent) 90%, transparent); }
+
+.avatar::after {
+  content: "";
+  position: absolute;
+  right: -1px; bottom: -1px;
+  width: 11px; height: 11px;
+  border-radius: 50%;
+  background: var(--success);
+  border: 2px solid var(--panel);
+}
+
+/* Pages ------------------------------------------------------------- */
+.pages {
+  flex: 1;
+  min-width: 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.page {
+  position: absolute;
+  inset: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 6px 8px 14px 6px;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(6px);
+  transition: opacity .2s var(--ease), transform .24s var(--ease), visibility .2s;
+  scrollbar-width: thin;
+  scrollbar-color: var(--stroke-bright) transparent;
+}
+
+.page.active { opacity: 1; visibility: visible; transform: none; }
+
+.pages::after {
+  content: "";
+  position: absolute;
+  left: 0; right: 6px; bottom: 0;
+  height: 38px;
+  background: linear-gradient(to top, var(--panel) 10%, transparent);
+  pointer-events: none;
+  z-index: 5;
+}
+
+.page::-webkit-scrollbar { width: 6px; }
+.page::-webkit-scrollbar-track { background: transparent; }
+.page::-webkit-scrollbar-thumb {
+  background: var(--stroke-bright);
+  border-radius: 999px;
+  opacity: .6;
+}
+
+.stack { display: flex; flex-direction: column; gap: 10px; }
+
+/* Stat grid --------------------------------------------------------- */
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--stroke-soft);
+  border-radius: 14px;
+  padding: 12px;
+  height: 96px;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: border-color .2s, transform .2s var(--ease);
+}
+
+.stat-card:hover { border-color: color-mix(in srgb, var(--accent) 40%, var(--stroke)); transform: translateY(-1px); }
+
+.stat-head { display: flex; align-items: center; gap: 7px; }
+
+.stat-icon {
+  width: 20px; height: 20px;
+  border-radius: 6px;
+  display: grid;
+  place-items: center;
+  flex: none;
+  background: color-mix(in srgb, var(--accent) 22%, transparent);
+  color: var(--accent);
+}
+.stat-icon svg { width: 11px; height: 11px; }
+.stat-icon.success { background: color-mix(in srgb, var(--success) 22%, transparent); color: var(--success); }
+.stat-icon.warning { background: color-mix(in srgb, var(--warning) 22%, transparent); color: var(--warning); }
+
+.stat-title { font-size: 11px; font-weight: 600; color: var(--muted); }
+
+.stat-row { display: flex; align-items: center; gap: 8px; margin-top: 6px; }
+
+.stat-value {
+  font-size: 21px;
+  font-weight: 800;
+  letter-spacing: -.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+.delta {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 10px;
+  font-weight: 800;
+  padding: 2px 6px;
+  border-radius: 999px;
+  color: var(--success);
+  background: color-mix(in srgb, var(--success) 16%, transparent);
+}
+.delta svg { width: 9px; height: 9px; }
+.delta.down { color: var(--danger); background: color-mix(in srgb, var(--danger) 16%, transparent); }
+
+.spark {
+  position: absolute;
+  left: 12px; right: 12px; bottom: 12px;
+  height: 24px;
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+}
+
+.spark i {
+  flex: 1;
+  border-radius: 2px;
+  background: linear-gradient(180deg, var(--accent), color-mix(in srgb, var(--accent) 35%, transparent));
+  opacity: .55;
+  transition: height .5s var(--ease);
+}
+
+/* Section ----------------------------------------------------------- */
+.section {
+  background: var(--surface);
+  border: 1px solid var(--stroke-soft);
+  border-radius: 14px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.section-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 -6px 6px;
+  padding: 4px 6px;
+  border-radius: 9px;
+  cursor: pointer;
+  user-select: none;
+  transition: background .16s var(--ease), color .16s;
+}
+
+.section-head:hover {
+  background: var(--surface-hover);
+}
+
+.section-head:hover .section-chevron { color: var(--text); }
+.section-head:active { background: var(--surface-active); }
+
+.section-head .sec-icon { color: var(--accent); display: grid; place-items: center; }
+.section-head .sec-icon svg { width: 14px; height: 14px; }
+
+.section-title {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: -.01em;
+}
+
+.section-badge {
+  font-size: 9px;
+  font-weight: 800;
+  padding: 2px 5px;
+  border-radius: 5px;
+  color: var(--accent);
+  background: var(--accent-soft);
+  letter-spacing: .04em;
+}
+
+.section-desc {
+  font-size: 11px;
+  color: var(--muted);
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.section-chevron {
+  margin-left: auto;
+  color: var(--dim);
+  display: grid;
+  place-items: center;
+  transition: transform .24s var(--ease);
+}
+.section-chevron svg { width: 12px; height: 12px; }
+.section.collapsed .section-chevron { transform: rotate(-90deg); }
+.section.collapsed .section-body { display: none; }
+
+.section-body { display: flex; flex-direction: column; gap: 2px; }
+
+/* Row --------------------------------------------------------------- */
+.row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 44px;
+  padding: 6px 12px;
+  border-radius: 10px;
+  transition: background .16s;
+  position: relative;
+}
+
+.row:hover { background: var(--surface-hover); }
+.row.two-line { min-height: 52px; }
+
+.row-text { flex: 1; min-width: 0; }
+.row-name {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: -.005em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.row-desc {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.row.flash { animation: flash .9s var(--ease); }
+@keyframes flash {
+  0% { background: var(--accent-soft); }
+  100% { background: transparent; }
+}
+
+/* Divider ----------------------------------------------------------- */
+.divider { height: 1px; background: var(--stroke-soft); margin: 4px 0; border-radius: 1px; }
+
+.paragraph {
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.5;
+  padding: 6px 12px 8px;
+}
+
+/* Toggle ------------------------------------------------------------ */
+.switch {
+  width: 46px; height: 26px;
+  border-radius: 999px;
+  background: var(--surface-active);
+  border: 1px solid var(--stroke);
+  position: relative;
+  cursor: pointer;
+  flex: none;
+  transition: background .2s, border-color .2s;
+  padding: 0;
+}
+
+.switch::after {
+  content: "";
+  position: absolute;
+  top: 2px; left: 2px;
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform .38s var(--spring), background .2s;
+  box-shadow: 0 2px 6px rgba(0,0,0,.35);
+}
+
+.switch.on {
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  border-color: transparent;
+}
+
+.switch.on::after { transform: translateX(20px); }
+
+/* Slider ------------------------------------------------------------ */
+.slider { flex: 1; max-width: 100%; padding: 8px 12px 12px; border-radius: 10px; transition: background .16s; }
+.slider:hover { background: var(--surface-hover); }
+
+.slider-head { display: flex; align-items: flex-start; gap: 10px; }
+.slider-head .row-text { flex: 1; }
+
+.value-pill {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--accent);
+  background: var(--accent-soft);
+  border-radius: 6px;
+  padding: 3px 8px;
+  font-variant-numeric: tabular-nums;
+  flex: none;
+  white-space: nowrap;
+}
+
+.track {
+  position: relative;
+  height: 22px;
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  touch-action: none;
+}
+
+.track-base {
+  position: absolute;
+  left: 0; right: 0;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--surface-active);
+}
+
+.track-fill {
+  position: absolute;
+  left: 0;
+  height: 6px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  width: 50%;
+}
+
+.track-knob {
+  position: absolute;
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  background: #fff;
+  border: 2px solid var(--accent);
+  transform: translateX(-50%);
+  box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 40%, transparent);
+  transition: box-shadow .18s, width .16s var(--spring), height .16s var(--spring);
+  left: 50%;
+  pointer-events: none;
+}
+
+.track:hover .track-knob,
+.track.dragging .track-knob {
+  box-shadow: 0 0 0 7px color-mix(in srgb, var(--accent) 16%, transparent);
+  width: 16px; height: 16px;
+}
+
+/* Dropdown ---------------------------------------------------------- */
+.drop {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 30px;
+  padding: 0 10px;
+  border-radius: 8px;
+  background: var(--surface);
+  border: 1px solid var(--stroke);
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  flex: none;
+  max-width: 190px;
+  transition: border-color .16s, background .16s;
+}
+
+.drop:hover { background: var(--surface-hover); border-color: var(--stroke-bright); }
+.drop .drop-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 132px; }
+.drop svg { width: 12px; height: 12px; color: var(--dim); flex: none; transition: transform .2s var(--ease); }
+.drop.open svg { transform: rotate(180deg); }
+
+/* Textbox ----------------------------------------------------------- */
+.input-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 30px;
+  padding: 0 10px;
+  border-radius: 8px;
+  background: var(--surface);
+  border: 1px solid var(--stroke);
+  flex: none;
+  width: 180px;
+  transition: border-color .16s, box-shadow .16s;
+}
+
+.input-wrap:focus-within {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 15%, transparent);
+}
+
+.input-wrap svg { width: 12px; height: 12px; color: var(--dim); flex: none; }
+
+.input-wrap input {
+  all: unset;
+  flex: 1;
+  min-width: 0;
+  font-size: 12px;
+  color: var(--text);
+  font-family: var(--font);
+}
+
+.input-wrap input::placeholder { color: var(--dim); }
+
+/* Keybind ----------------------------------------------------------- */
+.keybind {
+  min-width: 96px;
+  height: 28px;
+  padding: 0 10px;
+  border-radius: 7px;
+  border: 1px solid var(--stroke);
+  background: var(--surface);
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  flex: none;
+  transition: all .16s;
+  letter-spacing: .02em;
+}
+
+.keybind:hover { background: var(--surface-hover); color: var(--text); }
+.keybind.listening {
+  color: var(--accent);
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  animation: blink 1.1s infinite;
+}
+
+@keyframes blink { 50% { opacity: .55; } }
+
+/* Color trigger ----------------------------------------------------- */
+.color-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 28px;
+  padding: 0 9px;
+  border-radius: 7px;
+  border: 1px solid var(--stroke);
+  background: var(--surface);
+  cursor: pointer;
+  flex: none;
+  transition: border-color .16s, background .16s;
+}
+
+.color-trigger:hover { background: var(--surface-hover); border-color: var(--stroke-bright); }
+.color-trigger .sw { width: 16px; height: 16px; border-radius: 5px; border: 1px solid rgba(0,0,0,.35); flex: none; }
+.color-trigger span { font-size: 11px; font-weight: 700; color: var(--text); font-family: var(--mono); }
+
+/* Buttons ----------------------------------------------------------- */
+.btn {
+  border: 0;
+  border-radius: 8px;
+  font-family: var(--font);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--stroke);
+  height: 30px;
+  padding: 0 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  flex: none;
+  transition: transform .12s var(--spring), background .16s, border-color .16s, box-shadow .2s;
+  letter-spacing: -.005em;
+}
+
+.btn svg { width: 13px; height: 13px; }
+.btn:hover { background: var(--surface-hover); border-color: var(--stroke-bright); }
+.btn:active { transform: scale(.97); }
+
+.btn.primary {
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  border-color: transparent;
+  color: var(--accent-text);
+  box-shadow: 0 12px 24px -14px color-mix(in srgb, var(--accent) 95%, transparent);
+}
+
+.btn.primary:hover { filter: brightness(1.06); }
+
+.btn.ghost { background: transparent; border-color: transparent; color: var(--muted); }
+.btn.ghost:hover { background: var(--surface-hover); color: var(--text); }
+
+.btn.danger {
+  background: color-mix(in srgb, var(--danger) 14%, transparent);
+  border-color: color-mix(in srgb, var(--danger) 45%, transparent);
+  color: var(--danger);
+}
+
+.btn.block { width: 100%; height: 38px; border-radius: 10px; }
+.btn.wide { width: 100%; }
+
+.btn .ripple {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255,255,255,.45);
+  transform: translate(-50%, -50%) scale(0);
+  animation: ripple .55s var(--ease) forwards;
+  pointer-events: none;
+}
+
+@keyframes ripple {
+  to { transform: translate(-50%, -50%) scale(2.4); opacity: 0; }
+}
+
+/* Footer ------------------------------------------------------------ */
+.footer {
+  height: var(--footer-h);
+  min-height: var(--footer-h);
+  border-top: 1px solid var(--stroke-soft);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 14px;
+  transition: opacity .2s;
+  font-size: 10px;
+  color: var(--dim);
+}
+
+.topbar-strip { display: flex; align-items: center; gap: 6px; }
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 20px;
+  padding: 0 7px;
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--surface) 60%, transparent);
+  color: var(--dim);
+  font-weight: 600;
+  font-size: 10px;
+  cursor: default;
+  transition: background .16s, color .16s;
+}
+
+.chip.clickable { cursor: pointer; }
+.chip.clickable:hover { background: var(--surface-hover); color: var(--text); }
+.chip .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--success); }
+.chip .sw { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); }
+
+.footer-center { margin: 0 auto; display: flex; align-items: center; gap: 6px; }
+
+/* Popovers ---------------------------------------------------------- */
+.popover {
+  position: absolute;
+  z-index: 80;
+  background: var(--elevated);
+  border: 1px solid var(--stroke-bright);
+  border-radius: 12px;
+  padding: 6px;
+  box-shadow: 0 30px 60px -20px rgba(0,0,0,.75);
+  opacity: 0;
+  transform: translateY(-4px) scale(.97);
+  transition: opacity .16s var(--ease), transform .18s var(--ease);
+  pointer-events: none;
+  max-height: 280px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.popover.open { opacity: 1; transform: none; pointer-events: auto; }
+
+.pop-search {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  height: 30px;
+  padding: 0 8px;
+  margin-bottom: 4px;
+  background: var(--surface);
+  border-radius: 7px;
+  flex: none;
+}
+.pop-search svg { width: 12px; height: 12px; color: var(--dim); }
+.pop-search input {
+  all: unset;
+  flex: 1;
+  font-size: 12px;
+  color: var(--text);
+  font-family: var(--font);
+  min-width: 0;
+}
+.pop-search input::placeholder { color: var(--dim); }
+
+.pop-list { overflow-y: auto; display: flex; flex-direction: column; gap: 2px; }
+.pop-list::-webkit-scrollbar { width: 5px; }
+.pop-list::-webkit-scrollbar-thumb { background: var(--stroke-bright); border-radius: 999px; }
+
+.pop-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 30px;
+  padding: 0 8px;
+  border-radius: 7px;
+  font-size: 12px;
+  cursor: pointer;
+  color: var(--text);
+  border: 0;
+  background: transparent;
+  font-family: var(--font);
+  text-align: left;
+  transition: background .12s;
+}
+
+.pop-item:hover { background: var(--surface-hover); }
+.pop-item .check { margin-left: auto; color: var(--accent); display: none; }
+.pop-item .check svg { width: 12px; height: 12px; }
+.pop-item.selected .check { display: block; }
+.pop-item.selected { color: var(--accent); font-weight: 600; }
+
+/* Color picker popover ---------------------------------------------- */
+.picker { width: 236px; padding: 10px; gap: 8px; }
+
+.sv {
+  position: relative;
+  height: 108px;
+  border-radius: 8px;
+  overflow: hidden;
+  cursor: crosshair;
+  touch-action: none;
+  background:
+    linear-gradient(to top, #000, transparent),
+    linear-gradient(to right, #fff, transparent),
+    var(--sv-hue, #7c5cff);
+}
+
+.sv-cursor {
+  position: absolute;
+  width: 12px; height: 12px;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  box-shadow: 0 0 0 1px rgba(0,0,0,.4);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.hue {
+  position: relative;
+  height: 12px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #f00, #ff0, #0f0, #0ff, #00f, #f0f, #f00);
+  cursor: pointer;
+  touch-action: none;
+}
+
+.hue-knob {
+  position: absolute;
+  top: 50%;
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  background: #fff;
+  border: 1px solid rgba(0,0,0,.35);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.picker-bottom { display: flex; align-items: center; gap: 8px; }
+
+.hex-field {
+  flex: 1;
+  height: 30px;
+  border-radius: 7px;
+  background: var(--surface);
+  display: flex;
+  align-items: center;
+  padding: 0 8px;
+}
+
+.hex-field input {
+  all: unset;
+  width: 100%;
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--text);
+}
+
+.picker-preview {
+  width: 100px;
+  height: 30px;
+  border-radius: 7px;
+  border: 1px solid rgba(255,255,255,.14);
+}
+
+.presets { display: flex; gap: 6px; }
+.presets button {
+  width: 20px; height: 20px;
+  border-radius: 6px;
+  border: 1px solid rgba(255,255,255,.16);
+  cursor: pointer;
+  padding: 0;
+  transition: transform .16s var(--spring);
+}
+.presets button:hover { transform: scale(1.14); }
+
+/* Toasts ------------------------------------------------------------ */
+.toasts {
+  position: absolute;
+  top: calc(var(--titlebar-h) + 8px);
+  right: 16px;
+  width: 280px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 90;
+  pointer-events: none;
+}
+
+.toast {
+  position: relative;
+  background: var(--elevated);
+  border: 1px solid var(--stroke-bright);
+  border-radius: 12px;
+  padding: 12px 14px 12px 16px;
+  display: flex;
+  gap: 10px;
+  box-shadow: 0 24px 44px -22px rgba(0,0,0,.85);
+  overflow: hidden;
+  pointer-events: auto;
+  animation: toast-in .38s var(--spring);
+  cursor: pointer;
+}
+
+.toast.out { animation: toast-out .2s var(--ease) forwards; }
+
+@keyframes toast-in {
+  from { opacity: 0; transform: translateX(26px) scale(.94); }
+  to { opacity: 1; transform: none; }
+}
+
+/* keyboard focus is always visible */
+:where(button, [tabindex], input, a):focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 10px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
+}
+
+@keyframes toast-out {
+  to { opacity: 0; transform: translateX(20px) scale(.94); height: 0; padding-top: 0; padding-bottom: 0; margin-top: -8px; }
+}
+
+.toast .rail-line {
+  position: absolute;
+  left: 0; top: 12px; bottom: 12px;
+  width: 3px;
+  border-radius: 999px;
+  background: var(--tone, var(--accent));
+}
+
+.toast .badge {
+  width: 26px; height: 26px;
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  flex: none;
+  background: color-mix(in srgb, var(--tone, var(--accent)) 20%, transparent);
+  color: var(--tone, var(--accent));
+}
+
+.toast .badge svg { width: 13px; height: 13px; }
+
+.toast-text { flex: 1; min-width: 0; }
+.toast-title { font-size: 13px; font-weight: 700; letter-spacing: -.01em; }
+.toast-body { font-size: 11px; color: var(--muted); margin-top: 2px; line-height: 1.4; }
+
+.toast-close {
+  border: 0;
+  background: transparent;
+  color: var(--dim);
+  cursor: pointer;
+  width: 20px; height: 20px;
+  border-radius: 6px;
+  display: grid;
+  place-items: center;
+  flex: none;
+  padding: 0;
+}
+.toast-close svg { width: 9px; height: 9px; }
+.toast-close:hover { background: var(--surface-hover); color: var(--text); }
+
+.toast-progress {
+  position: absolute;
+  left: 16px; right: 14px; bottom: 4px;
+  height: 2px;
+  border-radius: 999px;
+  background: var(--stroke-soft);
+  overflow: hidden;
+}
+
+.toast-progress i {
+  display: block;
+  height: 100%;
+  background: var(--tone, var(--accent));
+  border-radius: 999px;
+  animation: shrink linear forwards;
+}
+
+@keyframes shrink { from { width: 100%; } to { width: 0%; } }
+
+/* Search results ---------------------------------------------------- */
+.results {
+  position: absolute;
+  right: 14px;
+  top: calc(var(--titlebar-h) - 2px);
+  z-index: 120;
+  width: 328px;
+  background: var(--elevated);
+  border: 1px solid var(--stroke-bright);
+  border-radius: 12px;
+  padding: 6px;
+  display: none;
+  flex-direction: column;
+  gap: 2px;
+  box-shadow: 0 30px 60px -24px rgba(0,0,0,.8);
+}
+
+.results.open { display: flex; }
+
+.result-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: 8px;
+  cursor: pointer;
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  font-family: var(--font);
+  text-align: left;
+  width: 100%;
+}
+
+.result-item:hover { background: var(--surface-hover); }
+.result-item .rt { flex: 1; min-width: 0; }
+.result-item .rt b { display: block; font-size: 12px; font-weight: 600; }
+.result-item .rt span { display: block; font-size: 10px; color: var(--dim); margin-top: 1px; }
+.result-item .jump {
+  width: 24px; height: 20px;
+  border-radius: 6px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  display: grid;
+  place-items: center;
+  flex: none;
+}
+.result-item .jump svg { width: 9px; height: 9px; }
+
+.empty-note {
+  font-size: 11px;
+  color: var(--dim);
+  padding: 10px 8px;
+  text-align: center;
+}
+
+/* Modal ------------------------------------------------------------- */
+.modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,.5);
+  backdrop-filter: blur(3px);
+  display: none;
+  place-items: center;
+  z-index: 95;
+  opacity: 0;
+  transition: opacity .2s;
+}
+
+.modal-backdrop.open { display: grid; opacity: 1; }
+
+.modal {
+  width: 340px;
+  background: var(--elevated);
+  border: 1px solid var(--stroke-bright);
+  border-radius: 16px;
+  padding: 18px;
+  box-shadow: 0 40px 80px -30px rgba(0,0,0,.9);
+  animation: modal-in .32s var(--spring);
+}
+
+@keyframes modal-in {
+  from { opacity: 0; transform: scale(.94) translateY(8px); }
+  to { opacity: 1; transform: none; }
+}
+
+.modal h3 { margin: 0 0 8px; font-size: 15px; letter-spacing: -.01em; }
+.modal p { margin: 0 0 14px; font-size: 12px; color: var(--muted); line-height: 1.55; white-space: pre-line; }
+.modal-actions { display: flex; justify-content: flex-end; gap: 8px; }
+
+/* Launch pill ------------------------------------------------------- */
+.launch {
+  position: absolute;
+  bottom: 22px;
+  left: 22px;
+  display: none;
+  align-items: center;
+  gap: 8px;
+  height: 36px;
+  padding: 0 16px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  color: var(--accent-text);
+  font-size: 12px;
+  font-weight: 700;
+  border: 0;
+  cursor: pointer;
+  font-family: var(--font);
+  box-shadow: 0 16px 30px -16px color-mix(in srgb, var(--accent) 95%, transparent);
+  z-index: 5;
+}
+
+.launch.show { display: inline-flex; }
+
+/* Utility ----------------------------------------------------------- */
+.tooltip {
+  position: fixed;
+  z-index: 200;
+  background: var(--elevated);
+  border: 1px solid var(--stroke-bright);
+  color: var(--text);
+  font-size: 11px;
+  font-weight: 500;
+  padding: 5px 9px;
+  border-radius: 7px;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(3px);
+  transition: opacity .14s, transform .14s;
+  box-shadow: 0 12px 24px -12px rgba(0,0,0,.8);
+  white-space: nowrap;
+}
+
+.tooltip.show { opacity: 1; transform: none; }
+
+@media (max-width: 760px) {
+  body { padding: 10px; }
+  .window { min-width: 0; width: 100%; height: 88vh; }
+  .rail { width: 60px; }
+  .rail-btn { width: 44px; height: 44px; }
+  .searchbox { width: 110px; }
+  .stat-grid { grid-template-columns: 1fr; }
+  .toasts { width: calc(100% - 32px); }
+  .stage-hint { display: none; }
+}
+</style>
+</head>
+
+<body>
+<!-- ============================ ICON SPRITE ======================= -->
+<svg style="display:none" aria-hidden="true">
+  <symbol id="i-home" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/><path d="M9.5 21v-6h5v6"/></symbol>
+  <symbol id="i-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v6c0 4.2-2.9 7.7-7 9-4.1-1.3-7-4.8-7-9V6z"/><path d="M9.5 12l1.8 1.8 3.4-3.6"/></symbol>
+  <symbol id="i-eye" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="2.6"/></symbol>
+  <symbol id="i-sliders" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M4 12h16M4 17h16"/><circle cx="14" cy="7" r="2.4" fill="currentColor" stroke="none"/><circle cx="8" cy="12" r="2.4" fill="currentColor" stroke="none"/><circle cx="16" cy="17" r="2.4" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="i-gear" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.1"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1.03 1.56V21a2 2 0 1 1-4 0v-.1A1.7 1.7 0 0 0 9 19.4a1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.7 1.7 0 0 0 .34-1.87 1.7 1.7 0 0 0-1.56-1.03H3a2 2 0 1 1 0-4h.1A1.7 1.7 0 0 0 4.6 9a1.7 1.7 0 0 0-.34-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1.03-1.56V3a2 2 0 1 1 4 0v.1A1.7 1.7 0 0 0 15 4.6a1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.7 1.7 0 0 0 19.4 9v.1a1.7 1.7 0 0 0 1.56 1.03H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1.02z"/></symbol>
+  <symbol id="i-sparkle" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.5l1.9 5.6 5.6 1.9-5.6 1.9L12 17.5l-1.9-5.6L4.5 10l5.6-1.9z"/><circle cx="19" cy="18.5" r="1.6"/><circle cx="5.6" cy="18" r="1.1"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="6.4"/><path d="M15.8 15.8 21 21"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4 8.5 8.5 0 1 0 20 14.5z"/></symbol>
+  <symbol id="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2.4M12 19.6V22M2 12h2.4M19.6 12H22M4.9 4.9l1.7 1.7M17.4 17.4l1.7 1.7M19.1 4.9l-1.7 1.7M6.6 17.4l-1.7 1.7"/></symbol>
+  <symbol id="i-bell" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9a6 6 0 1 1 12 0c0 4 1.6 5.6 1.6 5.6H4.4S6 13 6 9z"/><path d="M10 18.5a2 2 0 0 0 4 0"/></symbol>
+  <symbol id="i-minus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M5 12h14"/></symbol>
+  <symbol id="i-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5 9.5 17.5 19.5 6.5"/></symbol>
+  <symbol id="i-chev-down" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9.5l6 6 6-6"/></symbol>
+  <symbol id="i-chev-up" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 14.5l6-6 6 6"/></symbol>
+  <symbol id="i-chev-right" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 6l6 6-6 6"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-trash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 4.5h6M6.5 7l.9 12.2A1.8 1.8 0 0 0 9.2 21h5.6a1.8 1.8 0 0 0 1.8-1.8L17.5 7"/><path d="M10 11v6M14 11v6"/></symbol>
+  <symbol id="i-bolt" viewBox="0 0 24 24" fill="currentColor"><path d="M13.5 2 4 13.5h6L9.5 22 20 10.2h-6.4z"/></symbol>
+  <symbol id="i-cloud" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 18h9.5a3.5 3.5 0 0 0 .3-7A5.5 5.5 0 0 0 6.2 10A4 4 0 0 0 7 18z"/></symbol>
+  <symbol id="i-chart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4.5 20V13M10 20V8M15.5 20v-5M21 20V4.5"/></symbol>
+  <symbol id="i-user" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.6"/><path d="M4.8 20.5a7.2 7.2 0 0 1 14.4 0"/></symbol>
+  <symbol id="i-info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="8.6"/><path d="M12 11v5.4"/><circle cx="12" cy="7.9" r="1.1" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="i-warning" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 4.5 21 20H3z"/><path d="M12 10v4.4"/><circle cx="12" cy="17.4" r="1.1" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="i-code" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 7.5 4 12l4.5 4.5M15.5 7.5 20 12l-4.5 4.5"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="4.6" y="10.5" width="14.8" height="10" rx="3"/><path d="M8.2 10.5V8a3.8 3.8 0 0 1 7.6 0v2.5"/></symbol>
+  <symbol id="i-layers" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5 21 8l-9 4.5L3 8z"/><path d="M4.6 12.4 12 16l7.4-3.6"/><path d="M4.6 16.4 12 20l7.4-3.6"/></symbol>
+</svg>
+
+<div class="stage">
+  <div class="grid-overlay"></div>
+
+  <div class="stage-hint"><span class="pulse"></span> Aurora UI · interactive preview</div>
+
+  <!-- ============================== WINDOW ======================== -->
+  <div class="window" id="win">
+    <!-- Title bar -->
+    <header class="titlebar" id="titlebar">
+      <div class="logo"><svg><use href="#i-sparkle"/></svg></div>
+      <div class="titles">
+        <h1>Aurora</h1>
+        <p id="subtitle">v2.3.0 · demo build</p>
+      </div>
+
+      <div class="searchbox">
+        <svg><use href="#i-search"/></svg>
+        <input id="search" type="text" placeholder="Search settings…" autocomplete="off" spellcheck="false" />
+        <span class="kbd-hint">⇧R</span>
+      </div>
+
+      <div class="controls">
+        <button class="icon-btn" id="theme-btn" data-tip="Switch theme"><svg><use href="#i-moon"/></svg></button>
+        <button class="icon-btn" id="bell-btn" data-tip="Notification"><svg><use href="#i-bell"/></svg><span class="dot"></span></button>
+        <button class="icon-btn" id="min-btn" data-tip="Minimize"><svg><use href="#i-minus"/></svg></button>
+        <button class="icon-btn danger" id="close-btn" data-tip="Close"><svg><use href="#i-close"/></svg></button>
+      </div>
+    </header>
+
+    <!-- Body -->
+    <div class="body">
+      <nav class="rail" id="rail">
+        <div class="rail-indicator" id="rail-indicator" style="top:14px"></div>
+        <button class="rail-btn active" data-tab="home" data-tip="Home"><svg><use href="#i-home"/></svg></button>
+        <button class="rail-btn" data-tab="combat" data-tip="Gameplay"><svg><use href="#i-shield"/></svg><span class="badge">2</span></button>
+        <button class="rail-btn" data-tab="visuals" data-tip="Visuals"><svg><use href="#i-eye"/></svg></button>
+        <button class="rail-btn" data-tab="utilities" data-tip="Utilities"><svg><use href="#i-sliders"/></svg><span class="badge">3</span></button>
+        <button class="rail-btn" data-tab="settings" data-tip="Settings"><svg><use href="#i-gear"/></svg></button>
+        <div class="rail-spacer"></div>
+        <div class="avatar" data-tip="Signed in · Tier IV">AV</div>
+      </nav>
+
+      <div class="pages" id="pages">
+
+        <!-- ---------------------------- HOME ---------------------- -->
+        <section class="page active" data-page="home">
+          <div class="stack">
+            <div class="stat-grid">
+              <div class="stat-card" data-stat data-value="1840" data-format="time">
+                <div class="stat-head">
+                  <div class="stat-icon"><svg><use href="#i-cloud"/></svg></div>
+                  <div class="stat-title">Session time</div>
+                </div>
+                <div class="stat-row">
+                  <div class="stat-value" data-count>0:00</div>
+                  <div class="delta"><svg><use href="#i-chev-up"/></svg>12.4%</div>
+                </div>
+                <div class="spark" data-spark="4,6,5,8,7,11,9,13,12,15,14,18,17,20,19,24"></div>
+              </div>
+
+              <div class="stat-card" data-stat data-value="12480" data-format="k">
+                <div class="stat-head">
+                  <div class="stat-icon success"><svg><use href="#i-bolt"/></svg></div>
+                  <div class="stat-title">Actions fired</div>
+                </div>
+                <div class="stat-row">
+                  <div class="stat-value" data-count>0</div>
+                  <div class="delta"><svg><use href="#i-chev-up"/></svg>4.8%</div>
+                </div>
+                <div class="spark" data-spark="8,9,7,12,10,13,11,15,14,12,16,18,15,19,22,21"></div>
+              </div>
+
+              <div class="stat-card" data-stat data-value="68.4" data-format="mb">
+                <div class="stat-head">
+                  <div class="stat-icon warning"><svg><use href="#i-chart"/></svg></div>
+                  <div class="stat-title">Memory</div>
+                </div>
+                <div class="stat-row">
+                  <div class="stat-value" data-count>0</div>
+                  <div class="delta down"><svg><use href="#i-chev-down"/></svg>3.1%</div>
+                </div>
+                <div class="spark" data-spark="20,18,19,17,16,18,15,14,16,13,12,14,11,12,10,9"></div>
+              </div>
+            </div>
+
+            <div class="section" data-name="Quick actions">
+              <div class="section-head">
+                <span class="sec-icon"><svg><use href="#i-sparkle"/></svg></span>
+                <span class="section-title">Quick actions</span>
+                <span class="section-desc">The three things you will use most often.</span>
+                <span class="section-chevron"><svg><use href="#i-chev-down"/></svg></span>
+              </div>
+              <div class="section-body">
+                <div class="row" style="padding:6px 0">
+                  <button class="btn primary block" data-toast="success|Optimizer finished|Freed 214 MB and rebuilt 4 caches in 1.8 s.">
+                    <svg><use href="#i-bolt"/></svg> Run optimizer
+                  </button>
+                </div>
+                <div class="row" style="padding:6px 0">
+                  <button class="btn danger block" data-confirm="Reset everything|Configuration reset|All modules returned to their defaults.">
+                    <svg><use href="#i-trash"/></svg> Reset everything
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div class="section" data-name="Live overview">
+              <div class="section-head">
+                <span class="sec-icon"><svg><use href="#i-eye"/></svg></span>
+                <span class="section-title">Live overview</span>
+                <span class="section-desc">Streams values while the menu is open.</span>
+                <span class="section-chevron"><svg><use href="#i-chev-down"/></svg></span>
+              </div>
+              <div class="section-body">
+                <div class="slider" data-slider data-min="30" data-max="240" data-step="10" data-value="120" data-suffix=" fps" data-name="Target FPS">
+                  <div class="slider-head">
+                    <div class="row-text">
+                      <div class="row-name">Target FPS</div>
+                      <div class="row-desc">Frame cap applied while the menu is open.</div>
+                    </div>
+                    <div class="value-pill" data-pill>120 fps</div>
+                  </div>
+                  <div class="track" data-track>
+                    <div class="track-base"></div>
+                    <div class="track-fill"></div>
+                    <div class="track-knob"></div>
+                  </div>
+                </div>
+
+                <div class="row two-line" data-name="Stream metrics">
+                  <div class="row-text">
+                    <div class="row-name">Stream metrics</div>
+                    <div class="row-desc">Updates the cards above every second.</div>
+                  </div>
+                  <button class="switch on" data-toggle aria-label="Stream metrics"></button>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- -------------------------- COMBAT ---------------------- -->
+        <section class="page" data-page="combat">
+          <div class="stack">
+            <div class="section" data-name="Targeting">
+              <div class="section-head">
+                <span class="sec-icon"><svg><use href="#i-shield"/></svg></span>
+                <span class="section-title">Movement</span>
+                <span class="section-desc">Sprint behaviour and camera feel.</span>
+                <span class="section-chevron"><svg><use href="#i-chev-down"/></svg></span>
+              </div>
+              <div class="section-body">
+                <div class="row two-line" data-name="Auto sprint">
+                  <div class="row-text">
+                    <div class="row-name">Auto sprint</div>
+                    <div class="row-desc">Sprints while the move stick is held forward.</div>
+                  </div>
+                  <button class="switch on" data-toggle data-toast="success|Auto sprint on|You'll sprint automatically while moving."></button>
+                </div>
+
+                <div class="row two-line" data-name="Sprint lock">
+                  <div class="row-text">
+                    <div class="row-name">Sprint lock</div>
+                    <div class="row-desc">Keeps your speed while turning corners.</div>
+                  </div>
+                  <button class="switch" data-toggle></button>
+                </div>
+
+                <div class="slider" data-slider data-min="5" data-max="180" data-step="1" data-value="65" data-suffix="°" data-name="Field of view">
+                  <div class="slider-head">
+                    <div class="row-text">
+                      <div class="row-name">Field of view</div>
+                      <div class="row-desc">Camera field of view while sprinting.</div>
+                    </div>
+                    <div class="value-pill" data-pill>65°</div>
+                  </div>
+                  <div class="track" data-track>
+                    <div class="track-base"></div>
+                    <div class="track-fill"></div>
+                    <div class="track-knob"></div>
+                  </div>
+                </div>
+
+                <div class="row two-line" data-name="Camera mode">
+                  <div class="row-text">
+                    <div class="row-name">Camera mode</div>
+                    <div class="row-desc">How the camera follows your character.</div>
+                  </div>
+                  <button class="drop" data-drop data-options="First person,Third person,Orbit,Shoulder,Auto" data-value="First person">
+                    <span class="drop-label">First person</span><svg><use href="#i-chev-down"/></svg>
+                  </button>
+                </div>
+
+                <div class="row two-line" data-name="Quick menu key">
+                  <div class="row-text">
+                    <div class="row-name">Quick menu key</div>
+                    <div class="row-desc">Opens this menu from anywhere.</div>
+                  </div>
+                  <button class="keybind" data-keybind="F">F</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="section" data-name="Indicators">
+              <div class="section-head">
+                <span class="sec-icon"><svg><use href="#i-eye"/></svg></span>
+                <span class="section-title">HUD</span>
+                <span class="section-chevron"><svg><use href="#i-chev-down"/></svg></span>
+              </div>
+              <div class="section-body">
+                <div class="row two-line" data-name="HUD accent">
+                  <div class="row-text">
+                    <div class="row-name">HUD accent</div>
+                    <div class="row-desc">Applied to markers and waypoints.</div>
+                  </div>
+                  <button class="color-trigger" data-color="#7C5CFF">
+                    <span class="sw" style="background:#7C5CFF"></span><span class="hex">#7C5CFF</span>
+                  </button>
+                </div>
+                <div class="row" data-name="Waypoint markers">
+                  <div class="row-text"><div class="row-name">Waypoint markers</div></div>
+                  <button class="switch on" data-toggle></button>
+                </div>
+                <div class="row" data-name="Distance labels">
+                  <div class="row-text"><div class="row-name">Distance labels</div></div>
+                  <button class="switch on" data-toggle></button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- -------------------------- VISUALS --------------------- -->
+        <section class="page" data-page="visuals">
+          <div class="stack">
+            <div class="section" data-name="World">
+              <div class="section-head">
+                <span class="sec-icon"><svg><use href="#i-sun"/></svg></span>
+                <span class="section-title">World</span>
+                <span class="section-desc">Lighting and atmosphere tweaks.</span>
+                <span class="section-chevron"><svg><use href="#i-chev-down"/></svg></span>
+              </div>
+              <div class="section-body">
+                <div class="row" data-name="Brighter lighting">
+                  <div class="row-text"><div class="row-name">Brighter lighting</div></div>
+                  <button class="switch on" data-toggle></button>
+                </div>
+
+                <div class="slider" data-slider data-min="0" data-max="5" data-step="0.1" data-value="2" data-decimals="1" data-name="Brightness">
+                  <div class="slider-head">
+                    <div class="row-text"><div class="row-name">Brightness</div></div>
+                    <div class="value-pill" data-pill>2</div>
+                  </div>
+                  <div class="track" data-track>
+                    <div class="track-base"></div><div class="track-fill"></div><div class="track-knob"></div>
+                  </div>
+                </div>
+
+                <div class="row two-line" data-name="Weather effects">
+                  <div class="row-text">
+                    <div class="row-name">Weather effects</div>
+                    <div class="row-desc">Layer up to three effects.</div>
+                  </div>
+                  <button class="drop" data-drop data-multi="true" data-max="3"
+                    data-options="Rain,Snow,Fog,Leaves,Sparks,Heat haze,Dust"
+                    data-value="Fog">
+                    <span class="drop-label">Fog</span><svg><use href="#i-chev-down"/></svg>
+                  </button>
+                </div>
+
+                <div class="divider"></div>
+
+                <div class="slider" data-slider data-min="40" data-max="120" data-step="1" data-value="70" data-suffix="°" data-name="Camera FOV">
+                  <div class="slider-head">
+                    <div class="row-text"><div class="row-name">Camera FOV</div></div>
+                    <div class="value-pill" data-pill>70°</div>
+                  </div>
+                  <div class="track" data-track>
+                    <div class="track-base"></div><div class="track-fill"></div><div class="track-knob"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="section" data-name="Nameplates">
+              <div class="section-head">
+                <span class="sec-icon"><svg><use href="#i-user"/></svg></span>
+                <span class="section-title">Nameplates</span>
+                <span class="section-desc">Names, team colors and health bars.</span>
+                <span class="section-chevron"><svg><use href="#i-chev-down"/></svg></span>
+              </div>
+              <div class="section-body">
+                <div class="row" data-name="Show nameplates">
+                  <div class="row-text"><div class="row-name">Show nameplates</div></div>
+                  <button class="switch" data-toggle></button>
+                </div>
+                <div class="row" data-name="Team colors">
+                  <div class="row-text"><div class="row-name">Team colors</div></div>
+                  <button class="switch on" data-toggle></button>
+                </div>
+                <div class="row" data-name="Player names">
+                  <div class="row-text"><div class="row-name">Player names</div></div>
+                  <button class="switch on" data-toggle></button>
+                </div>
+                <div class="row" data-name="Health bars">
+                  <div class="row-text"><div class="row-name">Health bars</div></div>
+                  <button class="switch on" data-toggle></button>
+                </div>
+                <div class="row" data-name="Hostile color">
+                  <div class="row-text"><div class="row-name">Hostile color</div></div>
+                  <button class="color-trigger" data-color="#FB7185">
+                    <span class="sw" style="background:#FB7185"></span><span class="hex">#FB7185</span>
+                  </button>
+                </div>
+                <div class="row" data-name="Friendly color">
+                  <div class="row-text"><div class="row-name">Friendly color</div></div>
+                  <button class="color-trigger" data-color="#34D399">
+                    <span class="sw" style="background:#34D399"></span><span class="hex">#34D399</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ------------------------- UTILITIES -------------------- -->
+        <section class="page" data-page="utilities">
+          <div class="stack">
+            <div class="section" data-name="Server">
+              <div class="section-head">
+                <span class="sec-icon"><svg><use href="#i-cloud"/></svg></span>
+                <span class="section-title">Server</span>
+                <span class="section-desc">Region selection and queue behaviour.</span>
+                <span class="section-chevron"><svg><use href="#i-chev-down"/></svg></span>
+              </div>
+              <div class="section-body">
+                <div class="row two-line" data-name="Region">
+                  <div class="row-text">
+                    <div class="row-name">Region</div>
+                    <div class="row-desc">Closest datacenter is chosen automatically.</div>
+                  </div>
+                  <button class="drop" data-drop
+                    data-options="Singapore,Tokyo,Frankfurt,Virginia,Sydney,São Paulo,Dubai,Mumbai,Miami"
+                    data-value="Singapore">
+                    <span class="drop-label">Singapore</span><svg><use href="#i-chev-down"/></svg>
+                  </button>
+                </div>
+
+                <div class="row two-line" data-name="Server code">
+                  <div class="row-text">
+                    <div class="row-name">Server code</div>
+                    <div class="row-desc">Join a private server directly.</div>
+                  </div>
+                  <label class="input-wrap">
+                    <svg><use href="#i-lock"/></svg>
+                    <input type="text" placeholder="abc-123" maxlength="12" data-textbox />
+                  </label>
+                </div>
+
+                <div class="slider" data-slider data-min="0" data-max="30" data-step="1" data-value="4" data-suffix=" s" data-name="Rejoin delay">
+                  <div class="slider-head">
+                    <div class="row-text"><div class="row-name">Rejoin delay</div></div>
+                    <div class="value-pill" data-pill>4 s</div>
+                  </div>
+                  <div class="track" data-track>
+                    <div class="track-base"></div><div class="track-fill"></div><div class="track-knob"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="section" data-name="Chat commands">
+              <div class="section-head">
+                <span class="sec-icon"><svg><use href="#i-code"/></svg></span>
+                <span class="section-title">Chat commands</span>
+                <span class="section-chevron"><svg><use href="#i-chev-down"/></svg></span>
+              </div>
+              <div class="section-body">
+                <div class="row" data-name="Command prefix">
+                  <div class="row-text"><div class="row-name">Command prefix</div></div>
+                  <label class="input-wrap" style="width:90px"><input type="text" value="!" data-textbox /></label>
+                </div>
+                <div class="row two-line" data-name="Webhook URL">
+                  <div class="row-text">
+                    <div class="row-name">Webhook URL</div>
+                    <div class="row-desc">Optional. Used for log mirroring.</div>
+                  </div>
+                  <label class="input-wrap" style="width:200px">
+                    <input type="text" placeholder="https://discord.com/api/…" data-textbox />
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <div class="section" data-name="Notification lab">
+              <div class="section-head">
+                <span class="sec-icon"><svg><use href="#i-bell"/></svg></span>
+                <span class="section-title">Notification lab</span>
+                <span class="section-desc">Fire each toast type.</span>
+                <span class="section-chevron"><svg><use href="#i-chev-down"/></svg></span>
+              </div>
+              <div class="section-body">
+                <div class="row" data-name="Success toast">
+                  <div class="row-text"><div class="row-name">Success toast</div></div>
+                  <button class="btn" data-toast="success|Success toast|This is a live success notification with a progress bar.">Fire</button>
+                </div>
+                <div class="row" data-name="Warning toast">
+                  <div class="row-text"><div class="row-name">Warning toast</div></div>
+                  <button class="btn" data-toast="warning|Warning toast|This is a live warning notification with a progress bar.">Fire</button>
+                </div>
+                <div class="row" data-name="Error toast">
+                  <div class="row-text"><div class="row-name">Error toast</div></div>
+                  <button class="btn" data-toast="danger|Error toast|This is a live error notification with a progress bar.">Fire</button>
+                </div>
+                <div class="row" data-name="Info toast">
+                  <div class="row-text"><div class="row-name">Info toast</div></div>
+                  <button class="btn" data-toast="info|Info toast|This is a live info notification with a progress bar.">Fire</button>
+                </div>
+                <div class="row" style="padding:6px 0">
+                  <button class="btn primary block" data-toast-stack>Stack three toasts</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- -------------------------- SETTINGS -------------------- -->
+        <section class="page" data-page="settings">
+          <div class="stack">
+            <div class="section" data-name="Appearance">
+              <div class="section-head">
+                <span class="sec-icon"><svg><use href="#i-sun"/></svg></span>
+                <span class="section-title">Appearance</span>
+                <span class="section-desc">Palettes are data — add your own in one file.</span>
+                <span class="section-chevron"><svg><use href="#i-chev-down"/></svg></span>
+              </div>
+              <div class="section-body">
+                <div class="row two-line" data-name="Theme">
+                  <div class="row-text">
+                    <div class="row-name">Theme</div>
+                    <div class="row-desc">Re-paints every control instantly.</div>
+                  </div>
+                  <button class="drop" data-drop data-theme-picker
+                    data-options="Midnight,Nebula,Emerald,Daylight" data-value="Midnight">
+                    <span class="drop-label">Midnight</span><svg><use href="#i-chev-down"/></svg>
+                  </button>
+                </div>
+
+                <div class="row two-line" data-name="Accent override">
+                  <div class="row-text">
+                    <div class="row-name">Accent override</div>
+                    <div class="row-desc">Replaces the palette accent everywhere.</div>
+                  </div>
+                  <button class="color-trigger" data-color="#7C5CFF" data-accent-picker>
+                    <span class="sw" style="background:#7C5CFF"></span><span class="hex">#7C5CFF</span>
+                  </button>
+                </div>
+
+                <div class="slider" data-slider data-min="80" data-max="115" data-step="1" data-value="100" data-suffix="%" data-name="Menu scale">
+                  <div class="slider-head">
+                    <div class="row-text"><div class="row-name">Menu scale</div></div>
+                    <div class="value-pill" data-pill>100%</div>
+                  </div>
+                  <div class="track" data-track>
+                    <div class="track-base"></div><div class="track-fill"></div><div class="track-knob"></div>
+                  </div>
+                </div>
+
+                <div class="row two-line" data-name="Background blur">
+                  <div class="row-text">
+                    <div class="row-name">Background blur</div>
+                    <div class="row-desc">Blurs the game world behind the menu.</div>
+                  </div>
+                  <button class="switch on" data-toggle></button>
+                </div>
+
+                <div class="row" data-name="Hover highlights">
+                  <div class="row-text"><div class="row-name">Hover highlights</div></div>
+                  <button class="switch on" data-toggle></button>
+                </div>
+              </div>
+            </div>
+
+            <div class="section" data-name="Behaviour">
+              <div class="section-head">
+                <span class="sec-icon"><svg><use href="#i-sliders"/></svg></span>
+                <span class="section-title">Behaviour</span>
+                <span class="section-chevron"><svg><use href="#i-chev-down"/></svg></span>
+              </div>
+              <div class="section-body">
+                <div class="row two-line" data-name="Toggle menu">
+                  <div class="row-text">
+                    <div class="row-name">Toggle menu</div>
+                    <div class="row-desc">Global keybind.</div>
+                  </div>
+                  <button class="keybind" data-keybind="RIGHT SHIFT">RIGHT SHIFT</button>
+                </div>
+
+                <div class="row two-line" data-name="Block game input">
+                  <div class="row-text">
+                    <div class="row-name">Block game input</div>
+                    <div class="row-desc">Prevents clicks behind the window.</div>
+                  </div>
+                  <button class="switch on" data-toggle></button>
+                </div>
+
+                <div class="row" data-name="Close menu">
+                  <div class="row-text"><div class="row-name">Close menu</div></div>
+                  <button class="btn ghost" data-close>Close</button>
+                </div>
+
+                <div class="row" data-name="Factory reset">
+                  <div class="row-text"><div class="row-name">Factory reset</div></div>
+                  <button class="btn danger" data-modal="Delete all settings?|This clears every saved toggle, slider value and keybind for this game.|Delete|Keep">Reset…</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="section" data-name="About">
+              <div class="section-head">
+                <span class="sec-icon"><svg><use href="#i-info"/></svg></span>
+                <span class="section-title">About</span>
+                <span class="section-chevron"><svg><use href="#i-chev-down"/></svg></span>
+              </div>
+              <div class="section-body">
+                <div class="paragraph">
+                  Aurora UI v2.3.0 — a modern interface kit for Roblox: glass panels, animated rail,
+                  themable controls and zero image assets.
+                </div>
+                <div class="divider"></div>
+                <div class="paragraph" style="font-size:11px">
+                  Right Shift toggles this window. Click the theme chip in the footer to cycle palettes.
+                </div>
+                <div class="row" data-name="Show changelog">
+                  <div class="row-text"><div class="row-name">Show changelog</div></div>
+                  <button class="btn" data-modal="What's new in 2.0|• Four palettes with live re-theming
+• Global search with jump-to-setting
+• Sparkline stat cards
+• Rewritten drag &amp; resize
+• Accessible focus rings everywhere|Nice|Close">Open</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="chip">Aurora UI 2.3.0</div>
+      <div class="footer-center">
+        <div class="chip"><span class="dot"></span><span id="status-text">Connected · 62 ms</span></div>
+      </div>
+      <div class="chip clickable" id="theme-chip" data-tip="Click to cycle themes">
+        <span class="sw" id="theme-swatch"></span><span id="theme-name">Midnight</span>
+      </div>
+    </footer>
+
+    <!-- Overlays inside window -->
+    <div class="toasts" id="toasts"></div>
+    <div class="results" id="results"></div>
+
+    <div class="resize-grip" id="resize-grip" aria-hidden="true"></div>
+
+    <div class="modal-backdrop" id="modal-backdrop">
+      <div class="modal">
+        <h3 id="modal-title">Confirm</h3>
+        <p id="modal-body">Are you sure?</p>
+        <div class="modal-actions">
+          <button class="btn" id="modal-cancel">Cancel</button>
+          <button class="btn primary" id="modal-confirm">Confirm</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <button class="launch" id="launch">Reopen Aurora UI</button>
+  <div class="tooltip" id="tooltip"></div>
+</div>
+
+<script>
+/* ==================================================================
+   AURORA UI  •  Preview behaviour
+   Mirrors the Luau component logic (toggle, slider, dropdown,
+   color picker, keybind, toasts, modal, search, themes, drag).
+   ================================================================== */
+(function () {
+  "use strict";
+
+  const win = document.getElementById("win");
+  const pages = document.getElementById("pages");
+  const rail = document.getElementById("rail");
+  const indicator = document.getElementById("rail-indicator");
+  const toasts = document.getElementById("toasts");
+  const results = document.getElementById("results");
+  const searchInput = document.getElementById("search");
+  const tooltip = document.getElementById("tooltip");
+  const modalBackdrop = document.getElementById("modal-backdrop");
+
+  const THEMES = ["Midnight", "Nebula", "Emerald", "Daylight"];
+  const KEYS = { midnight: "Midnight", nebula: "Nebula", emerald: "Emerald", daylight: "Daylight" };
+
+  let currentTheme = "Midnight";
+  let accentOverride = null;
+
+  /* ---------------------------------------------------------------- utils */
+  const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+  const fmt = (n, d = 0) => Number(n).toFixed(d).replace(/\.0+$/, "");
+
+  function hexToRgb(hex) {
+    const m = hex.replace("#", "");
+    return [parseInt(m.slice(0, 2), 16), parseInt(m.slice(2, 4), 16), parseInt(m.slice(4, 6), 16)];
+  }
+
+  function rgbToHex(r, g, b) {
+    return "#" + [r, g, b].map((v) => clamp(Math.round(v), 0, 255).toString(16).padStart(2, "0")).join("").toUpperCase();
+  }
+
+  function hexToHsv(hex) {
+    let [r, g, b] = hexToRgb(hex).map((v) => v / 255);
+    const max = Math.max(r, g, b), min = Math.min(r, g, b), d = max - min;
+    let h = 0;
+    if (d) {
+      if (max === r) h = ((g - b) / d) % 6;
+      else if (max === g) h = (b - r) / d + 2;
+      else h = (r - g) / d + 4;
+      h *= 60;
+      if (h < 0) h += 360;
+    }
+    return { h, s: max ? d / max : 0, v: max };
+  }
+
+  function hsvToHex(h, s, v) {
+    const c = v * s, x = c * (1 - Math.abs(((h / 60) % 2) - 1)), m = v - c;
+    let rgb;
+    if (h < 60) rgb = [c, x, 0];
+    else if (h < 120) rgb = [x, c, 0];
+    else if (h < 180) rgb = [0, c, x];
+    else if (h < 240) rgb = [0, x, c];
+    else if (h < 300) rgb = [x, 0, c];
+    else rgb = [c, 0, x];
+    return rgbToHex((rgb[0] + m) * 255, (rgb[1] + m) * 255, (rgb[2] + m) * 255);
+  }
+
+  /* --------------------------------------------------------------- toasts */
+  const TOAST_TONES = {
+    success: { tone: "var(--success)", icon: "i-check" },
+    warning: { tone: "var(--warning)", icon: "i-warning" },
+    danger: { tone: "var(--danger)", icon: "i-close" },
+    error: { tone: "var(--danger)", icon: "i-close" },
+    info: { tone: "var(--info)", icon: "i-info" },
+    accent: { tone: "var(--accent)", icon: "i-sparkle" }
+  };
+
+  const MAX_TOASTS = 4;
+
+  function toast(type, title, body, duration = 4500) {
+    const meta = TOAST_TONES[type] || TOAST_TONES.accent;
+    // Trim the oldest toast so a burst never blankets the window.
+    while (toasts.children.length >= MAX_TOASTS) {
+      const oldest = toasts.firstElementChild;
+      oldest.classList.add("out");
+      oldest.remove();
+    }
+    const el = document.createElement("div");
+    el.className = "toast";
+    el.style.setProperty("--tone", meta.tone);
+    el.innerHTML = `
+      <span class="rail-line"></span>
+      <div class="badge"><svg><use href="#${meta.icon}"/></svg></div>
+      <div class="toast-text">
+        <div class="toast-title">${title}</div>
+        ${body ? `<div class="toast-body">${body}</div>` : ""}
+      </div>
+      <button class="toast-close" aria-label="Dismiss"><svg><use href="#i-close"/></svg></button>
+      <div class="toast-progress"><i style="animation-duration:${duration}ms"></i></div>`;
+
+    const dismiss = () => {
+      if (el.classList.contains("out")) return;
+      el.classList.add("out");
+      setTimeout(() => el.remove(), 220);
+    };
+
+    el.querySelector(".toast-close").addEventListener("click", (e) => {
+      e.stopPropagation();
+      dismiss();
+    });
+    el.addEventListener("click", dismiss);
+    toasts.appendChild(el);
+    setTimeout(dismiss, duration);
+  }
+
+  /* --------------------------------------------------------------- themes */
+  function applyTheme(name, silent) {
+    currentTheme = name;
+    document.documentElement.setAttribute("data-theme", name.toLowerCase());
+    document.getElementById("theme-name").textContent = name;
+
+    const drop = document.querySelector("[data-theme-picker]");
+    if (drop) {
+      drop.dataset.value = name;
+      drop.querySelector(".drop-label").textContent = name;
+    }
+    if (accentOverride) applyAccent(accentOverride, true);
+
+    if (!silent) toast("info", "Theme changed", "Now using " + name + ".", 2400);
+  }
+
+  function applyAccent(hex, silent) {
+    accentOverride = hex;
+    const root = document.documentElement.style;
+    root.setProperty("--accent", hex);
+    const { h, s, v } = hexToHsv(hex);
+    root.setProperty("--accent-2", hsvToHex((h + 42) % 360, s * 0.9, Math.min(1, v * 1.05)));
+    if (!silent) toast("accent", "Accent updated", hex, 2000);
+  }
+
+  /* ----------------------------------------------------------------- rail */
+  function moveIndicator(btn) {
+    const railBox = rail.getBoundingClientRect();
+    const box = btn.getBoundingClientRect();
+    indicator.style.top = box.top - railBox.top + box.height / 2 - 12 + "px";
+  }
+
+  function selectTab(name, silent) {
+    document.querySelectorAll(".page").forEach((page) => {
+      page.classList.toggle("active", page.dataset.page === name);
+    });
+    document.querySelectorAll(".rail-btn").forEach((btn) => {
+      const active = btn.dataset.tab === name;
+      btn.classList.toggle("active", active);
+      if (active) moveIndicator(btn);
+    });
+    if (!silent) results.classList.remove("open");
+  }
+
+  rail.querySelectorAll(".rail-btn").forEach((btn) => {
+    btn.addEventListener("click", () => selectTab(btn.dataset.tab));
+  });
+
+  /* --------------------------------------------------------------- switch */
+  document.addEventListener("click", (event) => {
+    const toggle = event.target.closest("[data-toggle]");
+    if (toggle) {
+      toggle.classList.toggle("on");
+      const row = toggle.closest("[data-name]");
+      if (row && row.dataset.toast && toggle.classList.contains("on")) {
+        fireToastSpec(row.dataset.toast);
+      }
+    }
+  });
+
+  function fireToastSpec(spec) {
+    const [type, title, body] = spec.split("|");
+    toast(type, title, body);
+  }
+
+  /* --------------------------------------------------------------- slider */
+  document.querySelectorAll("[data-slider]").forEach((slider) => {
+    const track = slider.querySelector("[data-track]");
+    const fill = slider.querySelector(".track-fill");
+    const knob = slider.querySelector(".track-knob");
+    const pill = slider.querySelector("[data-pill]");
+    const min = parseFloat(slider.dataset.min);
+    const max = parseFloat(slider.dataset.max);
+    const step = parseFloat(slider.dataset.step || "1");
+    const decimals = parseInt(slider.dataset.decimals || (step < 1 ? "1" : "0"), 10);
+    const suffix = slider.dataset.suffix || "";
+    let value = parseFloat(slider.dataset.value);
+
+    function render() {
+      const alpha = (value - min) / (max - min);
+      fill.style.width = alpha * 100 + "%";
+      knob.style.left = alpha * 100 + "%";
+      pill.textContent = fmt(value, decimals) + suffix;
+    }
+
+    function fromEvent(clientX) {
+      const box = track.getBoundingClientRect();
+      const alpha = clamp((clientX - box.left) / box.width, 0, 1);
+      const raw = min + alpha * (max - min);
+      value = clamp(Math.round(raw / step) * step, min, max);
+      value = parseFloat(value.toFixed(4));
+      render();
+    }
+
+    let dragging = false;
+    track.addEventListener("pointerdown", (event) => {
+      dragging = true;
+      track.classList.add("dragging");
+      track.setPointerCapture(event.pointerId);
+      fromEvent(event.clientX);
+    });
+    track.addEventListener("pointermove", (event) => {
+      if (dragging) fromEvent(event.clientX);
+    });
+    track.addEventListener("pointerup", () => {
+      dragging = false;
+      track.classList.remove("dragging");
+    });
+    track.addEventListener("pointercancel", () => {
+      dragging = false;
+      track.classList.remove("dragging");
+    });
+
+    render();
+  });
+
+  /* ------------------------------------------------------------- dropdown */
+  const popover = document.createElement("div");
+  popover.className = "popover";
+  win.appendChild(popover);
+
+  let activeAnchor = null;
+
+  function closePopover() {
+    popover.classList.remove("open");
+    if (activeAnchor) {
+      if (activeAnchor.dataset.drop !== undefined) activeAnchor.classList.remove("open");
+      activeAnchor = null;
+    }
+  }
+
+  function positionPopover(anchor, width) {
+    const winBox = win.getBoundingClientRect();
+    const box = anchor.getBoundingClientRect();
+    const w = width || Math.max(box.width, 180);
+    popover.style.width = w + "px";
+
+    let left = box.right - winBox.left - w;
+    left = clamp(left, 8, winBox.width - w - 8);
+
+    const estimated = popover.offsetHeight || 180;
+    const below = box.bottom - winBox.top + 6;
+    const opensUp = below + estimated > winBox.height - 8 && box.top - winBox.top - estimated - 6 > 8;
+    const top = opensUp ? box.top - winBox.top - estimated - 6 : below;
+
+    popover.style.left = left + "px";
+    popover.style.top = top + "px";
+  }
+
+  document.addEventListener("click", (event) => {
+    const trigger = event.target.closest("[data-drop]");
+    if (trigger) {
+      if (activeAnchor === trigger) {
+        closePopover();
+        return;
+      }
+      closePopover();
+      activeAnchor = trigger;
+      trigger.classList.add("open");
+      buildDropdown(trigger);
+      return;
+    }
+    if (!event.target.closest(".popover")) closePopover();
+  });
+
+  function buildDropdown(trigger) {
+    const options = (trigger.dataset.options || "").split(",").filter(Boolean);
+    const multi = trigger.dataset.multi === "true";
+    const max = parseInt(trigger.dataset.max || "99", 10);
+    let selected = multi
+      ? (trigger.dataset.value || "").split(",").filter(Boolean)
+      : [trigger.dataset.value || options[0]];
+
+    popover.innerHTML = "";
+
+    if (options.length > 6) {
+      const search = document.createElement("div");
+      search.className = "pop-search";
+      search.innerHTML = `<svg><use href="#i-search"/></svg><input placeholder="Search…" />`;
+      popover.appendChild(search);
+      search.querySelector("input").addEventListener("input", (e) => {
+        const q = e.target.value.toLowerCase();
+        popover.querySelectorAll(".pop-item").forEach((item) => {
+          item.style.display = item.textContent.toLowerCase().includes(q) ? "" : "none";
+        });
+      });
+    }
+
+    const list = document.createElement("div");
+    list.className = "pop-list";
+    popover.appendChild(list);
+
+    const updateTrigger = () => {
+      let label;
+      if (multi) {
+        if (selected.length === 0) label = "None";
+        else if (selected.length === 1) label = selected[0];
+        else label = selected.length + " selected";
+        trigger.dataset.value = selected.join(",");
+      } else {
+        label = selected[0];
+        trigger.dataset.value = label;
+      }
+      trigger.querySelector(".drop-label").textContent = label;
+
+      if (trigger.hasAttribute("data-theme-picker")) {
+        applyTheme(label);
+      }
+    };
+
+    options.forEach((option) => {
+      const item = document.createElement("button");
+      item.className = "pop-item" + (selected.includes(option) ? " selected" : "");
+      item.innerHTML = `<span>${option}</span><span class="check"><svg><use href="#i-check"/></svg></span>`;
+      item.addEventListener("click", (event) => {
+        event.stopPropagation();
+        if (multi) {
+          if (selected.includes(option)) selected = selected.filter((v) => v !== option);
+          else if (selected.length < max) selected.push(option);
+          updateTrigger();
+          item.classList.toggle("selected", selected.includes(option));
+          popover.querySelectorAll(".pop-item").forEach((node) => {
+            node.classList.toggle("selected", selected.includes(node.firstChild.textContent));
+          });
+        } else {
+          selected = [option];
+          updateTrigger();
+          closePopover();
+        }
+      });
+      list.appendChild(item);
+    });
+
+    popover.classList.add("open");
+    positionPopover(trigger);
+  }
+
+  /* ---------------------------------------------------------- colorpicker */
+  function openColorPicker(anchor) {
+    closePopover();
+    activeAnchor = anchor;
+
+    let hex = (anchor.dataset.color || "#7C5CFF").toUpperCase();
+    let { h, s, v } = hexToHsv(hex);
+
+    popover.className = "popover picker open";
+    popover.innerHTML = `
+      <div class="sv">
+        <div class="sv-cursor"></div>
+      </div>
+      <div class="hue"><div class="hue-knob"></div></div>
+      <div class="picker-bottom">
+        <div class="hex-field"><input value="${hex}" maxlength="7" /></div>
+        <div class="picker-preview"></div>
+      </div>
+      <div class="presets"></div>`;
+
+    const sv = popover.querySelector(".sv");
+    const cursor = popover.querySelector(".sv-cursor");
+    const hue = popover.querySelector(".hue");
+    const knob = popover.querySelector(".hue-knob");
+    const hexInput = popover.querySelector(".hex-field input");
+    const preview = popover.querySelector(".picker-preview");
+    const presets = popover.querySelector(".presets");
+
+    ["#7C5CFF", "#22D3EE", "#34D399", "#FBBF24", "#FB7185", "#F472B6", "#60A5FA", "#E5E7EB"].forEach((preset) => {
+      const button = document.createElement("button");
+      button.style.background = preset;
+      button.addEventListener("click", () => {
+        hex = preset.toUpperCase();
+        const hsv = hexToHsv(hex);
+        h = hsv.h; s = hsv.s; v = hsv.v;
+        render(true);
+      });
+      presets.appendChild(button);
+    });
+
+    function render(commit) {
+      hex = hsvToHex(h, s, v).toUpperCase();
+      sv.style.setProperty("--sv-hue", hsvToHex(h, 1, 1));
+      cursor.style.left = s * 100 + "%";
+      cursor.style.top = (1 - v) * 100 + "%";
+      knob.style.left = (h / 360) * 100 + "%";
+      preview.style.background = hex;
+      hexInput.value = hex;
+
+      anchor.dataset.color = hex;
+      anchor.querySelector(".sw").style.background = hex;
+      anchor.querySelector(".hex").textContent = hex;
+
+      if (commit && anchor.hasAttribute("data-accent-picker")) applyAccent(hex, true);
+    }
+
+    let draggingSV = false, draggingHue = false;
+
+    function pickSV(clientX, clientY) {
+      const box = sv.getBoundingClientRect();
+      s = clamp((clientX - box.left) / box.width, 0, 1);
+      v = 1 - clamp((clientY - box.top) / box.height, 0, 1);
+      render(true);
+    }
+
+    function pickHue(clientX) {
+      const box = hue.getBoundingClientRect();
+      h = clamp((clientX - box.left) / box.width, 0, 1) * 360;
+      render(true);
+    }
+
+    sv.addEventListener("pointerdown", (event) => {
+      draggingSV = true;
+      sv.setPointerCapture(event.pointerId);
+      pickSV(event.clientX, event.clientY);
+    });
+    sv.addEventListener("pointermove", (event) => draggingSV && pickSV(event.clientX, event.clientY));
+    sv.addEventListener("pointerup", () => (draggingSV = false));
+
+    hue.addEventListener("pointerdown", (event) => {
+      draggingHue = true;
+      hue.setPointerCapture(event.pointerId);
+      pickHue(event.clientX);
+    });
+    hue.addEventListener("pointermove", (event) => draggingHue && pickHue(event.clientX));
+    hue.addEventListener("pointerup", () => (draggingHue = false));
+
+    hexInput.addEventListener("change", () => {
+      const text = hexInput.value.trim();
+      if (/^#?[0-9a-fA-F]{6}$/.test(text)) {
+        hex = (text.startsWith("#") ? text : "#" + text).toUpperCase();
+        const hsv = hexToHsv(hex);
+        h = hsv.h; s = hsv.s; v = hsv.v;
+        render(true);
+      } else {
+        hexInput.value = hex;
+      }
+    });
+
+    render(false);
+    popover.classList.add("open");
+    positionPopover(anchor, 236);
+  }
+
+  document.addEventListener("click", (event) => {
+    const trigger = event.target.closest("[data-color]");
+    if (trigger) {
+      event.stopPropagation();
+      openColorPicker(trigger);
+      return;
+    }
+    if (!event.target.closest(".popover")) {
+      if (popover.classList.contains("picker")) {
+        popover.className = "popover";
+        popover.innerHTML = "";
+      }
+    }
+  });
+
+  /* -------------------------------------------------------------- keybind */
+  let listeningKey = null;
+
+  document.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-keybind]");
+    if (!button) return;
+    document.querySelectorAll(".keybind.listening").forEach((el) => el.classList.remove("listening"));
+    button.classList.add("listening");
+    button.textContent = "Press a key…";
+    listeningKey = button;
+  });
+
+  window.addEventListener("keydown", (event) => {
+    if (!listeningKey) return;
+    event.preventDefault();
+
+    if (event.key === "Escape") {
+      listeningKey.textContent = listeningKey.dataset.keybind;
+      listeningKey.classList.remove("listening");
+      listeningKey = null;
+      return;
+    }
+
+    if (event.key === "Backspace" || event.key === "Delete") {
+      listeningKey.textContent = "None";
+      listeningKey.dataset.keybind = "";
+      listeningKey.classList.remove("listening");
+      listeningKey = null;
+      return;
+    }
+
+    const label = event.key === " " ? "SPACE" : event.key.toUpperCase();
+    listeningKey.textContent = label;
+    listeningKey.dataset.keybind = label;
+    listeningKey.classList.remove("listening");
+    listeningKey = null;
+    toast("info", "Keybind updated", "Bound to " + label, 2000);
+  });
+
+  /* --------------------------------------------------------------- buttons */
+  document.addEventListener("click", (event) => {
+    const button = event.target.closest(".btn");
+    if (!button) return;
+    const box = button.getBoundingClientRect();
+    const ripple = document.createElement("span");
+    ripple.className = "ripple";
+    ripple.style.width = ripple.style.height = Math.max(box.width, box.height) * 1.4 + "px";
+    ripple.style.left = event.clientX - box.left + "px";
+    ripple.style.top = event.clientY - box.top + "px";
+    button.appendChild(ripple);
+    setTimeout(() => ripple.remove(), 600);
+  });
+
+  document.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-toast]");
+    if (button) fireToastSpec(button.dataset.toast);
+
+    if (event.target.closest("[data-toast-stack]")) {
+      ["info|Toast 1|Queued with a staggered entrance.", "success|Toast 2|Queued with a staggered entrance.", "warning|Toast 3|Queued with a staggered entrance."]
+        .forEach((spec, index) => setTimeout(() => fireToastSpec(spec), index * 130));
+    }
+  });
+
+  /* confirm-style buttons */
+  document.querySelectorAll("[data-confirm]").forEach((button) => {
+    const original = button.innerHTML;
+    let armed = false;
+    button.addEventListener("click", () => {
+      const [title, toastTitle, body] = button.dataset.confirm.split("|");
+      if (!armed) {
+        armed = true;
+        button.textContent = "Tap again to confirm";
+        setTimeout(() => {
+          if (armed) {
+            armed = false;
+            button.innerHTML = original;
+          }
+        }, 2400);
+        return;
+      }
+      armed = false;
+      button.innerHTML = original;
+      toast("warning", toastTitle, body);
+    });
+  });
+
+  /* ----------------------------------------------------------------- modal */
+  let modalCallback = null;
+
+  function openModal(spec, callback) {
+    const [title, body, confirmText, cancelText] = spec.split("|");
+    document.getElementById("modal-title").textContent = title;
+    document.getElementById("modal-body").textContent = body;
+    document.getElementById("modal-confirm").textContent = confirmText || "Confirm";
+    document.getElementById("modal-cancel").textContent = cancelText || "Cancel";
+    modalBackdrop.classList.add("open");
+    modalCallback = callback || null;
+  }
+
+  function closeModal() {
+    modalBackdrop.classList.remove("open");
+    modalCallback = null;
+  }
+
+  document.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-modal]");
+    if (button) openModal(button.dataset.modal);
+  });
+
+  document.getElementById("modal-cancel").addEventListener("click", closeModal);
+  modalBackdrop.addEventListener("click", (event) => {
+    if (event.target === modalBackdrop) closeModal();
+  });
+  document.getElementById("modal-confirm").addEventListener("click", () => {
+    const callback = modalCallback;
+    closeModal();
+    if (callback) callback();
+    else toast("danger", "Settings deleted", "Every toggle, slider and keybind has been cleared.", 3600);
+  });
+
+  /* -------------------------------------------------------------- sections */
+  document.querySelectorAll(".section-head").forEach((head) => {
+    head.addEventListener("click", () => head.closest(".section").classList.toggle("collapsed"));
+  });
+
+  /* ---------------------------------------------------------------- search */
+  const INDEX = [];
+
+  document.querySelectorAll(".page").forEach((page) => {
+    const pageName = page.dataset.page;
+    page.querySelectorAll("[data-name]").forEach((row) => {
+      const section = row.closest(".section");
+      INDEX.push({
+        name: row.dataset.name,
+        section: section ? section.dataset.name || "Section" : "Page",
+        page: pageName,
+        element: row
+      });
+    });
+  });
+
+  function closeResults() {
+    results.classList.remove("open");
+    results.innerHTML = "";
+  }
+
+  searchInput.addEventListener("input", () => {
+    const query = searchInput.value.trim().toLowerCase();
+    if (!query) {
+      closeResults();
+      return;
+    }
+
+    const matches = INDEX.filter((entry) => entry.name.toLowerCase().includes(query)).slice(0, 8);
+    results.innerHTML = "";
+
+    if (matches.length === 0) {
+      results.innerHTML = '<div class="empty-note">No settings matched “' + searchInput.value + '”.</div>';
+      results.classList.add("open");
+      return;
+    }
+
+    matches.forEach((entry) => {
+      const item = document.createElement("button");
+      item.className = "result-item";
+      item.innerHTML = `
+        <div class="rt"><b>${entry.name}</b><span>${entry.section} · ${entry.page}</span></div>
+        <div class="jump"><svg><use href="#i-chev-right"/></svg></div>`;
+      item.addEventListener("click", () => {
+        selectTab(entry.page);
+        closeResults();
+        searchInput.value = "";
+        setTimeout(() => {
+          entry.element.scrollIntoView({ behavior: "smooth", block: "center" });
+          entry.element.classList.remove("flash");
+          void entry.element.offsetWidth;
+          entry.element.classList.add("flash");
+        }, 90);
+      });
+      results.appendChild(item);
+    });
+
+    results.classList.add("open");
+  });
+
+  document.addEventListener("click", (event) => {
+    if (!event.target.closest(".searchbox") && !event.target.closest(".results")) closeResults();
+  });
+
+  /* --------------------------------------------------------------- tooltips */
+  document.querySelectorAll("[data-tip]").forEach((el) => {
+    el.addEventListener("mouseenter", () => {
+      tooltip.textContent = el.dataset.tip;
+      tooltip.classList.add("show");
+    });
+    el.addEventListener("mousemove", (event) => {
+      tooltip.style.left = Math.min(window.innerWidth - tooltip.offsetWidth - 10, event.clientX + 14) + "px";
+      tooltip.style.top = event.clientY + 20 + "px";
+    });
+    el.addEventListener("mouseleave", () => tooltip.classList.remove("show"));
+  });
+
+  /* ------------------------------------------------------------ window drag */
+  const titlebar = document.getElementById("titlebar");
+  let dragState = null;
+
+  titlebar.addEventListener("pointerdown", (event) => {
+    if (event.target.closest("button, input, .searchbox")) return;
+    const box = win.getBoundingClientRect();
+    dragState = { dx: event.clientX - box.left, dy: event.clientY - box.top };
+    win.classList.add("dragging");
+    titlebar.setPointerCapture(event.pointerId);
+  });
+
+  titlebar.addEventListener("pointermove", (event) => {
+    if (!dragState) return;
+    const parent = win.parentElement.getBoundingClientRect();
+    const w = win.offsetWidth;
+    const left = clamp(event.clientX - parent.left - dragState.dx, -w + 90, parent.width - 90);
+    const top = clamp(event.clientY - parent.top - dragState.dy, 0, parent.height - 50);
+    win.style.position = "absolute";
+    win.style.left = left + "px";
+    win.style.top = top + "px";
+    win.style.margin = "0";
+  });
+
+  titlebar.addEventListener("pointerup", () => {
+    dragState = null;
+    win.classList.remove("dragging");
+  });
+
+  /* ------------------------------------------------------------- resizing */
+  const grip = document.getElementById("resize-grip");
+  let resizeState = null;
+
+  grip.addEventListener("pointerdown", (event) => {
+    event.stopPropagation();
+    const box = win.getBoundingClientRect();
+    resizeState = { x: event.clientX, y: event.clientY, w: box.width, h: box.height };
+    grip.setPointerCapture(event.pointerId);
+    win.classList.add("dragging");
+  });
+
+  grip.addEventListener("pointermove", (event) => {
+    if (!resizeState) return;
+    const width = clamp(resizeState.w + (event.clientX - resizeState.x), 620, 1200);
+    const height = clamp(resizeState.h + (event.clientY - resizeState.y), 420, 900);
+    win.style.width = width + "px";
+    win.style.height = height + "px";
+  });
+
+  grip.addEventListener("pointerup", () => {
+    resizeState = null;
+    win.classList.remove("dragging");
+  });
+
+  /* ------------------------------------------------------- window controls */
+  const launch = document.getElementById("launch");
+
+  document.getElementById("min-btn").addEventListener("click", () => {
+    win.classList.toggle("minimized");
+  });
+
+  document.getElementById("close-btn").addEventListener("click", () => {
+    win.classList.add("closed");
+    launch.classList.add("show");
+  });
+
+  launch.addEventListener("click", () => {
+    win.classList.remove("closed", "minimized");
+    win.style.left = "";
+    win.style.top = "";
+    win.style.position = "";
+    launch.classList.remove("show");
+  });
+
+  document.querySelectorAll("[data-close]").forEach((button) => {
+    button.addEventListener("click", () => {
+      win.classList.add("closed");
+      launch.classList.add("show");
+    });
+  });
+
+  document.getElementById("theme-btn").addEventListener("click", () => {
+    const index = THEMES.indexOf(currentTheme);
+    applyTheme(THEMES[(index + 1) % THEMES.length]);
+  });
+
+  document.getElementById("bell-btn").addEventListener("click", () => {
+    toast("accent", "Notifications", "Everything is running smoothly.", 3000);
+  });
+
+  document.getElementById("theme-chip").addEventListener("click", () => {
+    const index = THEMES.indexOf(currentTheme);
+    applyTheme(THEMES[(index + 1) % THEMES.length]);
+  });
+
+  window.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") {
+      closeModal();
+      closeResults();
+      closePopover();
+    }
+  });
+
+  /* ---------------------------------------------------------- live numbers */
+  const statusText = document.getElementById("status-text");
+  let seconds = 1840;
+
+  function formatStat(kind, value) {
+    if (kind === "time") {
+      const m = Math.floor(value / 60);
+      const s = Math.floor(value % 60);
+      return m + ":" + String(s).padStart(2, "0");
+    }
+    if (kind === "mb") return value.toFixed(1) + " MB";
+    return value >= 1000 ? (value / 1000).toFixed(1) + "K" : String(Math.floor(value));
+  }
+
+  document.querySelectorAll("[data-stat]").forEach((card) => {
+    const kind = card.dataset.format;
+    const target = parseFloat(card.dataset.value);
+    const label = card.querySelector("[data-count]");
+    const start = performance.now();
+
+    function step(now) {
+      const alpha = clamp((now - start) / 700, 0, 1);
+      const eased = 1 - Math.pow(1 - alpha, 3);
+      label.textContent = formatStat(kind, target * eased);
+      if (alpha < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+
+    const spark = card.querySelector("[data-spark]");
+    if (spark) {
+      const data = spark.dataset.spark.split(",").map(Number);
+      const max = Math.max(...data);
+      spark.innerHTML = "";
+      data.forEach((value, index) => {
+        const bar = document.createElement("i");
+        bar.style.height = "6%";
+        bar.style.transitionDelay = index * 22 + "ms";
+        spark.appendChild(bar);
+        requestAnimationFrame(() => {
+          setTimeout(() => {
+            bar.style.height = Math.max(10, (value / max) * 100) + "%";
+          }, 60);
+        });
+      });
+    }
+  });
+
+  setInterval(() => {
+    seconds += 1;
+    const card = document.querySelectorAll("[data-stat]")[0];
+    if (card) card.querySelector("[data-count]").textContent = formatStat("time", seconds);
+    statusText.textContent = "Connected · " + (38 + Math.floor(Math.random() * 48)) + " ms";
+  }, 1000);
+
+  /* --------------------------------------------------------------- rotate */
+  const sparkBars = document.querySelectorAll(".spark");
+  setInterval(() => {
+    sparkBars.forEach((spark) => {
+      const bars = Array.from(spark.children);
+      if (!bars.length) return;
+      const last = bars.pop();
+      spark.removeChild(last);
+      spark.insertBefore(last, spark.firstChild);
+      const heights = bars.map((bar) => parseFloat(bar.style.height) || 10);
+      const max = Math.max(...heights, 10);
+      last.style.height = Math.max(10, (heights[0] / max) * 100) + "%";
+    });
+  }, 2200);
+
+  /* ---------------------------------------------------------------- boot */
+  applyTheme("Midnight", true);
+  requestAnimationFrame(() => {
+    const active = document.querySelector(".rail-btn.active");
+    if (active) moveIndicator(active);
+  });
+
+  document.getElementById("theme-chip").addEventListener("mouseenter", () => {
+    tooltip.textContent = "Click to cycle themes";
+  });
+
+  window.addEventListener("resize", () => {
+    const active = document.querySelector(".rail-btn.active");
+    if (active) moveIndicator(active);
+  });
+})();
+</script>
+</body>
+</html>

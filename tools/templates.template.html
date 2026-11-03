@@ -1,0 +1,285 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Aurora UI — ten templates, rendered from the real Luau</title>
+<style>
+  /*__ENGINE_CSS__*/
+
+  /* ------------------------------------------------ gallery chrome */
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background:
+      radial-gradient(1100px 620px at 12% -12%, rgba(124, 92, 255, 0.20), transparent 62%),
+      radial-gradient(900px 560px at 96% 4%, rgba(34, 211, 238, 0.14), transparent 60%),
+      #05060a;
+    color: #e8ecf7;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    padding: 26px 26px 44px;
+  }
+  .top {
+    max-width: 1180px;
+    margin: 0 auto 20px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+  .top h1 {
+    margin: 0 0 6px;
+    font-size: 22px;
+    letter-spacing: -0.02em;
+  }
+  .top h1 span { color: #8b7cff; }
+  .top p {
+    margin: 0;
+    color: #8b95ae;
+    font-size: 13px;
+    max-width: 62ch;
+    line-height: 1.55;
+  }
+  .counter {
+    font-variant-numeric: tabular-nums;
+    font-size: 12px;
+    color: #6f7891;
+    border: 1px solid #222a3c;
+    border-radius: 999px;
+    padding: 5px 12px;
+  }
+  .counter b { color: #cdd5e6; }
+
+  /* ------------------------------------------------------- style chips */
+  .chips {
+    max-width: 1180px;
+    margin: 0 auto 18px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    padding: 8px 13px 8px 10px;
+    border-radius: 11px;
+    border: 1px solid #1d2333;
+    background: #0c1018;
+    color: #98a1b5;
+    font-size: 12.5px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: border-color .15s, color .15s, transform .15s, background .15s;
+  }
+  .chip:hover { color: #dfe5f2; border-color: #2d3purple; border-color: #2c3550; transform: translateY(-1px); }
+  .chip[aria-pressed="true"] {
+    color: #fff;
+    border-color: #7c5cff;
+    background: linear-gradient(135deg, rgba(124, 92, 255, .22), rgba(34, 211, 238, .12));
+    box-shadow: 0 0 0 1px rgba(124, 92, 255, .3), 0 10px 26px -14px rgba(124, 92, 255, .9);
+  }
+  .chip .swatch {
+    width: 12px;
+    height: 12px;
+    border-radius: 4px;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .18);
+  }
+  .chip small {
+    font-weight: 500;
+    color: #6f7891;
+    font-size: 11px;
+  }
+  .chip[aria-pressed="true"] small { color: #c9d2e6; }
+
+  /* ------------------------------------------------------------ stage */
+  .viewport {
+    max-width: 1180px;
+    margin: 0 auto;
+    border: 1px solid #1b2130;
+    border-radius: 20px;
+    background:
+      radial-gradient(700px 380px at 50% -10%, rgba(124, 92, 255, .10), transparent 70%),
+      #07090f;
+    padding: 18px 18px 10px;
+    box-sizing: border-box;
+  }
+  .stage-holder {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 300px;
+  }
+  .meta-row {
+    max-width: 1180px;
+    margin: 14px auto 0;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+    color: #8b95ae;
+    font-size: 12.5px;
+  }
+  .meta-row .name { color: #fff; font-weight: 700; font-size: 14px; }
+  .meta-row .tag { color: #9aa3b8; }
+  .meta-row .pill {
+    border: 1px solid #222a3c;
+    border-radius: 999px;
+    padding: 3px 10px;
+    font-size: 11px;
+    color: #7f889e;
+  }
+  .swatches { display: flex; gap: 5px; margin-left: auto; }
+  .swatches i {
+    width: 16px;
+    height: 16px;
+    border-radius: 5px;
+    display: block;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .14);
+  }
+  .foot {
+    max-width: 1180px;
+    margin: 20px auto 0;
+    color: #5c6479;
+    font-size: 12px;
+    line-height: 1.6;
+  }
+  .foot code { color: #8f9ab4; }
+  .hint-key {
+    border: 1px solid #222a3c;
+    border-radius: 5px;
+    padding: 1px 6px;
+    font-size: 11px;
+    color: #8b95ae;
+  }
+</style>
+</head>
+<body>
+
+  <div class="top">
+    <div>
+      <h1>Aurora UI <span>— ten templates, one library</span></h1>
+      <p>
+        Every window below is rendered from the Luau that builds it:
+        <code>tools/dump.py</code> runs the real <code>CreateWindow</code> call inside a headless
+        Roblox mock and <code>tools/engine.js</code> lays the captured instance tree out in HTML.
+        Nothing is hand-drawn and nothing is a screenshot.
+      </p>
+    </div>
+    <div class="counter"><b id="counter">1</b> / <span id="total">10</span></div>
+  </div>
+
+  <div class="chips" id="chips"></div>
+
+  <div class="viewport">
+    <div class="stage-holder">
+      <div class="stage-wrap" id="wrap"><div class="stage" id="stage"></div></div>
+    </div>
+    <div class="meta-row">
+      <span class="name" id="meta-name">—</span>
+      <span class="tag" id="meta-tag">—</span>
+      <span class="pill" id="meta-mood">—</span>
+      <div class="swatches" id="meta-swatches"></div>
+    </div>
+  </div>
+
+  <div class="foot">
+    Click a template above (or press <span class="hint-key">←</span> <span class="hint-key">→</span>) to
+    swap the design. Each one is the same demo script — the only thing that changes is
+    <code>Style = "…"</code> on <code>CreateWindow</code>. Tabs, sliders and toggles inside the
+    window are the real captured geometry.
+  </div>
+
+<script>
+/*__ENGINE_JS__*/
+
+const STYLES = /*__STYLES__*/[];
+
+const chips = document.getElementById('chips');
+let stage = document.getElementById('stage');
+const wrap = document.getElementById('wrap');
+const counter = document.getElementById('counter');
+const metaName = document.getElementById('meta-name');
+const metaTag = document.getElementById('meta-tag');
+const metaMood = document.getElementById('meta-mood');
+const metaSwatches = document.getElementById('meta-swatches');
+
+document.getElementById('total').textContent = String(STYLES.length);
+
+let current = -1;
+let view = null;
+
+// one scale for every template so switching never jumps around
+function galleryScale() {
+  const width = Math.min(1180, window.innerWidth);
+  return Math.max(0.42, Math.min(1.05, (width - 90) / 900));
+}
+
+function mount(index) {
+  if (index === current || !STYLES[index]) return;
+  current = index;
+  const entry = STYLES[index];
+  const meta = entry.meta || {};
+
+  // a fresh stage per style: the engine binds to the element it is given
+  const fresh = document.createElement('div');
+  fresh.className = 'stage';
+  fresh.id = 'stage';
+  stage.replaceWith(fresh);
+  stage = fresh;
+
+  view = mountAuroraWindow(entry.dump, fresh, {
+    wrap: wrap,
+    fixedScale: galleryScale(),
+  });
+
+  counter.textContent = String(index + 1);
+  metaName.textContent = meta.name || entry.slug;
+  metaTag.textContent = meta.tagline || '';
+  metaMood.textContent = meta.mood || '';
+
+  const colours = [meta.accent, meta.accent2, meta.panel, meta.surface, meta.text].filter(Boolean);
+  metaSwatches.innerHTML = colours.map((hex) => '<i style="background:' + hex + '"></i>').join('');
+
+  [...chips.children].forEach((chip, chipIndex) => {
+    chip.setAttribute('aria-pressed', chipIndex === index ? 'true' : 'false');
+  });
+
+  try {
+    history.replaceState(null, '', '#' + entry.slug);
+  } catch (error) {
+    /* file:// pages can refuse this — not important */
+  }
+}
+
+STYLES.forEach((entry, index) => {
+  const meta = entry.meta || {};
+  const chip = document.createElement('button');
+  chip.className = 'chip';
+  chip.type = 'button';
+  chip.setAttribute('aria-pressed', 'false');
+  chip.innerHTML =
+    '<span class="swatch" style="background:' + (meta.swatch || meta.accent || '#7C5CFF') + '"></span>' +
+    '<span>' + (meta.name || entry.slug) + '</span>' +
+    '<small>' + (meta.mood || '') + '</small>';
+  chip.addEventListener('click', () => mount(index));
+  chips.appendChild(chip);
+});
+
+window.addEventListener('keydown', (event) => {
+  if (event.key === 'ArrowRight') mount((current + 1) % STYLES.length);
+  if (event.key === 'ArrowLeft') mount((current - 1 + STYLES.length) % STYLES.length);
+});
+
+window.addEventListener('resize', () => {
+  if (view) {
+    view.fit();
+  }
+});
+
+const fromHash = STYLES.findIndex((entry) => entry.slug === location.hash.replace('#', ''));
+mount(fromHash >= 0 ? fromHash : 0);
+</script>
+</body>
+</html>

@@ -1,0 +1,94 @@
+name: tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  headless:
+    name: Headless Luau suite
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install the Luau CLI
+        run: |
+          curl -sSL -o "$RUNNER_TEMP/luau.zip" \
+            https://github.com/luau-lang/luau/releases/latest/download/luau-ubuntu.zip
+          unzip -q "$RUNNER_TEMP/luau.zip" -d "$RUNNER_TEMP/luau"
+          chmod +x "$RUNNER_TEMP/luau/luau" "$RUNNER_TEMP/luau/luau-compile"
+          echo "$RUNNER_TEMP/luau" >> "$GITHUB_PATH"
+
+      - name: Syntax check every source file
+        run: |
+          fail=0
+          for file in $(find src tools -name '*.luau'); do
+            if ! luau-compile --binary "$file" > /dev/null; then
+              echo "::error file=$file::syntax error"
+              fail=1
+            fi
+          done
+          exit $fail
+
+      - name: Run the suite (desktop, phone, zero viewport, preview, demo)
+        run: ./tools/run-tests.sh
+
+      - name: dist/ must match the sources
+        run: |
+          python3 tools/bundle.py
+          git diff --exit-code -- dist
+
+      - name: Browser preview copies must match
+        run: diff -q preview.html docs/index.html
+
+
+  render:
+    name: Preview render (docs/real-ui.html)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install the Luau CLI
+        run: |
+          curl -sSL -o "$RUNNER_TEMP/luau.zip" \
+            https://github.com/luau-lang/luau/releases/latest/download/luau-ubuntu.zip
+          unzip -q "$RUNNER_TEMP/luau.zip" -d "$RUNNER_TEMP/luau"
+          chmod +x "$RUNNER_TEMP/luau/luau" "$RUNNER_TEMP/luau/luau-compile"
+          echo "$RUNNER_TEMP/luau" >> "$GITHUB_PATH"
+
+      - name: Rebuild every dump and both preview pages from source
+        run: |
+          cp -r docs/styles "$RUNNER_TEMP/styles-committed"
+          python3 tools/bundle.py
+          LUAU=luau python3 tools/dump-all.py
+          node tools/render.js
+          node tools/render.js --all
+
+      - name: Validate the capture and the page
+        run: python3 tools/check-render.py
+
+      - name: The committed previews must still describe the current library
+        run: |
+          python3 tools/compare-dump.py "$RUNNER_TEMP/styles-committed/midnight.json" docs/styles/midnight.json
+          for file in "$RUNNER_TEMP"/styles-committed/*.json; do
+            name="$(basename "$file")"
+            python3 tools/compare-dump.py "$file" "docs/styles/$name"
+          done
+
+  markdown:
+    name: README links
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Every image referenced by the README exists
+        run: |
+          grep -oE '\]\([^)]+\.(jpg|png|gif)\)' README.md | sed -E 's/^\]\(//; s/\)$//' | while read -r img; do
+            test -f "$img" || { echo "::error::missing image $img"; exit 1; }
+          done
+          echo "all README images present"

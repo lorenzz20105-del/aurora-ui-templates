@@ -1,0 +1,188 @@
+# Changelog
+
+All notable changes to Aurora UI are documented here.
+The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and
+the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [3.0.0] — 2026-11-03
+
+**Ten templates, one library, one generated preview.**
+
+### Added
+
+- **`Styles.luau`** — ten complete design languages. A style is a palette *plus*
+  geometry: rail layout (`rail` / `sidebar` / `tabs`), card treatment (`glass` /
+  `elevated` / `outline` / `flat` / `brutal`), button treatment (`gradient` /
+  `solid` / `outline` / `brutal`), radius scale + clamp, border weight,
+  shadow strength, tab shape, header casing, row density and mono headings.
+  Midnight · Daylight · Neon Grid · Terminal · Brutalist · Frost · Material You ·
+  Arcade · Executive · Solar.
+- `CreateWindow({ Style = "Terminal" })` — one line changes the whole menu.
+  `Theme = "…"` still works for palette-only overrides.
+- **Horizontal tab bar** and **labelled sidebar** rail layouts (Window + Tab),
+  including a right-aligned profile chip in the tab bar.
+- `Util.ApplyStyle`, `Util.M`, `Util.ShapeRadius` — every `UICorner` and
+  `UIStroke` in the kit now resolves through the active style.
+- `docs/templates.html` — **one preview, ten windows**, generated from the real
+  instance tree: `tools/dump-all.py` → `docs/styles/<slug>.json` →
+  `tools/render.js --all`.
+- `tools/engine.css` / `tools/engine.js` — the layout engine extracted out of the
+  single-window template so both preview pages share one implementation.
+- `tools/dump-all.py`, `tools/style-shots.js`, `tools/montage.py`,
+  `tools/check-render.py` (rewritten for the ten-template layout).
+- Per-template screenshots in `docs/styles/` plus a contact sheet `hero.jpg`.
+
+### Changed
+
+- `README` is now the template gallery — all ten designs with real renders.
+- Demo script takes its template from a single `local STYLE = "Midnight"`
+  constant (and `_G.AURORA_DUMP_STYLE` for the dump harness).
+- `Tab` measures its label for the tab-bar layout instead of relying on
+  `AutomaticSize` through a full-size content frame.
+
+### Fixed
+
+- **Drop shadows on auto-sized cards collapsed into a sliver** — a sibling shadow
+  has nothing to measure when the target is `AutomaticSize.Y`. `Util.Shadow` now
+  skips auto-sized targets and Section uses a hairline stroke for its elevated
+  and brutal cards.
+- Tab labels in the tab bar were clipped ("HOM", "GAMEPL") because the measured
+  width ignored padding; widths now use the label bounds plus a safe fallback.
+
+## [2.3.0] — 2026-11-03
+
+Theme of this release: **stop trusting the mock**. The window is now rendered
+from the real instance tree (see "Rendered from the real code" in the README),
+and that render exposed a series of layout and formatting bugs that screenshots
+of a hand-written HTML mock could never show.
+
+### Added
+
+- **`docs/real-ui.html`** — the preview, generated from the library itself:
+  `tools/dump.py` runs the real `CreateWindow` + demo against a headless Roblox
+  mock, `tools/dump-tree.luau` serialises the resulting GUI tree (724 instances)
+  to `docs/real-ui.json`, and `tools/render.js` lays it out in a single
+  self-contained HTML file (no network, no images, no webfonts).
+- `tools/real-ui.template.html` — the HTML/CSS/JS layout engine (automatic
+  sizing, list/grid layout, padding, anchoring, gradients, flex fill).
+- `tools/real-shots.js` — captures one screenshot per tab from the rendered page.
+- `Icons.Tint` / `Icons.Mask` helpers; glyphs can now contain real "holes"
+  (pieces painted pure black are re-coloured to the surface behind the icon).
+
+### Changed
+
+- **Icons** — `gear`, `shield` and `eye` were redrawn with the new hole support,
+  so they read as a cog, an outlined shield and a lens with a pupil instead of
+  three blobs. `Icons.Get` scales every glyph from one 20×20 design grid.
+- `Section` headers are laid out by hand instead of with a `UIListLayout`: a
+  description can now take the second line while the chevron stays pinned to the
+  right edge.
+- `Button` gained an internal `Content` wrapper so decorative layers (`Sheen`,
+  ripple) can no longer take part in the label's list layout.
+- The headless mock compares `Color3` by component (like Roblox does), which is
+  what makes the icon-hole pass work in the dump.
+
+### Fixed
+
+- `Window`: the sidebar was `UDim2.fromOffset(L.SidebarWidth, 1)` — one pixel
+  tall — so the avatar/profile chip was anchored to the top of the window.
+  It now spans the full body height.
+- `Window`: the footer was drawn over the page body whenever `Footer` was left at
+  its default, because the body only reserved space for an explicit
+  `Footer = true`. It now reserves space unless `Footer = false`.
+- `Button`: the label of a block button was laid out off-screen (the Sheen and
+  ripple frames were list items and consumed the row).
+- `Util.TrimNumber` turned `60` into `6` (the trailing-zero trim ran on the
+  integer part). Sliders formatted as `60 fps` now read `60 fps`, not `6 fps`.
+- `Section`: a description was rendered inline after the chevron.
+- `Tab.CreateSection` was defined as `function tab.CreateSection(config)`, so
+  `tab:CreateSection{...}` passed the tab as the config table.
+- `Util.List`, `Util.Corner`, `Util.Padding`, `Util.Stroke` and `Util.Gradient`
+  dropped a `Parent` passed in their props table — 98 layout instances were
+  missing from every window.
+
+### Renderer notes
+
+- The dump steps the demo's `Heartbeat` loop and then its `RenderStepped` tweens
+  so count-up animations, fades and slider values are captured settled.
+- Tab pages are serialised with `Visible = true` so all five pages have real
+  geometry; the HTML then emulates tab switching without re-running Luau.
+
+## [2.2.0] — 2026-11-03
+
+### Added
+
+- **`Preview` module** — `require(ReplicatedStorage.UI.UILibrary.Preview).Mount()`
+  builds a live, interactive preview of the *real* components in your own game:
+  `Gallery` (every widget, wired to a live event log), `Appearance` (palette,
+  accent, scale changed at runtime), `Events` (toast lab, modals, the log) and
+  `Reference` (the public API on one screen). `Preview.Unmount()` tears it down;
+  `Preview.IsMounted()` reports state.
+- **`dist/AuroraPreview.luau`** — the third single-file build, paste-and-run.
+- `window:SetAccent(color)` / `window:SetAccent(nil)` — runtime accent override
+  that derives `Accent2` and `AccentSoft` and survives palette swaps.
+- `window:SetScale(multiplier)` and `window:GetScale()` — user-controlled scale,
+  combined with the existing auto-fit (0.5×–1.6×).
+- `window:ClearNotifications()`, plus a four-toast cap that dismisses the oldest
+  card when a burst arrives.
+- `section:SetCollapsed(bool)` and `section:ToggleCollapsed()` — programmatic
+  collapse, in addition to clicking the header.
+- Browser preview: visible keyboard focus ring, `prefers-reduced-motion` support,
+  and a header hover surface that reads as clickable.
+
+### Changed
+
+- Section headers are clickable across the whole row, with a hover surface and a
+  chevron that is always right-aligned (previously inline when a section had no
+  description).
+- Tab switches slide in gently instead of snapping.
+- The bundler now ships **only the modules reachable from the entry point** and
+  reads the version from `Util.Version` instead of a hard-coded string.
+- The demo and the browser preview use neutral, game-menu copy (sprint, camera,
+  nameplates) so the kit reads as a general-purpose UI library.
+
+### Fixed
+
+- Section chevrons no longer sit next to the title in description-less sections.
+- The default page no longer clips its last row on a 900×580 window — it fits
+  without scrolling.
+- The demo's keybind toast still referenced the old module names.
+- The preview's `gear` glyph rendered as a sunburst; it is now an actual cog.
+
+## [2.1.0] — 2026-10-28
+
+### Added
+
+- `dist/` single-file builds (`AuroraUI.luau`, `AuroraDemo.luau`) produced by a
+  require flattener with cycle detection and stdlib shims — no ModuleScripts needed.
+- Headless Roblox mock (`tools/robloxmock.luau`) and a smoke suite that runs
+  desktop, a touch-only 667×375 phone and a zero-size viewport.
+- Mobile pass: auto-fit scaling down to 0.42×, a draggable floating toggle button
+  (phones have no `RightShift`), 6 px touch scrollbars, tooltip suppression.
+
+### Changed
+
+- **Breaking:** every component method (`:Set`, `:Get`, `:SetValue`, `:SetText`,
+  `:ScrollTo`, …) now takes an explicit `self`, so colon calls work everywhere.
+  Before this, `slider:Set(50)` silently passed the slider as the value.
+- All user callbacks are routed through `Util.SafeCall` (`pcall` + `warn`).
+- Sandbox guards for `GetGuiObjectsAtPosition`, `GetTextBoundsAsync` and
+  `GetUserThumbnailAsync`.
+
+## [2.0.0] — 2026-10-20
+
+### Added
+
+- Four palettes (`Midnight`, `Nebula`, `Emerald`, `Daylight`) driven by a live
+  themable registry — swapping a palette repaints every open control instantly.
+- Global search that indexes every control, jumps to its tab and flashes it.
+- Sparkline stat cards with animated counters and delta pills.
+- Searchable single- and multi-select dropdowns that flip upward near the screen edge.
+- Full keybind recorder with modifier display, plus colour picker with HSV area,
+  hue rail, hex input and presets.
+- Window resize grip, minimise animation, optional `Lighting.BlurEffect`.
+- Zero-asset vector icon set (31 glyphs) with an asset-id override table.
+
+## [1.0.0] — 2026-10-11
+
+- Initial release: window shell, rail, sections, rows, toggles, sliders, buttons.

@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Aurora UI — rendered from the real Luau</title>
+<style>
+  /*__ENGINE_CSS__*/
+</style>
+</head>
+<body>
+  <header class="caption">
+    <span class="dot"></span>
+    <b>Aurora UI</b>
+    <span>rendered from the real Luau — not a mock-up</span>
+  </header>
+  <div class="stage-wrap" id="wrap">
+    <div class="stage" id="stage"></div>
+  </div>
+  <footer class="hint">Every frame below was created by the kit itself: <code>tools/dump.py</code> runs the library headlessly, <code>tools/render.js</code> lays it out.</footer>
+
+<script>
+/*__ENGINE_JS__*/
+
+/* ------------------------------------------------------------------ boot */
+const DATA = /*__DATA__*/null;
+const stage = document.getElementById('stage');
+const wrap = document.getElementById('wrap');
+const view = mountAuroraWindow(DATA, stage, { wrap: wrap });
+window.__view = view;
+window.__root = view.root;
+window.__report = view.report;
+</script>
+</script>
+</body>
+</html>
