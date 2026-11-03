@@ -19,7 +19,7 @@ import sys
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 STYLES_DIR = ROOT / "docs" / "styles"
-GALLERY = ROOT / "docs" / "templates.html"
+GALLERY = ROOT / "docs" / "index.html"
 SINGLE = ROOT / "docs" / "real-ui.html"
 
 MIN_STYLES = 10
@@ -86,7 +86,7 @@ def main():
             print(f"  ✓ {path.stem:10s} {len(nodes)} instances · {len(pages)} pages · {meta.get('mood', '')}")
 
     print("[check-render] pages")
-    for page, label, minimum in ((GALLERY, "templates.html", MIN_PAGE_BYTES), (SINGLE, "real-ui.html", 150_000)):
+    for page, label, minimum in ((GALLERY, "index.html (gallery)", MIN_PAGE_BYTES), (SINGLE, "real-ui.html", 150_000)):
         if not page.exists():
             failures.append(f"{label} missing")
             print(f"  ✗ {label} missing")

@@ -40,8 +40,8 @@ jobs:
           python3 tools/bundle.py
           git diff --exit-code -- dist
 
-      - name: Browser preview copies must match
-        run: diff -q preview.html docs/index.html
+      - name: Browser mock copies must match
+        run: diff -q preview.html docs/mock.html
 
 
   render:

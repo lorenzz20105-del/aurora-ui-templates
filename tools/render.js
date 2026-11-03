@@ -65,7 +65,7 @@ function buildGallery() {
 	styles.sort((a, b) => (a.meta.order || 0) - (b.meta.order || 0));
 
 	const templatePath = path.join(__dirname, "templates.template.html");
-	const outPath = path.join(ROOT, "docs", "templates.html");
+	const outPath = path.join(ROOT, "docs", "index.html"); // served by GitHub Pages
 
 	const html = fill(fs.readFileSync(templatePath, "utf8"), {
 		"/*__ENGINE_CSS__*/": engineCss,
