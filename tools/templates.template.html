@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Aurora UI — ten templates, rendered from the real Luau</title>
+<meta name="aurora-version" content="/*__VERSION__*/">
 <style>
   /*__ENGINE_CSS__*/
 
@@ -96,6 +97,7 @@
   /* ------------------------------------------------------------ stage */
   .viewport {
     max-width: 1180px;
+    overflow: hidden;
     margin: 0 auto;
     border: 1px solid #1b2130;
     border-radius: 20px;
@@ -105,11 +107,20 @@
     padding: 18px 18px 10px;
     box-sizing: border-box;
   }
+  .stage-wrap { transition: opacity .18s ease; }
+  .stage-wrap.loading { opacity: .35; }
+  .notice {
+    margin: 18px auto 6px;
+    max-width: 520px;
+    text-align: center;
+    color: #b9c2d6;
+    font-size: 13px;
+    line-height: 1.6;
+  }
   .stage-holder {
     display: flex;
     justify-content: center;
     align-items: flex-start;
-    min-height: 300px;
   }
   .meta-row {
     max-width: 1180px;
@@ -146,6 +157,37 @@
     line-height: 1.6;
   }
   .foot code { color: #8f9ab4; }
+
+  /* ------------------------------------------- small panes & phones */
+  @media (max-height: 760px) {
+    body { padding: 14px 16px 26px; }
+    .top { margin-bottom: 12px; gap: 12px; }
+    .top h1 { font-size: 18px; margin-bottom: 3px; }
+    .top p { display: none; }
+    .chips { margin-bottom: 10px; gap: 6px; }
+    .chip { padding: 6px 10px 6px 8px; font-size: 12px; gap: 7px; }
+    .chip small { display: none; }
+    .viewport { padding: 12px 12px 6px; border-radius: 14px; }
+    .meta-row { margin-top: 9px; }
+    .foot { margin-top: 12px; font-size: 11px; }
+  }
+  @media (max-width: 720px) {
+    body { padding: 14px 12px 24px; }
+    .top h1 { font-size: 17px; }
+    .top p { font-size: 12px; line-height: 1.5; }
+    .chips { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
+    .chip { justify-content: flex-start; padding: 7px 9px; font-size: 11.5px; }
+    .chip small { display: none; }
+    .chip span:nth-child(2) { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .viewport { padding: 10px; border-radius: 12px; }
+    .meta-row { gap: 10px; font-size: 11.5px; }
+    .meta-row .tag, .meta-row .pill { display: none; }
+    .swatches { margin-left: 0; }
+    .foot { display: none; }
+  }
+  @media (max-width: 460px) {
+    .top p { display: none; }
+  }
   .hint-key {
     border: 1px solid #222a3c;
     border-radius: 5px;
@@ -194,57 +236,122 @@
 <script>
 /*__ENGINE_JS__*/
 
+/* ------------------------------------------------------------------------
+   The dumps are embedded gzipped + base64 (2.6 MB of JSON -> ~135 KB) and
+   inflated on demand, one template at a time. That keeps this file small
+   enough to open anywhere — including sandboxed preview panes.
+   ------------------------------------------------------------------------ */
 const STYLES = /*__STYLES__*/[];
 
 const chips = document.getElementById('chips');
-let stage = document.getElementById('stage');
 const wrap = document.getElementById('wrap');
 const counter = document.getElementById('counter');
 const metaName = document.getElementById('meta-name');
 const metaTag = document.getElementById('meta-tag');
 const metaMood = document.getElementById('meta-mood');
 const metaSwatches = document.getElementById('meta-swatches');
+const viewport = document.querySelector('.viewport');
 
 document.getElementById('total').textContent = String(STYLES.length);
 
+let stage = document.getElementById('stage');
 let current = -1;
 let view = null;
+const cache = new Map();
 
-// one scale for every template so switching never jumps around
-function galleryScale() {
-  const width = Math.min(1180, window.innerWidth);
-  return Math.max(0.42, Math.min(1.05, (width - 90) / 900));
+/* --------------------------------------------------------------- inflate */
+function base64Bytes(text) {
+  const binary = atob(text);
+  const bytes = new Uint8Array(binary.length);
+  for (let index = 0; index < binary.length; index++) {
+    bytes[index] = binary.charCodeAt(index);
+  }
+  return bytes;
 }
 
-function mount(index) {
-  if (index === current || !STYLES[index]) return;
-  current = index;
+async function loadDump(entry) {
+  if (cache.has(entry.slug)) return cache.get(entry.slug);
+
+  let dump;
+  if (entry.data && typeof DecompressionStream === 'function') {
+    const stream = new Blob([base64Bytes(entry.data)])
+      .stream()
+      .pipeThrough(new DecompressionStream('gzip'));
+    dump = JSON.parse(await new Response(stream).text());
+  } else if (entry.data) {
+    // very old browsers: no DecompressionStream, so tell the reader instead
+    // of showing a half-built window
+    throw new Error('this browser cannot decompress the embedded dumps');
+  } else {
+    dump = entry.dump;
+  }
+
+  cache.set(entry.slug, dump);
+  return dump;
+}
+
+/* ------------------------------------------------------------------ fit */
+// Scale every template to the space that is actually available, so the window
+// is never cropped — even in a short preview pane.
+function galleryScale() {
+  const width = Math.min(1180, window.innerWidth) - 80;
+  const top = viewport ? viewport.getBoundingClientRect().top : 320;
+  const height = Math.max(300, window.innerHeight - top - 110);
+  // the window must never be cropped horizontally; vertically it may be
+  // smaller so the page can simply scroll
+  const byHeight = Math.max(0.42, height / 580);
+  return Math.max(0.24, Math.min(1.12, width / 900, byHeight));
+}
+
+const options = {
+  wrap: wrap,
+  get fixedScale() {
+    return galleryScale();
+  },
+};
+
+/* ---------------------------------------------------------------- mount */
+function showMessage(text) {
+  const note = document.createElement('div');
+  note.className = 'notice';
+  note.textContent = text;
+  viewport.appendChild(note);
+}
+
+async function mount(index) {
   const entry = STYLES[index];
+  if (!entry || index === current) return;
+  current = index;
+
   const meta = entry.meta || {};
-
-  // a fresh stage per style: the engine binds to the element it is given
-  const fresh = document.createElement('div');
-  fresh.className = 'stage';
-  fresh.id = 'stage';
-  stage.replaceWith(fresh);
-  stage = fresh;
-
-  view = mountAuroraWindow(entry.dump, fresh, {
-    wrap: wrap,
-    fixedScale: galleryScale(),
-  });
-
   counter.textContent = String(index + 1);
   metaName.textContent = meta.name || entry.slug;
   metaTag.textContent = meta.tagline || '';
   metaMood.textContent = meta.mood || '';
-
   const colours = [meta.accent, meta.accent2, meta.panel, meta.surface, meta.text].filter(Boolean);
   metaSwatches.innerHTML = colours.map((hex) => '<i style="background:' + hex + '"></i>').join('');
-
   [...chips.children].forEach((chip, chipIndex) => {
     chip.setAttribute('aria-pressed', chipIndex === index ? 'true' : 'false');
   });
+  wrap.classList.add('loading');
+
+  try {
+    const dump = await loadDump(entry);
+    if (index !== current) return; // a faster click won
+
+    // a fresh stage per template: the engine binds to the element it is given
+    const fresh = document.createElement('div');
+    fresh.className = 'stage';
+    fresh.id = 'stage';
+    stage.replaceWith(fresh);
+    stage = fresh;
+
+    view = mountAuroraWindow(dump, fresh, options);
+  } catch (error) {
+    showMessage('Could not render this template: ' + error.message);
+  } finally {
+    wrap.classList.remove('loading');
+  }
 
   try {
     history.replaceState(null, '', '#' + entry.slug);
@@ -253,6 +360,7 @@ function mount(index) {
   }
 }
 
+/* ----------------------------------------------------------------- chips */
 STYLES.forEach((entry, index) => {
   const meta = entry.meta || {};
   const chip = document.createElement('button');
@@ -273,9 +381,7 @@ window.addEventListener('keydown', (event) => {
 });
 
 window.addEventListener('resize', () => {
-  if (view) {
-    view.fit();
-  }
+  if (view) view.fit();
 });
 
 const fromHash = STYLES.findIndex((entry) => entry.slug === location.hash.replace('#', ''));

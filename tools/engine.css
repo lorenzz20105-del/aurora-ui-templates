@@ -17,7 +17,10 @@
   }
   .stage-wrap {
     position: relative;
-    transform-origin: top center;
+    /* the stage is authored at a fixed pixel size and scaled from its own
+       top-left corner; scaling about the centre shifts the window sideways
+       and crops it in narrow panes */
+    transform-origin: top left;
   }
   .stage {
     position: relative;

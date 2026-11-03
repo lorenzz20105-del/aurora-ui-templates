@@ -24,7 +24,7 @@ SINGLE = ROOT / "docs" / "real-ui.html"
 
 MIN_STYLES = 10
 MIN_INSTANCES = 600
-MIN_PAGE_BYTES = 400_000
+MIN_PAGE_BYTES = 120_000  # the gallery embeds gzipped dumps (~170 KB total)
 
 failures = []
 
@@ -103,10 +103,12 @@ def main():
                 failures.append(f"{slug} missing from templates.html")
         check(all(f'"slug":"{slug}"' in html for slug in slug_names), "every template is embedded in the gallery")
         check('aria-pressed' in html and "mountAuroraWindow" in html, "gallery switcher wired to the engine")
+        check("DecompressionStream" in html, "dumps are compressed and inflated on demand")
 
     version = re.search(r'Util\.Version\s*=\s*"([\d.]+)"', (ROOT / "src/UI/UILibrary/Util.luau").read_text())
     if version and GALLERY.exists():
-        check(version.group(1) in GALLERY.read_text(), f"page reports version {version.group(1)}")
+        tag = re.search(r'<meta name="aurora-version" content="([\d.]+)">', GALLERY.read_text())
+        check(bool(tag) and tag.group(1) == version.group(1), f"page reports version {version.group(1)}")
         changelog = (ROOT / "CHANGELOG.md").read_text()
         check(f"## [{version.group(1)}]" in changelog, f"CHANGELOG has a {version.group(1)} section")
 

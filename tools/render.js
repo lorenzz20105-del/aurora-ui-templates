@@ -8,8 +8,15 @@ const fs = require("fs");
 const path = require("path");
 
 const ROOT = path.join(__dirname, "..");
+const zlib = require("zlib");
 const engineCss = fs.readFileSync(path.join(__dirname, "engine.css"), "utf8");
 const engineJs = fs.readFileSync(path.join(__dirname, "engine.js"), "utf8");
+
+function libraryVersion() {
+	const source = fs.readFileSync(path.join(ROOT, "src", "UI", "UILibrary", "Util.luau"), "utf8");
+	const match = /Util\.Version\s*=\s*"([\d.]+)"/.exec(source);
+	return match ? match[1] : "0.0.0";
+}
 
 function fill(template, values) {
 	let html = template;
@@ -48,16 +55,17 @@ function buildGallery() {
 		throw new Error("docs/styles/ is empty — run python3 tools/dump-all.py first");
 	}
 
-	const files = fs
-		.readdirSync(stylesDir)
-		.filter((name) => name.endsWith(".json"));
+	const files = fs.readdirSync(stylesDir).filter((name) => name.endsWith(".json"));
 
 	const styles = files.map((name) => {
-		const data = JSON.parse(fs.readFileSync(path.join(stylesDir, name), "utf8"));
+		const raw = fs.readFileSync(path.join(stylesDir, name));
+		const data = JSON.parse(raw.toString("utf8"));
+		const tree = data.window ? data : { window: data };
 		return {
 			slug: name.replace(/\.json$/, ""),
 			meta: data.meta || {},
-			dump: data.window ? data : { window: data },
+			// gzip + base64: 2.6 MB of JSON becomes ~135 KB in the page
+			data: zlib.gzipSync(JSON.stringify(tree), { level: 9 }).toString("base64"),
 		};
 	});
 
@@ -71,6 +79,7 @@ function buildGallery() {
 		"/*__ENGINE_CSS__*/": engineCss,
 		"/*__ENGINE_JS__*/": engineJs,
 		"/*__STYLES__*/[]": JSON.stringify(styles),
+		"/*__VERSION__*/": libraryVersion(),
 	});
 
 	fs.writeFileSync(outPath, html);
