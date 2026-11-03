@@ -17,10 +17,12 @@
   }
   .stage-wrap {
     position: relative;
-    /* the stage is authored at a fixed pixel size and scaled from its own
-       top-left corner; scaling about the centre shifts the window sideways
-       and crops it in narrow panes */
-    transform-origin: top left;
+    /* the stage is authored at a fixed 900x580; fit() scales the stage and
+       sizes this wrapper to the scaled box. Start at 0x0 so the fixed-size
+       stage cannot widen the mobile layout viewport before JS runs. */
+    overflow: hidden;
+    width: 0;
+    height: 0;
   }
   .stage {
     position: relative;

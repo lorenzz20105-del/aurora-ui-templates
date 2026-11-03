@@ -506,9 +506,16 @@ function fit() {
   const availableHeight = (options.maxHeight || window.innerHeight) - (options.chrome || 150);
   const auto = Math.min(1.15, available / winW, availableHeight / winH);
   const safe = options.fixedScale || Math.max(options.minScale || 0.42, auto);
-  wrap.style.transform = 'scale(' + safe + ')';
-  wrap.style.height = winH * safe + 'px';
-  wrap.style.width = winW * safe + 'px';
+
+  // Scale the fixed-size stage and give the wrapper the *scaled* box.
+  // Transforming the wrapper instead leaves a 900px layout box behind, which
+  // widens the mobile layout viewport and crops the window.
+  stage.style.transformOrigin = 'top left';
+  stage.style.transform = 'scale(' + safe + ')';
+  wrap.style.transform = 'none';
+  wrap.style.overflow = 'hidden';
+  wrap.style.width = Math.round(winW * safe) + 'px';
+  wrap.style.height = Math.round(winH * safe) + 'px';
 }
 window.addEventListener('resize', fit);
 fit();

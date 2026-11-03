@@ -25,10 +25,12 @@
   }
   .stage-wrap {
     position: relative;
-    /* the stage is authored at a fixed pixel size and scaled from its own
-       top-left corner; scaling about the centre shifts the window sideways
-       and crops it in narrow panes */
-    transform-origin: top left;
+    /* the stage is authored at a fixed 900x580; fit() scales the stage and
+       sizes this wrapper to the scaled box. Start at 0x0 so the fixed-size
+       stage cannot widen the mobile layout viewport before JS runs. */
+    overflow: hidden;
+    width: 0;
+    height: 0;
   }
   .stage {
     position: relative;
@@ -73,6 +75,7 @@
   /* ------------------------------------------------ gallery chrome */
   body {
     margin: 0;
+    overflow-x: hidden;
     min-height: 100vh;
     background:
       radial-gradient(1100px 620px at 12% -12%, rgba(124, 92, 255, 0.20), transparent 62%),
@@ -81,7 +84,19 @@
     color: #e8ecf7;
     font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     padding: 26px 26px 44px;
+    /* engine.css centres the body vertically for the single-window render.
+       In the gallery that clips the top of the page in short panes and leaves
+       dead space on phones, so start at the top and only centre when there is
+       real slack (below). */
+    justify-content: flex-start;
+    /* engine.css shrinks the body's flex items to fit-content; stretch them so
+       the gallery uses the full width of a phone instead of a centred column. */
+    align-items: stretch;
   }
+  /* body is a flex column, and auto horizontal margins make flex items
+     shrink-to-fit -- force the full width and let max-width + auto margins
+     centre them instead */
+  .top, .chips, .meta-row, .foot { width: 100%; }
   .top {
     max-width: 1180px;
     margin: 0 auto 20px;
@@ -118,14 +133,18 @@
   .chips {
     max-width: 1180px;
     margin: 0 auto 18px;
-    display: flex;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(168px, 1fr));
     gap: 8px;
   }
   .chip {
     display: inline-flex;
     align-items: center;
+    justify-content: flex-start;
     gap: 9px;
+    /* grid items default to min-width:auto -- long taglines would blow the
+       columns out and give the page a horizontal scrollbar */
+    min-width: 0;
     padding: 8px 13px 8px 10px;
     border-radius: 11px;
     border: 1px solid #1d2333;
@@ -149,11 +168,8 @@
     border-radius: 4px;
     box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .18);
   }
-  .chip small {
-    font-weight: 500;
-    color: #6f7891;
-    font-size: 11px;
-  }
+  .chip small { display: none; }   /* tagline lives in the meta row instead */
+  .chip > span { min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .chip[aria-pressed="true"] small { color: #c9d2e6; }
 
   /* ------------------------------------------------------------ stage */
@@ -235,7 +251,8 @@
   }
   @media (max-width: 720px) {
     body { padding: 14px 12px 24px; }
-    .top h1 { font-size: 17px; }
+    .top h1 { font-size: clamp(15px, 4.4vw, 17px); }
+    .top, .chips { width: 100%; }
     .top p { font-size: 12px; line-height: 1.5; }
     .chips { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
     .chip { justify-content: flex-start; padding: 7px 9px; font-size: 11.5px; }
@@ -249,6 +266,24 @@
   }
   @media (max-width: 460px) {
     .top p { display: none; }
+  }
+  /* Short panes: a five-row chip grid would eat the whole height, so collapse
+     it into one swipeable strip and shrink the chrome. */
+  @media (max-height: 660px) {
+    body { padding: 14px 16px 18px; }
+    .top { margin-bottom: 10px; }
+    .top h1 { font-size: 17px; margin-bottom: 0; }
+    .top p { display: none; }
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .chip { padding: 5px 9px 5px 7px; font-size: 11.5px; gap: 6px; }
+    .viewport { padding: 10px; border-radius: 12px; }
+    .meta-row { margin-top: 8px; gap: 10px; font-size: 11.5px; }
+    .meta-row .tag, .meta-row .pill { display: none; }
+    .foot { display: none; }
   }
   .hint-key {
     border: 1px solid #222a3c;
@@ -804,9 +839,16 @@ function fit() {
   const availableHeight = (options.maxHeight || window.innerHeight) - (options.chrome || 150);
   const auto = Math.min(1.15, available / winW, availableHeight / winH);
   const safe = options.fixedScale || Math.max(options.minScale || 0.42, auto);
-  wrap.style.transform = 'scale(' + safe + ')';
-  wrap.style.height = winH * safe + 'px';
-  wrap.style.width = winW * safe + 'px';
+
+  // Scale the fixed-size stage and give the wrapper the *scaled* box.
+  // Transforming the wrapper instead leaves a 900px layout box behind, which
+  // widens the mobile layout viewport and crops the window.
+  stage.style.transformOrigin = 'top left';
+  stage.style.transform = 'scale(' + safe + ')';
+  wrap.style.transform = 'none';
+  wrap.style.overflow = 'hidden';
+  wrap.style.width = Math.round(winW * safe) + 'px';
+  wrap.style.height = Math.round(winH * safe) + 'px';
 }
 window.addEventListener('resize', fit);
 fit();
@@ -874,12 +916,24 @@ async function loadDump(entry) {
 // Scale every template to the space that is actually available, so the window
 // is never cropped — even in a short preview pane.
 function galleryScale() {
-  const width = Math.min(1180, window.innerWidth) - 80;
+  // clientWidth is the real viewport; innerWidth can be inflated by wide
+  // content on mobile browsers
+  const viewportWidth = document.documentElement.clientWidth || window.innerWidth;
+  // The frame hugs the scaled window (width:fit-content), so its own width
+  // depends on the scale -- measuring it would be circular. Derive the box
+  // from the page width minus the paddings/borders the window sits inside.
+  const chromeBox = (el) => {
+    const cs = getComputedStyle(el);
+    return ['Left', 'Right'].reduce((n, side) =>
+      n + (parseFloat(cs['padding' + side]) || 0) + (parseFloat(cs['border' + side + 'Width']) || 0), 0);
+  };
+  const width = Math.max(160, Math.min(1180, viewportWidth - chromeBox(document.body)) - chromeBox(viewport));
   const top = viewport ? viewport.getBoundingClientRect().top : 320;
-  const height = Math.max(300, window.innerHeight - top - 110);
+  // 150px reserve: meta row, footer, body padding and breathing room
+  const height = Math.max(240, window.innerHeight - top - 150);
   // the window must never be cropped horizontally; vertically it may be
   // smaller so the page can simply scroll
-  const byHeight = Math.max(0.42, height / 580);
+  const byHeight = Math.max(0.3, height / 580);
   return Math.max(0.24, Math.min(1.12, width / 900, byHeight));
 }
 
@@ -931,6 +985,15 @@ async function mount(index) {
     showMessage('Could not render this template: ' + error.message);
   } finally {
     wrap.classList.remove('loading');
+  }
+
+  // The scale depends on how far down the page the frame sits, and the page
+  // reflows once the window exists. Re-fit after layout settles so the window
+  // is not left at the size it had while the frame was still empty.
+  if (view && view.fit) {
+    const settle = () => view.fit();
+    requestAnimationFrame(() => requestAnimationFrame(settle));
+    setTimeout(settle, 250);
   }
 
   try {
