@@ -77,6 +77,7 @@ function Section.New(window, parent: Instance, config: { [string]: any })
 	-- Positioned by hand rather than with a UIListLayout: the optional
 	-- description occupies a second line, which a horizontal list cannot
 	-- express (and a full-size spacer would push the chevron off the card).
+	local sectionTitle, sectionHeader
 	if config.Name or config.Icon then
 		local hasDescription = config.Description ~= nil
 		local rowHeight = hasDescription and 18 or 26
@@ -119,6 +120,8 @@ function Section.New(window, parent: Instance, config: { [string]: any })
 			Parent = header,
 		})
 		Util.Themable(title, "TextColor3", "Text")
+		sectionTitle = title
+		sectionHeader = header
 
 		local titleWidth = Util.TextWidth(titleText, 13)
 
@@ -187,6 +190,78 @@ function Section.New(window, parent: Instance, config: { [string]: any })
 				Parent = header,
 			})
 			Util.Themable(description, "TextColor3", "TextMuted")
+		end
+	end
+
+	-- Section variants --------------------------------------------------
+	-- panels    : the default card, tinted per style
+	-- cards     : no shell at all, every control is its own card
+	-- list      : flat panel, hairline rule under an uppercase header
+	-- console   : mono, accent rule, reads like a terminal pane
+	-- accordion : floating pill header over an open body
+	local sectionKind = config.Section or Util.M("Sections", "panels")
+	local cardStroke = card:FindFirstChildOfClass("UIStroke")
+
+	if sectionKind == "cards" then
+		card.BackgroundTransparency = 1
+		if cardStroke then
+			cardStroke.Enabled = false
+		end
+		Util.Padding({ X = 0, Y = 2 }, card)
+		if sectionTitle then
+			sectionTitle.TextSize = 12
+		end
+	elseif sectionKind == "list" then
+		card.BackgroundTransparency = 0.45
+		Util.Corner(6, card)
+		Util.Padding({ X = 8, Y = 8 }, card)
+		if cardStroke then
+			cardStroke.Transparency = 0.55
+		end
+		if sectionTitle then
+			sectionTitle.Text = string.upper(sectionTitle.Text)
+			sectionTitle.TextSize = 11
+		end
+		if sectionHeader then
+			Util.New("Frame", {
+				Name = "Rule",
+				BackgroundColor3 = Util.Theme.StrokeSoft,
+				AnchorPoint = Vector2.new(0, 1),
+				Position = UDim2.new(0, 0, 1, 0),
+				Size = UDim2.new(1, 0, 0, 1),
+				BorderSizePixel = 0,
+				Parent = sectionHeader,
+			})
+		end
+	elseif sectionKind == "console" then
+		card.BackgroundTransparency = 0.2
+		Util.Corner(3, card)
+		if cardStroke then
+			cardStroke.Color = Util.Theme.Accent
+			cardStroke.Transparency = 0.55
+		end
+		if sectionTitle then
+			sectionTitle.Font = Enum.Font.Code
+			sectionTitle.Text = "> " .. string.upper(sectionTitle.Text)
+			sectionTitle.TextSize = 12
+			sectionTitle.TextColor3 = Util.Theme.Accent
+		end
+	elseif sectionKind == "accordion" then
+		card.BackgroundTransparency = 1
+		if cardStroke then
+			cardStroke.Enabled = false
+		end
+		if sectionHeader then
+			sectionHeader.BackgroundColor3 = Util.Theme.Surface
+			sectionHeader.BackgroundTransparency = 0.05
+			Util.Corner(999, sectionHeader)
+			Util.Padding({ X = 12 }, sectionHeader)
+			Util.Themable(sectionHeader, "BackgroundColor3", "Surface")
+		end
+		if sectionTitle then
+			sectionTitle.Text = string.upper(sectionTitle.Text)
+			sectionTitle.TextSize = 11
+			sectionTitle.TextColor3 = Util.Theme.TextMuted
 		end
 	end
 

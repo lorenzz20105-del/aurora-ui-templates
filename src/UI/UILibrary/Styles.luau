@@ -67,6 +67,41 @@ end
 -- before styles existed. Anything a style omits falls back to this.
 ------------------------------------------------------------------
 
+-- A style is three things: a palette, a *layout blueprint* and a *motion
+-- profile*. The blueprint decides what the window is made of -- where the
+-- navigation lives, how the numbers are presented, what a section looks
+-- like, whether there is a footer, what decorates the backdrop. The motion
+-- profile decides how it enters, how it reacts and what it does while idle.
+-- Change the blueprint and the same components become a different app.
+
+-- Layout: Nav     rail | sidebar | tabs | float | dock
+--         Header  bar | strip | hero
+--         Stats   cards | headline | rows | chips | dials
+--         Sections panels | cards | list | console | accordion
+--         Footer  status | ticker | none
+--         Decor   none | glow | grid | scan | dots
+Styles.LayoutDefaults = {
+	Nav = "rail",
+	NavWidth = 74,
+	Header = "bar",
+	Stats = "cards",
+	Sections = "panels",
+	Footer = "status",
+	Decor = "none",
+}
+
+-- Motion: Entry rise | pop | fade | glitch | type | snap | bounce
+--         Hover glow | lift | press | none
+--         Idle  shimmer | scan | blink | pulse | none
+Styles.MotionDefaults = {
+	Entry = "rise",
+	Hover = "lift",
+	Idle = "none",
+	Duration = 0.3,
+	Stagger = 0.03,
+	Easing = "Quad",
+}
+
 Styles.Defaults = {
 	Rail = "rail",          -- rail | tabs | sidebar
 	RailWidth = 74,         -- ignored by "tabs"
@@ -111,6 +146,8 @@ Styles.All = {
 			RadiusScale = 1, MaxRadius = 20, TabShape = "rounded",
 			Shadow = 1, Glow = true,
 		},
+		Layout = { Nav = "rail", Header = "bar", Stats = "cards", Sections = "panels", Footer = "status", Decor = "glow", NavWidth = 74 },
+		Motion = { Entry = "rise", Hover = "glow", Idle = "shimmer", Duration = 0.30, Stagger = 0.035, Easing = "Quint" }
 	},
 
 	----------------------------------------------------------------
@@ -133,6 +170,8 @@ Styles.All = {
 			RadiusScale = 1.1, MaxRadius = 22, TabShape = "rounded",
 			Shadow = 1.5, Glow = false,
 		},
+		Layout = { Nav = "tabs", Header = "hero", Stats = "headline", Sections = "cards", Footer = "none", Decor = "none", NavWidth = 0 },
+		Motion = { Entry = "pop", Hover = "lift", Idle = "none", Duration = 0.26, Stagger = 0.04, Easing = "Back" }
 	},
 
 	----------------------------------------------------------------
@@ -156,6 +195,8 @@ Styles.All = {
 			BorderScale = 1.4, BorderAlphaScale = 0.4, Shadow = 0.6,
 			Glow = true, HeaderCase = "upper", SectionGap = 12,
 		},
+		Layout = { Nav = "rail", Header = "strip", Stats = "chips", Sections = "panels", Footer = "ticker", Decor = "grid", NavWidth = 74 },
+		Motion = { Entry = "glitch", Hover = "glow", Idle = "scan", Duration = 0.34, Stagger = 0.028, Easing = "Linear" }
 	},
 
 	----------------------------------------------------------------
@@ -179,6 +220,8 @@ Styles.All = {
 			BorderScale = 1, BorderAlphaScale = 0.5, Shadow = 0,
 			HeaderCase = "upper", Mono = true, Density = 0.94,
 		},
+		Layout = { Nav = "sidebar", Header = "strip", Stats = "rows", Sections = "console", Footer = "status", Decor = "scan", NavWidth = 168 },
+		Motion = { Entry = "type", Hover = "none", Idle = "blink", Duration = 0.20, Stagger = 0.02, Easing = "Linear" }
 	},
 
 	----------------------------------------------------------------
@@ -203,6 +246,8 @@ Styles.All = {
 			BorderScale = 2.4, BorderAlphaScale = 0, Shadow = 1.8,
 			HeaderCase = "upper", SectionGap = 14,
 		},
+		Layout = { Nav = "tabs", Header = "hero", Stats = "rows", Sections = "list", Footer = "none", Decor = "none", NavWidth = 0 },
+		Motion = { Entry = "snap", Hover = "press", Idle = "none", Duration = 0.10, Stagger = 0.0, Easing = "Linear" }
 	},
 
 	----------------------------------------------------------------
@@ -225,6 +270,8 @@ Styles.All = {
 			RadiusScale = 2.1, MaxRadius = 28, TabShape = "pill",
 			BorderScale = 1.4, BorderAlphaScale = 1.6, Shadow = 1.2, Glow = true,
 		},
+		Layout = { Nav = "float", Header = "bar", Stats = "headline", Sections = "cards", Footer = "none", Decor = "dots", NavWidth = 64 },
+		Motion = { Entry = "fade", Hover = "lift", Idle = "pulse", Duration = 0.42, Stagger = 0.05, Easing = "Sine" }
 	},
 
 	----------------------------------------------------------------
@@ -248,6 +295,8 @@ Styles.All = {
 			RadiusScale = 1.7, MaxRadius = 999, TabShape = "pill",
 			BorderScale = 0.8, Shadow = 1.3, Glow = false,
 		},
+		Layout = { Nav = "tabs", Header = "bar", Stats = "cards", Sections = "cards", Footer = "none", Decor = "none", NavWidth = 0 },
+		Motion = { Entry = "pop", Hover = "lift", Idle = "none", Duration = 0.28, Stagger = 0.045, Easing = "Back" }
 	},
 
 	----------------------------------------------------------------
@@ -272,6 +321,8 @@ Styles.All = {
 			BorderScale = 2, BorderAlphaScale = 0, Shadow = 1.6,
 			HeaderCase = "upper", Density = 1.05,
 		},
+		Layout = { Nav = "dock", Header = "strip", Stats = "cards", Sections = "cards", Footer = "ticker", Decor = "grid", NavWidth = 0 },
+		Motion = { Entry = "bounce", Hover = "press", Idle = "blink", Duration = 0.38, Stagger = 0.05, Easing = "Bounce" }
 	},
 
 	----------------------------------------------------------------
@@ -294,6 +345,8 @@ Styles.All = {
 			RadiusScale = 0.75, MaxRadius = 10, TabShape = "rounded",
 			BorderScale = 0.9, Shadow = 0.7, Density = 0.92, SectionGap = 8,
 		},
+		Layout = { Nav = "sidebar", Header = "bar", Stats = "rows", Sections = "list", Footer = "status", Decor = "none", NavWidth = 186 },
+		Motion = { Entry = "fade", Hover = "none", Idle = "none", Duration = 0.18, Stagger = 0.015, Easing = "Sine" }
 	},
 
 	----------------------------------------------------------------
@@ -317,6 +370,8 @@ Styles.All = {
 			RadiusScale = 1.3, MaxRadius = 24, TabShape = "pill",
 			Shadow = 1.2, Glow = true,
 		},
+		Layout = { Nav = "rail", Header = "hero", Stats = "dials", Sections = "accordion", Footer = "status", Decor = "glow", NavWidth = 74 },
+		Motion = { Entry = "rise", Hover = "lift", Idle = "pulse", Duration = 0.40, Stagger = 0.05, Easing = "Sine" }
 	},
 }
 
@@ -336,12 +391,40 @@ function Styles.Get(name: string?)
 	return Styles.Index[string.lower(name or "")] or Styles.All[1]
 end
 
---- Merged metrics: style values on top of Styles.Defaults.
+--- Merged layout blueprint: style values on top of Styles.LayoutDefaults.
+function Styles.Layout(style)
+	local layout = table.clone(Styles.LayoutDefaults)
+	for key, value in pairs(style.Layout or {}) do
+		layout[key] = value
+	end
+	return layout
+end
+
+--- Merged motion profile: style values on top of Styles.MotionDefaults.
+function Styles.Motion(style)
+	local motion = table.clone(Styles.MotionDefaults)
+	for key, value in pairs(style.Motion or {}) do
+		motion[key] = value
+	end
+	return motion
+end
+
+--- Merged metrics: style values on top of Styles.Defaults. The navigation
+--- geometry is derived from the layout blueprint, so `Nav = "dock"` in a
+--- style is enough to move the whole rail to the bottom of the window.
 function Styles.Metrics(style)
 	local metrics = table.clone(Styles.Defaults)
 	for key, value in pairs(style.Metrics or {}) do
 		metrics[key] = value
 	end
+	local layout = Styles.Layout(style)
+	metrics.Rail = layout.Nav
+	metrics.RailWidth = layout.NavWidth or metrics.RailWidth
+	metrics.Header = layout.Header
+	metrics.Footer = layout.Footer
+	metrics.Stats = layout.Stats
+	metrics.Sections = layout.Sections
+	metrics.Decor = layout.Decor
 	return metrics
 end
 

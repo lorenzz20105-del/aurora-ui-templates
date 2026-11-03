@@ -103,6 +103,20 @@ def style_meta(slug):
             match = re.search(rf'{key} = "(#[0-9A-Fa-f]{{6}})"', block)
             if match:
                 meta[key] = match.group(1)
+        # the blueprint + motion profile travel with the dump so the preview
+        # can animate exactly what the Luau would animate
+        for key in ("Layout", "Motion"):
+            table = re.search(key + r"\s*=\s*\{(.*?)\}", block, re.S)
+            if not table:
+                continue
+            parsed = {}
+            for name, value in re.findall(r'(\w+)\s*=\s*("[^"]*"|[\d.]+)', table.group(1)):
+                if value.startswith('"'):
+                    parsed[name] = value.strip('"')
+                else:
+                    number = float(value)
+                    parsed[name] = int(number) if number.is_integer() else number
+            meta[key.lower()] = parsed
         return meta
     return {"slug": slug}
 

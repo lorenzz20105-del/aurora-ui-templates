@@ -22,14 +22,14 @@ LIB = os.path.join(ROOT, "src", "UI", "UILibrary")
 DIST = os.path.join(ROOT, "dist")
 
 ORDER = [
-    "Theme", "Util", "Icons", "Styles",
+    "Theme", "Util", "Icons", "Anim", "Styles",
     "Row", "Button", "Toggle", "Slider", "Dropdown", "TextBox",
     "Keybind", "ColorPicker", "Section", "Notification", "Tooltip",
     "StatCard", "Tab", "Window", "init", "Preview",
 ]
 
 # Modules that live in the library root instead of Components/
-ROOT_MODULES = ("Theme", "Util", "Icons", "Styles", "init", "Preview")
+ROOT_MODULES = ("Theme", "Util", "Icons", "Anim", "Styles", "init", "Preview")
 
 HEADER = """--[[
 	Aurora UI {version} — single-file build

@@ -8,7 +8,7 @@ geometry and typography.
 [![License: MIT](https://img.shields.io/badge/license-MIT-7C5CFF.svg)](LICENSE)
 [![Luau](https://img.shields.io/badge/language-Luau-00A2FF.svg)](https://luau.org)
 [![Rojo](https://img.shields.io/badge/Rojo-7.x-FF4757.svg)](https://rojo.space)
-[![Version](https://img.shields.io/badge/version-3.0.0-7C5CFF.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-4.0.0-7C5CFF.svg)](CHANGELOG.md)
 [![Templates](https://img.shields.io/badge/templates-10-22D3EE.svg)](https://lorenzz20105-del.github.io/aurora-ui-templates/)
 [![Tests](https://img.shields.io/badge/tests-5%20suites%20passing-34D399.svg)](.github/workflows/tests.yml)
 
@@ -46,7 +46,25 @@ local window = UI.CreateWindow({
 | ![Material You](docs/styles/material.jpg) | ![Arcade](docs/styles/arcade.jpg) | ![Executive](docs/styles/executive.jpg) |
 | **Material You** · `material`<br>Soft tonal surfaces, pill controls | **Arcade** · `arcade`<br>Retro cabinet: deep purple, hot pink | **Executive** · `executive`<br>Quiet corporate greys, navy accent |
 | ![Solar](docs/styles/solar.jpg) | **What changes between them** | |
-| **Solar** · `solar`<br>Warm sand and amber, sunlit gradients | Not just colour: each style sets `Rail` (icon rail / labelled sidebar / top tab bar), `Card` (glass / elevated / outline / flat / brutal), `Button` (gradient / solid / outline / brutal), radius scale and clamp, border weight, shadow strength, header casing, row density. | |
+| **Solar** · `solar`<br>Warm sand and amber, sunlit gradients | **Everything.** In 4.0 a style is a palette **plus a layout blueprint plus a motion profile** — where the navigation lives, how numbers are presented, how a section is drawn, and how the whole thing enters and moves. The table below is the blueprint matrix. | |
+
+### The blueprint matrix
+
+Each row is what you get from `CreateWindow({ Style = "…" })`. No two rows are
+the same, and none of this is a recolour.
+
+| Style | Navigation | Header | Numbers | Sections | Footer | Decor | Motion |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| **Midnight** | icon rail | bar | 3 cards + sparklines | glass panels | status | glow | rise · glow · shimmer |
+| **Daylight** | top tab bar | hero | hero headline + fill bar | free cards | — | — | pop · lift |
+| **Neon Grid** | icon rail | strip | capsules | outline panels | ticker | grid | glitch · glow · scan |
+| **Terminal** | labelled sidebar | strip | table rows | console panes | status | scanlines | type · blink |
+| **Brutalist** | top tab bar | hero | table rows | hairline list | — | — | snap · press |
+| **Frost** | floating rail | bar | hero headline | free cards | — | dots | fade · lift · pulse |
+| **Material You** | top tab bar | bar | 3 cards + sparklines | free cards | — | — | pop · lift |
+| **Arcade** | bottom dock | strip | 3 cards + sparklines | free cards | ticker | grid | bounce · press · blink |
+| **Executive** | labelled sidebar | bar | table rows | hairline list | status | — | fade |
+| **Solar** | icon rail | hero | ring dials | pill accordion | status | glow | rise · lift · pulse |
 
 ---
 
@@ -69,21 +87,60 @@ One table in [`src/UI/UILibrary/Styles.luau`](src/UI/UILibrary/Styles.luau):
     }),
 
     Metrics = {
-        Rail = "sidebar", RailWidth = 178,   -- wide labelled column
         Card = "flat", Button = "outline",
         RadiusScale = 0, MaxRadius = 0,      -- perfectly square
         TabShape = "square", HeaderCase = "upper",
         BorderAlphaScale = 0.5, Shadow = 0, Density = 0.94, Mono = true,
     },
+
+    -- what the window is made of
+    Layout = {
+        Nav = "sidebar",      -- rail | sidebar | tabs | float | dock
+        NavWidth = 168,
+        Header = "strip",     -- bar | strip | hero
+        Stats = "rows",       -- cards | rows | chips | headline | dials
+        Sections = "console", -- panels | cards | list | console | accordion
+        Footer = "status",    -- status | ticker | none
+        Decor = "scan",       -- none | glow | grid | scan | dots
+    },
+
+    -- how it arrives, reacts and idles
+    Motion = {
+        Entry = "type", Hover = "none", Idle = "blink",
+        Duration = 0.20, Stagger = 0.02, Easing = "Linear",
+    },
 }
 ```
+
+### Layout reference
+
+| Key | Values | What it does |
+| --- | --- | --- |
+| `Nav` | `rail` · `sidebar` · `tabs` · `float` · `dock` | 74 px icon column · wide labelled column · top tab bar · detached floating panel · bottom dock |
+| `NavWidth` | number | width of the labelled sidebar / floating rail |
+| `Header` | `bar` · `strip` · `hero` | 58 px bar · 44 px half bar with an uppercase title · 92 px header with a big title and an accent wash |
+| `Stats` | `cards` · `rows` · `chips` · `headline` · `dials` | sparkline cards · table rows · compact pills · one hero number with a fill bar · 14-segment ring gauges |
+| `Sections` | `panels` · `cards` · `list` · `console` · `accordion` | tinted card · no shell at all · flat panel with a hairline rule · monospace pane with an accent rule · pill header |
+| `Footer` | `status` · `ticker` · `none` | version pill + live dot + theme chip · LIVE pill + fps/ping/nodes legend · no footer |
+| `Decor` | `none` · `glow` · `grid` · `scan` · `dots` | backdrop overlay drawn by the preview engine |
+
+### Motion reference
+
+| Key | Values | What it does |
+| --- | --- | --- |
+| `Entry` | `rise` · `pop` · `fade` · `glitch` · `type` · `snap` · `bounce` | how each control arrives |
+| `Hover` | `glow` · `lift` · `press` · `none` | pointer feedback (`Anim.Hover`) |
+| `Idle` | `shimmer` · `scan` · `blink` · `pulse` · `none` | what moves when nobody is touching it |
+| `Duration` / `Stagger` / `Easing` | seconds / seconds / `Linear`…`Elastic` | timing, per-sibling delay, curve |
+
+`Anim.luau` runs the profile through `TweenService` in game;
+`tools/engine.js` replays the same profile in CSS in the preview. One profile,
+two renderers.
 
 ### Metrics reference
 
 | Key | Values | What it does |
 | --- | --- | --- |
-| `Rail` | `rail` · `sidebar` · `tabs` | 74 px icon column, wide labelled column, or a horizontal tab bar |
-| `RailWidth` | number | width of the labelled sidebar |
 | `Card` | `glass` · `elevated` · `outline` · `flat` · `brutal` | section card treatment |
 | `Button` | `gradient` · `solid` · `outline` · `brutal` | primary/block button treatment |
 | `TabShape` | `rounded` · `square` · `pill` | rail button shape |
@@ -93,6 +150,10 @@ One table in [`src/UI/UILibrary/Styles.luau`](src/UI/UILibrary/Styles.luau):
 | `Shadow` | number | multiplies drop-shadow strength |
 | `Density` | number | row height multiplier |
 | `Glow` / `Mono` | boolean | accent halo on active elements / monospace headings |
+
+`Layout` and `Motion` are optional — leave them out and the style falls back to
+the Midnight blueprint (`rail` / `bar` / `cards` / `panels` / `status`) with a
+`rise` entrance.
 
 Styles are registered with the theme system on load, so `window:SetTheme("Solar")`
 still works for live palette swaps; geometry is baked when the window is built, so
@@ -245,6 +306,7 @@ src/
     ├── init.luau            # public API (CreateWindow, SetTheme, Format …)
     ├── Styles.luau          # ← the ten templates
     ├── Theme.luau           # palettes, type scale, spacing, layout constants
+    ├── Anim.luau            # motion profiles: entry, hover, idle (TweenService)
     ├── Util.luau            # instance helpers, tweens, drag, theming, style metrics
     ├── Icons.luau           # 31 vector icons + asset override table
     ├── Preview.luau         # in-engine live preview module

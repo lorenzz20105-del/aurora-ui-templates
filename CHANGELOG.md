@@ -4,6 +4,58 @@ All notable changes to Aurora UI are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and
 the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.0.0] — 2026-11-03
+
+**Ten design languages, not ten recolours.** A style now decides what the
+window is *made of* and *how it moves*, not only what colour it is.
+
+### Added
+
+- **Layout blueprint** — every style carries a `Layout` table:
+  `Nav` (`rail` / `sidebar` / `tabs` / `float` / `dock`), `Header` (`bar` /
+  `strip` / `hero`), `Stats` (`cards` / `rows` / `chips` / `headline` /
+  `dials`), `Sections` (`panels` / `cards` / `list` / `console` /
+  `accordion`), `Footer` (`status` / `ticker` / `none`) and `Decor`
+  (`none` / `glow` / `grid` / `scan` / `dots`).
+- **Motion profile** — every style carries a `Motion` table: `Entry`
+  (`rise` / `pop` / `fade` / `glitch` / `type` / `snap` / `bounce`),
+  `Hover` (`glow` / `lift` / `press` / `none`), `Idle` (`shimmer` / `scan` /
+  `blink` / `pulse` / `none`), plus `Duration`, `Stagger` and `Easing`.
+- **`Anim.luau`** — runs the motion profile through `TweenService`:
+  `Anim.Entry`, `Anim.Entrance` (staggered), `Anim.Hover`, `Anim.Idle`,
+  `Anim.Adopt`. Open the window and the body staggers in with the style's own
+  timing; hover and idle loops follow the same profile.
+- **Two new navigation layouts** — `float` (the rail detaches into its own
+  rounded panel with a shadow) and `dock` (a bottom tab bar with an accent
+  hairline, for phone-shaped screens).
+- **Three new header layouts** — `strip` (half-height, uppercase title, no
+  subtitle), `hero` (tall header, big title, accent wash) and the default
+  `bar`.
+- **Footer variants** — `status` (version pill + live dot + theme chip),
+  `ticker` (LIVE pill + fps/ping/nodes legend) and `none`.
+- **Four new stat presentations** in `StatCard`: `rows` (label · value ·
+  delta, table style), `chips` (compact pills), `headline` (one hero number
+  with a fill bar) and `dials` (a 14-segment ring gauge, no assets).
+- **Four new section treatments** in `Section`: `cards` (no shell, every
+  control its own card), `list` (flat panel + hairline rule), `console`
+  (mono, accent rule, terminal pane) and `accordion` (pill header).
+- **Animated preview** — `tools/engine.js` reads `meta.motion` and
+  `meta.layout` from the dump and replays the profile in CSS: staggered
+  entrances, hover feedback, idle loops (shimmer / scan / blink / pulse) and
+  per-style backdrop decoration (grid / scanlines / dots / glow). Honours
+  `prefers-reduced-motion`.
+- `tools/check-render.py` now fails on duplicate blueprints and validates the
+  blueprint + motion metadata in every dump.
+
+### Changed
+
+- `Styles.Metrics()` derives the navigation geometry from `Layout.Nav`, so one
+  field moves the whole rail.
+- `Tab` understands `dock` and `float` (sized and labelled per layout).
+- `Window` reads header/footer/dock heights *before* building anything, so the
+  body, the pages and the chrome always agree.
+- Demo, previews and every dump rebuilt for 4.0.0.
+
 ## [3.0.0] — 2026-11-03
 
 **Ten templates, one library, one generated preview.**

@@ -91,6 +91,36 @@ function Window.New(config: { [string]: any })
 	self.StyleName = style.Name
 	self.ThemeName = style.Name
 
+	-- 4.0 -- the blueprint -------------------------------------------------
+	-- The style also decides what the window is *made of*, not just what
+	-- colour it is. These three numbers are read before a single frame is
+	-- created, so the body, the pages and the footer all agree on where the
+	-- chrome ends.
+	local layout = Styles.Layout(style)
+	local motion = Styles.Motion(style)
+	self.Layout = layout
+	self.Motion = motion
+
+	local headerHeight = if layout.Header == "hero"
+		then 92
+		elseif layout.Header == "strip" then 44
+		else L.TitleBarHeight
+	local footerHeight = if layout.Footer == "none"
+		then 0
+		elseif layout.Footer == "ticker" then 27
+		else L.FooterHeight
+	local dockHeight = if layout.Nav == "dock" then 68 else 0
+
+	self.HeaderHeight = headerHeight
+	self.FooterHeight = footerHeight
+
+	-- Staggered entrance: every direct child of the body slides in, in
+	-- reading order, using the style's own motion profile.
+	local Anim = require(script.Parent.Parent.Anim)
+	self._anim = Anim
+	self._motion = motion
+	self._layout = layout
+
 	local width = config.Width or L.WindowWidth
 	local height = config.Height or L.WindowHeight
 
@@ -205,7 +235,7 @@ function Window.New(config: { [string]: any })
 	local titleBar = Util.New("Frame", {
 		Name = "TitleBar",
 		BackgroundTransparency = 1,
-		Size = UDim2.new(1, 0, 0, L.TitleBarHeight),
+		Size = UDim2.new(1, 0, 0, headerHeight),
 		Parent = main,
 	})
 
@@ -260,6 +290,53 @@ function Window.New(config: { [string]: any })
 	})
 	Util.Themable(subtitle, "TextColor3", "TextDim")
 	self.Subtitle = subtitle
+
+	-- Header variants ---------------------------------------------------
+	-- strip : half-height bar, uppercase title, no subtitle
+	-- hero  : tall header, big title, accent wash behind the logo
+	-- bar   : the default 58px bar
+	if layout.Header == "hero" then
+		logo.Size = UDim2.fromOffset(42, 42)
+		logo.Position = UDim2.fromOffset(18, 20)
+		Util.Corner(15, logo)
+		logoIcon.Size = UDim2.fromOffset(20, 20)
+		title.TextSize = 20
+		title.Position = UDim2.fromOffset(72, 20)
+		title.Size = UDim2.new(0, 360, 0, 26)
+		subtitle.TextSize = 11.5
+		subtitle.Position = UDim2.fromOffset(72, 48)
+		subtitle.Size = UDim2.new(0, 380, 0, 18)
+
+		local wash = Util.New("Frame", {
+			Name = "HeaderWash",
+			BackgroundColor3 = Util.Theme.Accent,
+			BackgroundTransparency = 0.9,
+			Size = UDim2.new(1, 0, 0, headerHeight),
+			BorderSizePixel = 0,
+			ZIndex = 1,
+			Parent = titleBar,
+		})
+		Util.Corner(16, wash)
+		Util.Gradient(ColorSequence.new(Util.Theme.Accent, Util.Theme.Accent2), 12, wash)
+		Util.Themable(wash, "BackgroundColor3", "Accent")
+		-- the wash sits behind the header contents
+		for _, child in ipairs(titleBar:GetChildren()) do
+			if child ~= wash and child:IsA("GuiObject") then
+				child.ZIndex = 2
+			end
+		end
+	elseif layout.Header == "strip" then
+		logo.Size = UDim2.fromOffset(22, 22)
+		logo.Position = UDim2.fromOffset(14, 11)
+		Util.Corner(7, logo)
+		logoIcon.Size = UDim2.fromOffset(12, 12)
+		title.TextSize = 12
+		title.Text = string.upper(title.Text)
+		title.Position = UDim2.fromOffset(44, 5)
+		title.Size = UDim2.new(0, 260, 0, 16)
+		subtitle.Visible = false
+		titleBar.Size = UDim2.new(1, 0, 0, headerHeight)
+	end
 
 	-- Window controls ---------------------------------------------------
 	local controls = Util.New("Frame", {
@@ -316,10 +393,10 @@ function Window.New(config: { [string]: any })
 		Name = "Search",
 		BackgroundColor3 = Util.Theme.Surface,
 		AnchorPoint = Vector2.new(1, 0.5),
-		Position = UDim2.new(1, -170, 0.5, 0),
-		Size = UDim2.fromOffset(168, 30),
+		Position = UDim2.new(1, layout.Header == "hero" and -206 or (layout.Header == "strip" and -156 or -170), 0.5, 0),
+		Size = UDim2.fromOffset(layout.Header == "hero" and 200 or (layout.Header == "strip" and 146 or 168), layout.Header == "strip" and 26 or 30),
 		BorderSizePixel = 0,
-		Visible = config.Search ~= false,
+		Visible = config.Search ~= false and layout.Header ~= "hero",
 		Parent = titleBar,
 	})
 	Util.Corner(9, searchHolder)
@@ -371,8 +448,13 @@ function Window.New(config: { [string]: any })
 	local body = Util.New("Frame", {
 		Name = "Body",
 		BackgroundTransparency = 1,
-		Position = UDim2.fromOffset(0, L.TitleBarHeight),
-		Size = UDim2.new(1, 0, 1, -(L.TitleBarHeight + (config.Footer ~= false and L.FooterHeight or 0))),
+		Position = UDim2.fromOffset(0, headerHeight),
+		Size = UDim2.new(
+			1,
+			0,
+			1,
+			-(headerHeight + (config.Footer ~= false and footerHeight or 0) + dockHeight)
+		),
 		Parent = main,
 	})
 	self.Body = body
@@ -561,16 +643,95 @@ function Window.New(config: { [string]: any })
 		content.Position = UDim2.fromOffset(0, 54)
 		content.Size = UDim2.new(1, 0, 1, -54)
 		self._tabBar = tabBar
+	elseif railKind == "dock" then
+		-- "dock": a horizontal navigation bar pinned to the bottom edge,
+		-- like a phone tab bar or a console home row.
+		sidebar.Visible = false
+
+		local dock = Util.New("Frame", {
+			Name = "Dock",
+			BackgroundColor3 = Util.Theme.Panel,
+			BackgroundTransparency = 0.04,
+			AnchorPoint = Vector2.new(0, 1),
+			Position = UDim2.new(0, 0, 1, -(config.Footer ~= false and footerHeight or 0)),
+			Size = UDim2.new(1, 0, 0, dockHeight),
+			BorderSizePixel = 0,
+			Parent = main,
+		})
+		Util.Corner(0, dock)
+		local dockStroke = Util.Stroke(Util.Theme.Stroke, 1, 0.25, dock)
+		Util.Themable(dock, "BackgroundColor3", "Panel")
+		Util.Themable(dockStroke, "Color", "Stroke")
+
+		local hair = Util.New("Frame", {
+			Name = "DockAccent",
+			BackgroundColor3 = Util.Theme.Accent,
+			Size = UDim2.new(1, 0, 0, 2),
+			BorderSizePixel = 0,
+			Parent = dock,
+		})
+		Util.Gradient(ColorSequence.new(Util.Theme.Accent, Util.Theme.Accent2), 0, hair)
+		Util.Themable(hair, "BackgroundColor3", "Accent")
+
+		Util.Padding({ Left = 12, Right = 12, Top = 10, Bottom = 10 }, dock)
+
+		rail.Parent = dock
+		rail.Position = UDim2.fromOffset(0, 0)
+		rail.Size = UDim2.new(1, -50, 1, 0)
+		rail.AutomaticSize = Enum.AutomaticSize.None
+		local dockList = rail:FindFirstChildOfClass("UIListLayout")
+		if dockList then
+			dockList:Destroy()
+		end
+		Util.List({
+			FillDirection = Enum.FillDirection.Horizontal,
+			Padding = UDim.new(0, 8),
+			HorizontalAlignment = Enum.HorizontalAlignment.Center,
+			VerticalAlignment = Enum.VerticalAlignment.Center,
+			Parent = rail,
+		})
+
+		profile.Parent = dock
+		profile.AnchorPoint = Vector2.new(1, 0.5)
+		profile.Position = UDim2.new(1, 0, 0.5, 0)
+		profile.Size = UDim2.fromOffset(38, 38)
+
+		indicator.Visible = false
+		self._dock = dock
+	elseif railKind == "float" then
+		-- "float": the rail detaches from the window edge and becomes its
+		-- own rounded panel with a drop shadow.
+		local inset = 10
+		sidebar.BackgroundColor3 = Util.Theme.Panel
+		sidebar.BackgroundTransparency = 0.06
+		sidebar.Position = UDim2.fromOffset(inset, inset)
+		sidebar.Size = UDim2.new(0, railWidth, 1, -(inset * 2))
+		Util.Corner(18, sidebar)
+		local floatStroke = Util.Stroke(Util.Theme.Stroke, 1, 0.2, sidebar)
+		Util.Themable(sidebar, "BackgroundColor3", "Panel")
+		Util.Themable(floatStroke, "Color", "Stroke")
+		Util.Shadow(sidebar, { Spread = 18, Strength = 0.8, Radius = 14, OffsetY = 4 })
+
+		divider.Visible = false
+		rail.Position = UDim2.fromOffset(0, 12)
+		profile.AnchorPoint = Vector2.new(0.5, 1)
+		profile.Position = UDim2.new(0.5, 0, 1, -10)
+
+		content.Position = UDim2.fromOffset(railWidth + inset + 10, 8)
+		content.Size = UDim2.new(1, -(railWidth + inset + 10), 1, -8)
 	end
 
 	-- Footer -------------------------------------------------------------
-	if config.Footer ~= false then
+	-- status : version pill + live dot + theme chip (the default)
+	-- ticker : a thin live strip with legend stats, no version chrome
+	-- none   : no footer at all, the pages go all the way down
+	if config.Footer ~= false and layout.Footer ~= "none" then
 		local footer = Util.New("Frame", {
 			Name = "Footer",
 			BackgroundTransparency = 1,
 			AnchorPoint = Vector2.new(0, 1),
 			Position = UDim2.new(0, 0, 1, 0),
-			Size = UDim2.new(1, 0, 0, L.FooterHeight),
+			Size = UDim2.new(1, 0, 0, footerHeight),
 			Parent = main,
 		})
 
@@ -697,6 +858,100 @@ function Window.New(config: { [string]: any })
 			self:CycleTheme()
 		end)
 		themeChip:SetAttribute("Tooltip", "Click to cycle themes")
+
+		if layout.Footer == "ticker" then
+			-- a live strip: LIVE pill, three legend stats, accent hairline
+			versionPill.Visible = false
+			status.Visible = false
+			themeChip.Position = UDim2.new(1, -14, 0, 4)
+
+			local live = Util.New("Frame", {
+				Name = "Live",
+				BackgroundColor3 = Util.Theme.Accent,
+				Position = UDim2.fromOffset(14, 4),
+				Size = UDim2.fromOffset(0, 18),
+				AutomaticSize = Enum.AutomaticSize.X,
+				BorderSizePixel = 0,
+				Parent = footer,
+			})
+			Util.Corner(4, live)
+			Util.Padding({ X = 7 }, live)
+			Util.Themable(live, "BackgroundColor3", "Accent")
+
+			Util.Text({
+				Name = "Label",
+				Text = "LIVE",
+				Font = Enum.Font.GothamBold,
+				TextSize = 9,
+				TextColor3 = Util.Theme.AccentText,
+				Size = UDim2.fromOffset(0, 18),
+				AutomaticSize = Enum.AutomaticSize.X,
+				Parent = live,
+			})
+
+			local legend = Util.New("Frame", {
+				Name = "Legend",
+				BackgroundTransparency = 1,
+				AnchorPoint = Vector2.new(0, 0),
+				Position = UDim2.fromOffset(64, 4),
+				Size = UDim2.fromOffset(0, 18),
+				AutomaticSize = Enum.AutomaticSize.X,
+				Parent = footer,
+			})
+			Util.List({
+				FillDirection = Enum.FillDirection.Horizontal,
+				VerticalAlignment = Enum.VerticalAlignment.Center,
+				Padding = UDim.new(0, 18),
+				Parent = legend,
+			})
+
+			for _, item in ipairs({
+				{ "fps", "40", "Success" },
+				{ "ping", "62 ms", "Info" },
+				{ "nodes", "724", "Accent" },
+			}) do
+				local group = Util.New("Frame", {
+					BackgroundTransparency = 1,
+					Size = UDim2.fromOffset(0, 18),
+					AutomaticSize = Enum.AutomaticSize.X,
+					Parent = legend,
+				})
+				Util.List({
+					FillDirection = Enum.FillDirection.Horizontal,
+					VerticalAlignment = Enum.VerticalAlignment.Center,
+					Padding = UDim.new(0, 5),
+					Parent = group,
+				})
+				local dot = Util.New("Frame", {
+					BackgroundColor3 = Util.Theme[item[3]],
+					Size = UDim2.fromOffset(5, 5),
+					BorderSizePixel = 0,
+					Parent = group,
+				})
+				Util.Corner(999, dot)
+				Util.Themable(dot, "BackgroundColor3", item[3])
+				local key = Util.Text({
+					Text = item[1],
+					Font = Enum.Font.GothamMedium,
+					TextSize = 10,
+					TextColor3 = Util.Theme.TextDim,
+					Size = UDim2.fromOffset(0, 18),
+					AutomaticSize = Enum.AutomaticSize.X,
+					Parent = group,
+				})
+				Util.Themable(key, "TextColor3", "TextDim")
+				local val = Util.Text({
+					Text = item[2],
+					Font = Enum.Font.GothamBold,
+					TextSize = 10,
+					TextColor3 = Util.Theme.Text,
+					Size = UDim2.fromOffset(0, 18),
+					AutomaticSize = Enum.AutomaticSize.X,
+					Parent = group,
+				})
+				Util.Themable(val, "TextColor3", "Text")
+			end
+		end
 	end
 
 	------------------------------------------------------------------
@@ -1396,6 +1651,13 @@ function Window.New(config: { [string]: any })
 		fitToViewport()
 		mainScale.Scale = baseScale * 0.94
 		scaleTo(1, "Spring")
+
+		-- The style's motion profile decides how the contents arrive: the
+		-- chrome is already in place, the body staggers in behind it.
+		if self._anim then
+			self._anim.Entrance(body, motion, 12)
+			self._anim.Entry(self._tabBar or sidebar, motion, 0)
+		end
 		if blur then
 			blur.Size = 0
 			TweenService:Create(

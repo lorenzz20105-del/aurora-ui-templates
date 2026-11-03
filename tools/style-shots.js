@@ -10,7 +10,7 @@ const { chromium } = require('playwright');
 const path = require('path');
 const fs = require('fs');
 
-const PAGE = 'file://' + path.resolve(__dirname, '..', 'docs', 'templates.html');
+const PAGE = 'file://' + path.resolve(__dirname, '..', 'docs', 'index.html');
 const OUT = path.resolve(__dirname, '..', 'docs', 'styles');
 const MARGIN = 14;
 
@@ -28,8 +28,9 @@ const MARGIN = 14;
 	const slugs = await page.evaluate(() => STYLES.map((entry) => entry.slug));
 
 	for (let index = 0; index < slugs.length; index++) {
-		await page.click(`.chip:nth-child(${index + 1})`);
-		await page.waitForTimeout(320);
+		await page.locator('.chip').nth(index).click();
+		// let the style's entrance animation finish before the shutter
+		await page.waitForTimeout(1400);
 
 		const box = await page.locator('[data-name="Main"]').first().boundingBox();
 		const clip = {

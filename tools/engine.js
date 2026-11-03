@@ -5,8 +5,8 @@
    tree) and lays it out in the DOM: automatic sizing, list/grid
    layout, padding, anchors, rotation, gradients, strokes, text.
 
-   Used by both docs/real-ui.html (one window) and docs/templates.html
-   (ten windows, one at a time).
+   Used by both docs/real-ui.html (one window) and docs/index.html
+   (the gallery: ten windows, one at a time).
    ------------------------------------------------------------------ */
 function mountAuroraWindow(data, stage, options) {
   options = options || {};
@@ -434,6 +434,82 @@ const root = data.window;
 measure(root, 900, 580);
 place(root, 0, 0);
 render(root, stage, null);
+
+/* ------------------------------------------------------------- motion
+   Every style ships a motion profile with its dump. The preview replays
+   it in CSS: the same entrance, the same hover, the same idle loop the
+   Luau runs through TweenService -- so the page moves like the game
+   does, no screenshots involved. */
+const META = data.meta || {};
+const MOTION = META.motion || {};
+const LAYOUT = META.layout || {};
+
+function motionCss() {
+  const entry = MOTION.Entry || 'rise';
+  const seconds = MOTION.Duration || 0.3;
+  const stagger = MOTION.Stagger || 0.03;
+  const easing = MOTION.Easing || 'Quint';
+  return { entry, seconds, stagger, easing };
+}
+
+function animateEntrance() {
+  const { entry, seconds, stagger } = motionCss();
+  // Only the chrome and the cards enter. Animating every leaf would both
+  // flicker and push the tail of the queue seconds into the future.
+  const pattern = /^(Main|TitleBar|TabBar|Sidebar|Dock|Footer|Section_.+|Tab_.+|Stat.*|Grid|Content)$/;
+  const queue = [];
+  stage.querySelectorAll('[data-name]').forEach((el) => {
+    if (pattern.test(el.dataset.name || '')) queue.push(el);
+  });
+  queue.forEach((el, index) => {
+    const delay = Math.min(index * stagger, 0.55);
+    el.classList.add('motion-entry', 'entry-' + entry);
+    el.style.animationDuration = seconds + 's';
+    el.style.animationTimingFunction = 'cubic-bezier(.22,.9,.28,1)';
+    el.style.animationDelay = delay.toFixed(3) + 's';
+  });
+}
+
+function animateHover() {
+  const kind = MOTION.Hover || 'lift';
+  if (kind === 'none') return;
+  stage.querySelectorAll('[data-name]').forEach((el) => {
+    const name = el.dataset.name || '';
+    if (/^Tab_|^Stat|^Button|^Quick|^Row|^Section_/.test(name)) {
+      el.classList.add('motion-hover', 'hover-' + kind);
+    }
+  });
+}
+
+function animateIdle() {
+  const kind = MOTION.Idle || 'none';
+  if (kind === 'none') return;
+  const targets = {
+    shimmer: ['Logo', 'DockAccent', 'Title'],
+    pulse: ['Indicator', 'Live', 'Dot'],
+    blink: ['Live', 'Dot', 'Badge'],
+    scan: ['Main', 'Page_Home'],
+  }[kind] || [];
+  stage.querySelectorAll('[data-name]').forEach((el) => {
+    if (targets.indexOf(el.dataset.name) >= 0) el.classList.add('motion-idle', 'idle-' + kind);
+  });
+}
+
+// the accent of the active style drives the glow hover + decor
+if (META.accent) stage.style.setProperty('--aurora-accent', META.accent);
+if (META.accent2) stage.style.setProperty('--aurora-accent2', META.accent2);
+if (META.accent) stage.style.setProperty('--aurora-accent-soft', META.accent + '38');
+if (META.accent2) stage.style.setProperty('--aurora-accent2-soft', META.accent2 + '30');
+
+if (LAYOUT.Decor && LAYOUT.Decor !== 'none') {
+  const decor = document.createElement('div');
+  decor.className = 'decor decor-' + LAYOUT.Decor;
+  decor.setAttribute('aria-hidden', 'true');
+  stage.appendChild(decor);
+}
+animateEntrance();
+animateHover();
+animateIdle();
 
 // exposed for tools/debug + the CI smoke check
 const report = (limit) => {

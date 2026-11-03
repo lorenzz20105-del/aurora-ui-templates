@@ -66,13 +66,24 @@ def main():
             problems.append(f"only {len(nodes)} instances")
         if not meta.get("name"):
             problems.append("no style metadata")
-        for required in ("Main", "TitleBar", "Content", "Footer"):
-            if required not in names:
-                problems.append(f"no {required}")
+        layout = meta.get("layout") or {}
+        motion = meta.get("motion") or {}
+        if not layout.get("Nav"):
+            problems.append("no layout blueprint")
+        if not motion.get("Entry"):
+            problems.append("no motion profile")
+        # a style is allowed to drop the footer entirely -- that is a
+        # blueprint decision, not a missing component
+        required = ["Main", "TitleBar", "Content"]
+        if layout.get("Footer", "status") != "none":
+            required.append("Footer")
+        for name in required:
+            if name not in names:
+                problems.append(f"no {name}")
         pages = [name for name in names if name and name.startswith("Page_")]
         if len(pages) != 5:
             problems.append(f"{len(pages)} pages")
-        rails = [name for name in names if name in ("Rail", "TabBar", "Sidebar")]
+        rails = [name for name in names if name in ("Rail", "TabBar", "Sidebar", "Dock")]
         if len(rails) < 2:
             problems.append("no rail geometry")
         texts = [n.get("Text") for n in nodes if n.get("class") in ("TextLabel", "TextButton", "TextBox")]
@@ -84,6 +95,26 @@ def main():
             print(f"  ✗ {path.name}: {', '.join(problems)}")
         else:
             print(f"  ✓ {path.stem:10s} {len(nodes)} instances · {len(pages)} pages · {meta.get('mood', '')}")
+
+    print("[check-render] blueprints")
+    seen = {}
+    duplicate = []
+    for path in dumps:
+        data = json.loads(path.read_text())
+        layout = (data.get("meta") or {}).get("layout") or {}
+        signature = "|".join(
+            str(layout.get(key, ""))
+            for key in ("Nav", "Header", "Stats", "Sections", "Footer", "Decor")
+        )
+        if signature in seen:
+            duplicate.append(f"{path.stem} == {seen[signature]}")
+        else:
+            seen[signature] = path.stem
+    if duplicate:
+        failures.append("duplicate blueprints: " + ", ".join(duplicate))
+        print(f"  ✗ {len(duplicate)} duplicate blueprint(s): {', '.join(duplicate)}")
+    else:
+        print(f"  ✓ {len(seen)} layouts, all different")
 
     print("[check-render] pages")
     for page, label, minimum in ((GALLERY, "index.html (gallery)", MIN_PAGE_BYTES), (SINGLE, "real-ui.html", 150_000)):
@@ -100,7 +131,7 @@ def main():
         html = GALLERY.read_text()
         for slug in sorted(slug_names):
             if f'"slug":"{slug}"' not in html:
-                failures.append(f"{slug} missing from templates.html")
+                failures.append(f"{slug} missing from the gallery")
         check(all(f'"slug":"{slug}"' in html for slug in slug_names), "every template is embedded in the gallery")
         check('aria-pressed' in html and "mountAuroraWindow" in html, "gallery switcher wired to the engine")
         check("DecompressionStream" in html, "dumps are compressed and inflated on demand")

@@ -1,7 +1,7 @@
 // Renders the GUI tree the Luau code actually built into a self-contained page.
 //
 //   node tools/render.js            # docs/real-ui.json  -> docs/real-ui.html
-//   node tools/render.js --all      # docs/styles/*.json -> docs/templates.html
+//   node tools/render.js --all      # docs/styles/*.json -> docs/index.html (the gallery)
 //
 // Shared layout engine: tools/engine.css + tools/engine.js.
 const fs = require("fs");

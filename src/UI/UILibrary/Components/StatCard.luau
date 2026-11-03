@@ -13,9 +13,455 @@ local StatCard = {}
 
 local BAR_COUNT = 16
 
+------------------------------------------------------------------
+-- formatting shared by every variant
+------------------------------------------------------------------
+
+local function makeFormatter(config)
+	return function(value: number): string
+		if config.Format then
+			local ok, text = pcall(config.Format, value)
+			if ok then
+				return tostring(text)
+			end
+		end
+		return Util.FormatNumber(value)
+	end
+end
+
+local function deltaText(config): string?
+	if config.Delta == nil then
+		return nil
+	end
+	local delta = config.Delta
+	return string.format("%s%.1f%%", delta >= 0 and "+" or "", delta)
+end
+
+local function deltaColor(config): Color3
+	if (config.Delta or 0) >= 0 then
+		return Util.Theme.Success
+	end
+	return Util.Theme.Danger
+end
+
+------------------------------------------------------------------
+-- variant: rows -- one line per metric, like a table row
+------------------------------------------------------------------
+
+local function buildRow(parent, config, token)
+	local format = makeFormatter(config)
+
+	local row = Util.New("Frame", {
+		Name = "StatRow_" .. (config.Title or "Metric"),
+		BackgroundColor3 = Util.Theme.Surface,
+		BackgroundTransparency = 1,
+		Size = UDim2.fromScale(1, 1),
+		BorderSizePixel = 0,
+		Parent = parent,
+	})
+	Util.Corner(8, row)
+	Util.Padding({ X = 10 }, row)
+
+	local line = Util.New("Frame", {
+		Name = "Line",
+		BackgroundColor3 = Util.Theme.StrokeSoft,
+		AnchorPoint = Vector2.new(0, 1),
+		Position = UDim2.new(0, 0, 1, 0),
+		Size = UDim2.new(1, 0, 0, 1),
+		BorderSizePixel = 0,
+		Parent = row,
+	})
+	Util.Themable(line, "BackgroundColor3", "StrokeSoft")
+
+	if config.Icon then
+		local icon = Icons.Get(config.Icon, row, {
+			Size = 13,
+			Color = Util.Theme[token],
+			Mask = Util.Theme.Surface,
+		})
+		Util.Themable(icon, "ImageColor3", token)
+		icon.AnchorPoint = Vector2.new(0, 0.5)
+		icon.Position = UDim2.new(0, 0, 0.5, 0)
+	end
+
+	local title = Util.Text({
+		Name = "Title",
+		Text = config.Title or "Metric",
+		Font = Util.M("Mono", false) and Enum.Font.Code or Enum.Font.Gotham,
+		TextSize = 12,
+		TextColor3 = Util.Theme.TextMuted,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		TextTruncate = Enum.TextTruncate.AtEnd,
+		Position = UDim2.fromOffset(config.Icon and 20 or 0, 0),
+		Size = UDim2.new(0.5, -(config.Icon and 20 or 0), 1, 0),
+		Parent = row,
+	})
+	Util.Themable(title, "TextColor3", "TextMuted")
+
+	local value = Util.Text({
+		Name = "Value",
+		Text = format(config.Value or 0),
+		Font = Enum.Font.GothamBold,
+		TextSize = 14,
+		TextColor3 = Util.Theme.Text,
+		TextXAlignment = Enum.TextXAlignment.Right,
+		AnchorPoint = Vector2.new(1, 0),
+		Position = UDim2.new(1, config.Delta ~= nil and -46 or 0, 0, 0),
+		Size = UDim2.fromOffset(80, 18),
+		Parent = row,
+	})
+	value.AnchorPoint = Vector2.new(1, 0.5)
+	value.Position = UDim2.new(1, config.Delta ~= nil and -46 or 0, 0.5, 0)
+	Util.Themable(value, "TextColor3", "Text")
+
+	if config.Delta ~= nil then
+		local delta = Util.Text({
+			Name = "Delta",
+			Text = deltaText(config),
+			Font = Enum.Font.GothamBold,
+			TextSize = 10,
+			TextColor3 = deltaColor(config),
+			TextXAlignment = Enum.TextXAlignment.Right,
+			AnchorPoint = Vector2.new(1, 0.5),
+			Position = UDim2.new(1, 0, 0.5, 0),
+			Size = UDim2.fromOffset(42, 16),
+			Parent = row,
+		})
+		Util.Themable(delta, "TextColor3", (config.Delta or 0) >= 0 and "Success" or "Danger")
+	end
+
+	return {
+		Instance = row,
+		Kind = "StatCard",
+		SetValue = function(self, nextValue: number)
+			value.Text = format(nextValue)
+		end,
+		SetData = function() end,
+		SetDelta = function() end,
+		Destroy = function(self)
+			row:Destroy()
+		end,
+	}
+end
+
+------------------------------------------------------------------
+-- variant: chips -- a compact pill, for dense dashboards
+------------------------------------------------------------------
+
+local function buildChip(parent, config, token)
+	local format = makeFormatter(config)
+
+	local chip = Util.New("Frame", {
+		Name = "StatChip_" .. (config.Title or "Metric"),
+		BackgroundColor3 = Util.Theme.Surface,
+		BackgroundTransparency = 0.1,
+		Size = UDim2.fromScale(1, 1),
+		BorderSizePixel = 0,
+		Parent = parent,
+	})
+	Util.Corner(999, chip)
+	Util.Stroke(Util.Theme.StrokeSoft, 1, 0.2, chip)
+	Util.Padding({ X = 12 }, chip)
+	Util.Themable(chip, "BackgroundColor3", "Surface")
+
+	local dot = Util.New("Frame", {
+		Name = "Dot",
+		BackgroundColor3 = Util.Theme[token],
+		AnchorPoint = Vector2.new(0, 0.5),
+		Position = UDim2.new(0, 0, 0.5, 0),
+		Size = UDim2.fromOffset(8, 8),
+		BorderSizePixel = 0,
+		Parent = chip,
+	})
+	Util.Corner(999, dot)
+	Util.Themable(dot, "BackgroundColor3", token)
+
+	local value = Util.Text({
+		Name = "Value",
+		Text = format(config.Value or 0),
+		Font = Enum.Font.GothamBold,
+		TextSize = 16,
+		TextColor3 = Util.Theme.Text,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		Position = UDim2.fromOffset(16, 0),
+		Size = UDim2.new(0.55, -16, 1, 0),
+		Parent = chip,
+	})
+	Util.Themable(value, "TextColor3", "Text")
+
+	local title = Util.Text({
+		Name = "Title",
+		Text = string.upper(config.Title or "Metric"),
+		Font = Enum.Font.GothamMedium,
+		TextSize = 9,
+		TextColor3 = Util.Theme.TextDim,
+		TextXAlignment = Enum.TextXAlignment.Right,
+		TextTruncate = Enum.TextTruncate.AtEnd,
+		AnchorPoint = Vector2.new(1, 0.5),
+		Position = UDim2.new(1, 0, 0.5, 0),
+		Size = UDim2.new(0.45, 0, 1, 0),
+		Parent = chip,
+	})
+	Util.Themable(title, "TextColor3", "TextDim")
+
+	return {
+		Instance = chip,
+		Kind = "StatCard",
+		SetValue = function(self, nextValue: number)
+			value.Text = format(nextValue)
+		end,
+		SetData = function() end,
+		SetDelta = function() end,
+		Destroy = function(self)
+			chip:Destroy()
+		end,
+	}
+end
+
+------------------------------------------------------------------
+-- variant: headline -- one big number, thin fill bar underneath
+------------------------------------------------------------------
+
+local function buildHeadline(parent, config, token)
+	local format = makeFormatter(config)
+
+	local card = Util.New("Frame", {
+		Name = "StatHeadline_" .. (config.Title or "Metric"),
+		BackgroundColor3 = Util.Theme.Surface,
+		BackgroundTransparency = 0.06,
+		Size = UDim2.fromScale(1, 1),
+		BorderSizePixel = 0,
+		Parent = parent,
+	})
+	Util.Corner(16, card)
+	Util.Padding({ X = 14, Y = 10 }, card)
+	Util.Themable(card, "BackgroundColor3", "Surface")
+
+	local label = Util.Text({
+		Name = "Label",
+		Text = string.upper(config.Title or "Metric"),
+		Font = Enum.Font.GothamMedium,
+		TextSize = 9,
+		TextColor3 = Util.Theme.TextDim,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		Size = UDim2.new(1, 0, 0, 12),
+		Parent = card,
+	})
+	Util.Themable(label, "TextColor3", "TextDim")
+
+	local value = Util.Text({
+		Name = "Value",
+		Text = format(config.Value or 0),
+		Font = Enum.Font.GothamBlack,
+		TextSize = 27,
+		TextColor3 = Util.Theme.Text,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		TextTruncate = Enum.TextTruncate.AtEnd,
+		Position = UDim2.fromOffset(0, 14),
+		Size = UDim2.new(1, -46, 0, 32),
+		Parent = card,
+	})
+	Util.Themable(value, "TextColor3", "Text")
+
+	if config.Delta ~= nil then
+		local delta = Util.Text({
+			Name = "Delta",
+			Text = deltaText(config),
+			Font = Enum.Font.GothamBold,
+			TextSize = 10,
+			TextColor3 = deltaColor(config),
+			TextXAlignment = Enum.TextXAlignment.Right,
+			AnchorPoint = Vector2.new(1, 0),
+			Position = UDim2.new(1, 0, 0, 22),
+			Size = UDim2.fromOffset(44, 16),
+			Parent = card,
+		})
+		Util.Themable(delta, "TextColor3", (config.Delta or 0) >= 0 and "Success" or "Danger")
+	end
+
+	-- fill bar: the only chart this variant has
+	local track = Util.New("Frame", {
+		Name = "Track",
+		BackgroundColor3 = Util.Theme.StrokeSoft,
+		AnchorPoint = Vector2.new(0, 1),
+		Position = UDim2.new(0, 0, 1, 0),
+		Size = UDim2.new(1, 0, 0, 3),
+		BorderSizePixel = 0,
+		Parent = card,
+	})
+	Util.Corner(999, track)
+	Util.Themable(track, "BackgroundColor3", "StrokeSoft")
+
+	local peak = config.Max or ((config.Value or 0) * 1.32)
+	local fill = Util.New("Frame", {
+		Name = "Fill",
+		BackgroundColor3 = Util.Theme[token],
+		Size = UDim2.fromScale(math.clamp((config.Value or 0) / math.max(peak, 0.001), 0.05, 1), 1),
+		BorderSizePixel = 0,
+		Parent = track,
+	})
+	Util.Corner(999, fill)
+	Util.Gradient(ColorSequence.new(Util.Theme[token], Util.Theme.Accent2), 0, fill)
+	Util.Themable(fill, "BackgroundColor3", token)
+
+	return {
+		Instance = card,
+		Kind = "StatCard",
+		SetValue = function(self, nextValue: number)
+			value.Text = format(nextValue)
+			fill.Size = UDim2.fromScale(math.clamp(nextValue / math.max(peak, 0.001), 0.05, 1), 1)
+		end,
+		SetData = function() end,
+		SetDelta = function() end,
+		Destroy = function(self)
+			card:Destroy()
+		end,
+	}
+end
+
+------------------------------------------------------------------
+-- variant: dials -- a ring of segments, no chart, no numbers row
+------------------------------------------------------------------
+
+local SEGMENTS = 14
+local DIAL_SIZE = 64
+
+local function buildDial(parent, config, token)
+	local format = makeFormatter(config)
+
+	local card = Util.New("Frame", {
+		Name = "StatDial_" .. (config.Title or "Metric"),
+		BackgroundColor3 = Util.Theme.Surface,
+		BackgroundTransparency = 0.08,
+		Size = UDim2.fromScale(1, 1),
+		BorderSizePixel = 0,
+		Parent = parent,
+	})
+	Util.Corner(16, card)
+	Util.Themable(card, "BackgroundColor3", "Surface")
+
+	local dial = Util.New("Frame", {
+		Name = "Dial",
+		BackgroundTransparency = 1,
+		Position = UDim2.fromOffset(12, 12),
+		Size = UDim2.fromOffset(DIAL_SIZE, DIAL_SIZE),
+		Parent = card,
+	})
+
+	local samples = config.Data or {}
+	local peak = config.Max or 0
+	if peak <= 0 then
+		for _, sample in ipairs(samples) do
+			peak = math.max(peak, sample)
+		end
+		peak = math.max(peak, (config.Value or 0) * 1.25, 1)
+	end
+	local fraction = math.clamp((config.Value or 0) / peak, 0, 1)
+	local lit = math.max(1, math.round(fraction * SEGMENTS))
+
+	local radius = DIAL_SIZE / 2 - 3
+	for index = 1, SEGMENTS do
+		local angle = math.rad(-90 + (index - 1) * (360 / SEGMENTS))
+		local dot = Util.New("Frame", {
+			Name = "Seg" .. index,
+			BackgroundColor3 = index <= lit and Util.Theme[token] or Util.Theme.Stroke,
+			BackgroundTransparency = index <= lit and 0 or 0.65,
+			AnchorPoint = Vector2.new(0.5, 0.5),
+			Position = UDim2.new(
+				0.5,
+				math.cos(angle) * radius,
+				0.5,
+				math.sin(angle) * radius
+			),
+			Size = UDim2.fromOffset(4, 4),
+			BorderSizePixel = 0,
+			Parent = dial,
+		})
+		Util.Corner(999, dot)
+		Util.Themable(dot, "BackgroundColor3", index <= lit and token or "Stroke")
+	end
+
+	local value = Util.Text({
+		Name = "Value",
+		Text = format(config.Value or 0),
+		Font = Enum.Font.GothamBold,
+		TextSize = 10,
+		TextColor3 = Util.Theme.Text,
+		TextXAlignment = Enum.TextXAlignment.Center,
+		TextYAlignment = Enum.TextYAlignment.Center,
+		TextTruncate = Enum.TextTruncate.AtEnd,
+		Size = UDim2.fromScale(0.78, 0.5),
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		Position = UDim2.fromScale(0.5, 0.5),
+		Parent = dial,
+	})
+	Util.Themable(value, "TextColor3", "Text")
+
+	local title = Util.Text({
+		Name = "Title",
+		Text = config.Title or "Metric",
+		Font = Enum.Font.GothamMedium,
+		TextSize = 11,
+		TextColor3 = Util.Theme.TextMuted,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		TextTruncate = Enum.TextTruncate.AtEnd,
+		Position = UDim2.fromOffset(DIAL_SIZE + 22, 14),
+		Size = UDim2.new(1, -(DIAL_SIZE + 34), 0, 16),
+		Parent = card,
+	})
+	Util.Themable(title, "TextColor3", "TextMuted")
+
+	local sub = Util.Text({
+		Name = "Sub",
+		Text = deltaText(config) or string.format("%d%% of %s", math.round(fraction * 100), format(peak)),
+		Font = Util.M("Mono", false) and Enum.Font.Code or Enum.Font.Gotham,
+		TextSize = 10,
+		TextColor3 = deltaColor(config),
+		TextXAlignment = Enum.TextXAlignment.Left,
+		TextTruncate = Enum.TextTruncate.AtEnd,
+		Position = UDim2.fromOffset(DIAL_SIZE + 22, 32),
+		Size = UDim2.new(1, -(DIAL_SIZE + 34), 0, 14),
+		Parent = card,
+	})
+	Util.Themable(sub, "TextColor3", (config.Delta or 0) >= 0 and "Success" or "Danger")
+
+	return {
+		Instance = card,
+		Kind = "StatCard",
+		SetValue = function(self, nextValue: number)
+			value.Text = format(nextValue)
+			local now = math.max(1, math.round(math.clamp(nextValue / peak, 0, 1) * SEGMENTS))
+			for index = 1, SEGMENTS do
+				local seg = dial:FindFirstChild("Seg" .. index)
+				if seg then
+					seg.BackgroundTransparency = index <= now and 0 or 0.65
+				end
+			end
+		end,
+		SetData = function() end,
+		SetDelta = function() end,
+		Destroy = function(self)
+			card:Destroy()
+		end,
+	}
+end
+
 function StatCard.New(window, parent: Instance, config: { [string]: any })
 	config = config or {}
 	local token = config.Token or "Accent"
+
+	-- The style's blueprint picks the presentation: three cards, a table of
+	-- rows, a row of pills, one hero number, or a ring of dials.
+	local variant = config.Variant or Util.M("Stats", "cards")
+	if variant == "rows" then
+		return buildRow(parent, config, token)
+	elseif variant == "chips" then
+		return buildChip(parent, config, token)
+	elseif variant == "headline" then
+		return buildHeadline(parent, config, token)
+	elseif variant == "dials" then
+		return buildDial(parent, config, token)
+	end
 
 	local card = Util.New("Frame", {
 		Name = "Stat_" .. (config.Title or "Metric"),

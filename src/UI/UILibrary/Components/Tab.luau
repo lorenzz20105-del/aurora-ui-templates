@@ -27,13 +27,19 @@ function Tab.New(window, config: { [string]: any }, order: number?)
 	-- tab bar with labels, or a wide labelled sidebar.
 	local railKind = Util.M("Rail", "rail")
 	local tabShape = Util.M("TabShape", "rounded")
-	local labelled = railKind == "tabs" or railKind == "sidebar"
+	-- dock and float both show their labels: one is a bottom bar, the other a
+	-- detached column, and neither has room for an unlabelled icon alone.
+	local labelled = railKind == "tabs" or railKind == "sidebar" or railKind == "dock"
 
 	local size
 	if railKind == "sidebar" then
 		size = UDim2.new(1, 0, 0, 36)
 	elseif railKind == "tabs" then
 		size = UDim2.fromOffset(0, 38)
+	elseif railKind == "dock" then
+		size = UDim2.fromOffset(0, 42)
+	elseif railKind == "float" then
+		size = UDim2.fromOffset(50, 50)
 	else
 		size = UDim2.fromOffset(52, 52)
 	end
@@ -45,6 +51,10 @@ function Tab.New(window, config: { [string]: any }, order: number?)
 		radius = 999
 	elseif railKind == "sidebar" then
 		radius = 10
+	elseif railKind == "dock" then
+		radius = 12
+	elseif railKind == "float" then
+		radius = 10
 	else
 		radius = 15
 	end
@@ -55,7 +65,7 @@ function Tab.New(window, config: { [string]: any }, order: number?)
 		BackgroundColor3 = Util.Theme.SurfaceHover,
 		BackgroundTransparency = 1,
 		Size = size,
-		AutomaticSize = labelled and railKind == "tabs" and Enum.AutomaticSize.X or Enum.AutomaticSize.None,
+		AutomaticSize = (railKind == "tabs" or railKind == "dock") and Enum.AutomaticSize.X or Enum.AutomaticSize.None,
 		BorderSizePixel = 0,
 		LayoutOrder = order or 1,
 		Parent = window._rail,
@@ -120,8 +130,8 @@ function Tab.New(window, config: { [string]: any }, order: number?)
 			Parent = content,
 		})
 
-		if railKind == "tabs" then
-			-- a horizontal tab bar needs a real width: AutomaticSize cannot
+		if railKind == "tabs" or railKind == "dock" then
+			-- a horizontal bar needs a real width: AutomaticSize cannot
 			-- resolve through a full-size content frame, so measure the label
 			local textWidth = Util.TextWidth(label.Text, 12)
 			if not textWidth or textWidth <= 0 then
@@ -129,7 +139,8 @@ function Tab.New(window, config: { [string]: any }, order: number?)
 				-- to an average glyph width so labels are never clipped
 				textWidth = #label.Text * 7.4
 			end
-			button.Size = UDim2.fromOffset(math.max(88, math.floor(textWidth + 64)), 38)
+			local height = railKind == "dock" and 42 or 38
+			button.Size = UDim2.fromOffset(math.max(railKind == "dock" and 78 or 88, math.floor(textWidth + 60)), height)
 			button.AutomaticSize = Enum.AutomaticSize.None
 		end
 	end
