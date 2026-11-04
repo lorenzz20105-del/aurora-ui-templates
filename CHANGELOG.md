@@ -4,6 +4,16 @@ All notable changes to Aurora UI are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and
 the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.2.2] — 2026-11-04
+
+### Fixed
+
+- The idle shimmer painted a grey highlighter box behind the window title. In
+  Roblox the shimmer is a `UIGradient`: over a Frame it sweeps the fill, over a
+  TextLabel it sweeps the glyphs. The engine drew the frame version on top of
+  text. Leaf text nodes now get the gradient clipped to their glyphs
+  (`background-clip: text`), so "Aurora" shimmers instead of sitting on a bar.
+
 ## [4.2.1] — 2026-11-04
 
 **The window actually looks like the window.**

@@ -491,7 +491,14 @@ function animateIdle() {
     scan: ['Main', 'Page_Home'],
   }[kind] || [];
   stage.querySelectorAll('[data-name]').forEach((el) => {
-    if (targets.indexOf(el.dataset.name) >= 0) el.classList.add('motion-idle', 'idle-' + kind);
+    if (targets.indexOf(el.dataset.name) < 0) return;
+    el.classList.add('motion-idle', 'idle-' + kind);
+    // Roblox's shimmer is a UIGradient: over a Frame it sweeps the fill, over a
+    // TextLabel it sweeps the glyphs. A leaf text node gets the clipped version,
+    // otherwise the sweep paints as a grey highlighter box behind the title.
+    if (kind === 'shimmer' && el.classList.contains('text') && el.childElementCount === 0) {
+      el.classList.add('shimmer-text');
+    }
   });
 }
 

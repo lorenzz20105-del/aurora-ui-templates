@@ -8,7 +8,7 @@ geometry and typography.
 [![License: MIT](https://img.shields.io/badge/license-MIT-7C5CFF.svg)](LICENSE)
 [![Luau](https://img.shields.io/badge/language-Luau-00A2FF.svg)](https://luau.org)
 [![Rojo](https://img.shields.io/badge/Rojo-7.x-FF4757.svg)](https://rojo.space)
-[![Version](https://img.shields.io/badge/version-4.2.1-7C5CFF.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-4.2.2-7C5CFF.svg)](CHANGELOG.md)
 [![Templates](https://img.shields.io/badge/templates-10-22D3EE.svg)](https://lorenzz20105-del.github.io/aurora-ui-templates/)
 [![Tests](https://img.shields.io/badge/tests-5%20suites%20passing-34D399.svg)](.github/workflows/tests.yml)
 
