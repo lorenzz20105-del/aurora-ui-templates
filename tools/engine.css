@@ -296,3 +296,75 @@
 .editable.focused { text-shadow: 0 0 12px currentColor; }
 
 [data-name="Body"] { transition: none; }
+
+/* dropdown popover, tooltips, page transitions --------------------------- */
+.aurora-menu {
+  position: absolute;
+  z-index: 920;
+  padding: 4px;
+  border-radius: 9px;
+  background: rgba(10, 12, 20, .96);
+  border: 1px solid rgba(255, 255, 255, .12);
+  box-shadow: 0 18px 34px -18px #000;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  animation: aurora-menu-in .14s ease;
+}
+@keyframes aurora-menu-in { from { opacity: 0; transform: translateY(-4px); } }
+.aurora-menu-item {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: rgba(255, 255, 255, .84);
+  text-align: left;
+  padding: 6px 9px;
+  border-radius: 6px;
+  font: 500 11px system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  cursor: pointer;
+}
+.aurora-menu-item:hover { background: rgba(255, 255, 255, .10); color: #fff; }
+.aurora-menu-item.active { color: #fff; font-weight: 700; }
+
+[data-tip] { position: relative; }
+[data-tip]:hover::after {
+  content: attr(data-tip);
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 8px);
+  transform: translateX(-50%);
+  padding: 4px 8px;
+  border-radius: 6px;
+  background: rgba(8, 10, 16, .95);
+  border: 1px solid rgba(255, 255, 255, .10);
+  color: #fff;
+  font: 500 10px system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 940;
+}
+
+.page-in { animation: aurora-page-in .26s ease both; }
+@keyframes aurora-page-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* a soft fade at the bottom of the page area: there is more below */
+.has-fade::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 26px;
+  pointer-events: none;
+  background: linear-gradient(to top, rgba(6, 7, 12, .55), transparent);
+}
+
+[data-name="KeyPill"].listening {
+  outline: 2px solid currentColor;
+  outline-offset: 1px;
+  animation: aurora-listen 1s ease-in-out infinite;
+}
+@keyframes aurora-listen { 50% { opacity: .6; } }

@@ -4,6 +4,31 @@ All notable changes to Aurora UI are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and
 the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.2.0] — 2026-11-04
+
+**The preview tells you what it is, and responds like the component does.**
+
+### Added
+
+- **Blueprint strip** under every template in the gallery: the pills read the
+  style's `Layout` and `Motion` straight from the dump — `nav rail`,
+  `header bar`, `stats cards`, `sections panels`, `footer status`, `decor glow`,
+  `motion rise · glow · shimmer` — and change as you switch templates.
+- **Dropdowns open.** Clicking a select row raises a real popover with the
+  options for that row (camera mode, weather effects, …); picking one updates
+  the value and toasts the change.
+- **Keybind capture.** Click the key pill, press any key, and it is rebound
+  (with a 4 s timeout that restores the old hint).
+- **Tooltips** on the rail tabs and the window controls (`Close`,
+  `Minimise`, `Notifications`, `Swap template`).
+- **Page transitions** on tab switch and a soft **fade** at the bottom of the
+  page area, so it is obvious there is more content below.
+
+### Fixed
+
+- Toasts no longer cover the window controls; they stack under the title bar.
+- The hover hint sits above the footer instead of on top of it.
+
 ## [4.1.0] — 2026-11-03
 
 **The preview is a working menu, not a picture.**

@@ -547,7 +547,15 @@ const indicatorBase = indicator ? indicator.offsetTop : 0;
 
 function selectTab(name) {
   Object.keys(pages).forEach((key) => {
-    pages[key].style.display = key === name ? '' : 'none';
+    const page = pages[key];
+    const showing = key === name;
+    page.style.display = showing ? '' : 'none';
+    if (showing) {
+      page.classList.remove('page-in');
+      // restart the entrance so switching tabs feels like the style it is
+      void page.offsetWidth;
+      page.classList.add('page-in');
+    }
   });
   tabs.forEach((tab) => {
     if (!idleStyle) return;
@@ -892,6 +900,112 @@ function makeInteractive() {
       toast('Accent', next + ' applied to the swatch.');
     }));
   });
+
+  /* ------------------------------------------------------------ dropdown */
+  const DROPDOWN_OPTIONS = {
+    'camera mode': ['First person', 'Third person', 'Classic'],
+    'weather effects': ['Off', 'Fog', 'Rain', 'Snow'],
+    'hud style': ['Compact', 'Standard', 'Detailed'],
+  };
+
+  stage.querySelectorAll('[data-name="Trigger"]').forEach((trigger) => {
+    if (trigger.querySelector('[data-name="Swatch"]')) return; // colour picker
+    const value = trigger.querySelector('[data-name="Value"]');
+    if (!value) return;
+    const row = trigger.closest('[data-name^="Row_"]');
+    const label = row && row.querySelector('[data-name="Label"]');
+    const key = label ? label.textContent.trim().toLowerCase() : '';
+    const options = DROPDOWN_OPTIONS[key] || [value.textContent.trim(), 'Auto', 'Manual'];
+    trigger.style.cursor = 'pointer';
+
+    trigger.addEventListener('click', safe((event) => {
+      event.stopPropagation();
+      const existing = stage.querySelector('.aurora-menu');
+      if (existing) existing.remove();
+
+      const menu = document.createElement('div');
+      menu.className = 'aurora-menu';
+      options.forEach((option) => {
+        const item = document.createElement('button');
+        item.type = 'button';
+        item.className = 'aurora-menu-item' + (option === value.textContent.trim() ? ' active' : '');
+        item.textContent = option;
+        item.addEventListener('click', (clickEvent) => {
+          clickEvent.stopPropagation();
+          value.textContent = option;
+          menu.remove();
+          toast(label ? label.textContent : 'Option', option + ' selected.');
+        });
+        menu.appendChild(item);
+      });
+
+      const scale = scaleOfStage() || 1;
+      const stageRect = stage.getBoundingClientRect();
+      const rect = trigger.getBoundingClientRect();
+      menu.style.left = (rect.left - stageRect.left) / scale + 'px';
+      menu.style.top = (rect.bottom - stageRect.top) / scale + 6 + 'px';
+      menu.style.minWidth = Math.max(110, rect.width / scale) + 'px';
+      stage.appendChild(menu);
+      setTimeout(() => {
+        const close = () => {
+          menu.remove();
+          document.removeEventListener('click', close);
+        };
+        document.addEventListener('click', close);
+      }, 0);
+    }));
+  });
+
+  /* ------------------------------------------------------------- keybind */
+  stage.querySelectorAll('[data-name="KeyPill"]').forEach((pill) => {
+    const label = pill.querySelector('[data-name="KeyLabel"]');
+    if (!label) return;
+    const original = label.textContent;
+    pill.style.cursor = 'pointer';
+    pill.addEventListener('click', safe(() => {
+      label.textContent = 'press a key…';
+      pill.classList.add('listening');
+      const keydown = (event) => {
+        event.preventDefault();
+        const printable = event.key.length === 1 ? event.key.toUpperCase() : event.key;
+        label.textContent = printable;
+        pill.classList.remove('listening');
+        window.removeEventListener('keydown', keydown, true);
+        toast('Keybind', original + ' → ' + printable);
+      };
+      window.addEventListener('keydown', keydown, true);
+      setTimeout(() => {
+        if (pill.classList.contains('listening')) {
+          pill.classList.remove('listening');
+          label.textContent = original;
+          window.removeEventListener('keydown', keydown, true);
+        }
+      }, 4000);
+    }));
+  });
+
+  /* ------------------------------------------------------------ tooltips */
+  const TIPS = {
+    IconButton_close: 'Close',
+    IconButton_minus: 'Minimise',
+    IconButton_bell: 'Notifications',
+    IconButton_moon: 'Swap template',
+    Search: 'Search settings',
+  };
+  Object.keys(TIPS).forEach((name) => {
+    stage.querySelectorAll('[data-name="' + name + '"]').forEach((el) => {
+      el.dataset.tip = TIPS[name];
+    });
+  });
+  tabs.forEach((tab) => {
+    tab.dataset.tip = 'Tab · ' + (tab.dataset.tab || '');
+  });
+
+  /* --------------------------------------------------- scroll affordance */
+  const content = stage.querySelector('[data-name="Content"]');
+  if (content) {
+    content.classList.add('has-fade');
+  }
 
   /* ------------------------------------------------------------ key hint */
   if (!stage.querySelector('.aurora-hint')) {

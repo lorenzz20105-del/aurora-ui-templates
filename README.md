@@ -8,7 +8,7 @@ geometry and typography.
 [![License: MIT](https://img.shields.io/badge/license-MIT-7C5CFF.svg)](LICENSE)
 [![Luau](https://img.shields.io/badge/language-Luau-00A2FF.svg)](https://luau.org)
 [![Rojo](https://img.shields.io/badge/Rojo-7.x-FF4757.svg)](https://rojo.space)
-[![Version](https://img.shields.io/badge/version-4.1.0-7C5CFF.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-4.2.0-7C5CFF.svg)](CHANGELOG.md)
 [![Templates](https://img.shields.io/badge/templates-10-22D3EE.svg)](https://lorenzz20105-del.github.io/aurora-ui-templates/)
 [![Tests](https://img.shields.io/badge/tests-5%20suites%20passing-34D399.svg)](.github/workflows/tests.yml)
 
@@ -189,7 +189,15 @@ back up by `tools/engine.js`.
 | click a colour swatch | it cycles and the hex label updates |
 | drag the title bar | the window shoves and springs back |
 | close / minimise | it hides, with a "Reopen preview" button |
+| click a dropdown row | a real popover opens; pick an option and the value changes |
+| click the key pill | it listens for a key and rebinds itself |
+| hover a tab or control | a tooltip names it |
 | the moon button | swaps to the next template |
+
+Under every window the gallery prints the template's **blueprint**
+(`nav rail · header bar · stats cards · sections panels · footer status ·
+decor glow · motion rise · glow · shimmer`), read from the same table the Luau
+uses — so what you see is the layout definition, not a caption.
 
 Every style also brings its own **motion**: the entrance stagger, the hover
 feedback and the idle loops come from the style's `Motion` profile, so Neon

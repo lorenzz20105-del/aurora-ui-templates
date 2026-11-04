@@ -147,6 +147,20 @@
     font-size: 12.5px;
   }
   .meta-row .name { color: #fff; font-weight: 700; font-size: 14px; }
+  .blueprint-row { margin-top: 10px; gap: 6px; }
+  .blueprint-row .bp {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 5px;
+    padding: 3px 8px;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, .03);
+    border: 1px solid #1d2333;
+    font-size: 10.5px;
+  }
+  .blueprint-row .bp span { color: #6f7891; letter-spacing: .04em; text-transform: uppercase; font-size: 9px; }
+  .blueprint-row .bp b { color: #dfe5f2; font-weight: 600; }
+  .blueprint-row .bp.motion b { color: #b9a8ff; }
   .live-row { margin-top: 8px; gap: 8px; font-size: 11.5px; color: #9aa3b8; }
   .live-row b { color: #c9f5d9; font-weight: 700; }
   .live-dot {
@@ -270,6 +284,7 @@
       <span class="pill" id="meta-mood">—</span>
       <div class="swatches" id="meta-swatches"></div>
     </div>
+    <div class="meta-row blueprint-row" id="meta-blueprint"></div>
     <div class="meta-row live-row">
       <span class="live-dot"></span>
       <b>Live preview</b>
@@ -300,6 +315,7 @@ const counter = document.getElementById('counter');
 const metaName = document.getElementById('meta-name');
 const metaTag = document.getElementById('meta-tag');
 const metaMood = document.getElementById('meta-mood');
+const metaBlueprint = document.getElementById('meta-blueprint');
 const metaSwatches = document.getElementById('meta-swatches');
 const viewport = document.querySelector('.viewport');
 
@@ -395,6 +411,25 @@ async function mount(index) {
   metaName.textContent = meta.name || entry.slug;
   metaTag.textContent = meta.tagline || '';
   metaMood.textContent = meta.mood || '';
+
+  // the blueprint this template is built from, straight out of Styles.luau
+  const layout = meta.layout || {};
+  const motion = meta.motion || {};
+  const bp = [
+    ['nav', layout.Nav],
+    ['header', layout.Header],
+    ['stats', layout.Stats],
+    ['sections', layout.Sections],
+    ['footer', layout.Footer],
+    ['decor', layout.Decor],
+  ].filter((pair) => pair[1] && pair[1] !== 'none');
+  const motionBits = [motion.Entry, motion.Hover, motion.Idle]
+    .filter((bit) => bit && bit !== 'none')
+    .join(' · ');
+  metaBlueprint.innerHTML = bp
+    .map(([key, value]) => '<i class="bp"><span>' + key + '</span><b>' + value + '</b></i>')
+    .join('') + (motionBits ? '<i class="bp motion"><span>motion</span><b>' + motionBits + '</b></i>' : '');
+
   const colours = [meta.accent, meta.accent2, meta.panel, meta.surface, meta.text].filter(Boolean);
   metaSwatches.innerHTML = colours.map((hex) => '<i style="background:' + hex + '"></i>').join('');
   [...chips.children].forEach((chip, chipIndex) => {
