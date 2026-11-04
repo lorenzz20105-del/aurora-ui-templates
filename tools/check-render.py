@@ -143,10 +143,21 @@ def main():
             "aurora-slider",
             "aurora-toggle",
             "onCycleStyle",
+            "aurora-launcher",
+            "aurora-launcher-note",
         ]
         missing = [marker for marker in interactive if marker not in html]
         check(not missing, "preview is interactive (switches, sliders, search, toasts, drag"
                            + ("" if not missing else " — missing " + ", ".join(missing)) + ")")
+
+    # every template must be closable, and the page must ship the logo that brings
+    # the menu back after a close
+    for path in sorted(STYLES_DIR.glob("*.json")):
+        text = path.read_text()
+        has_close = "IconButton_close" in text
+        if not has_close:
+            failures.append(f"{path.stem} has no close control")
+        check(has_close, f"{path.stem:10} has a close control")
 
     version = re.search(r'Util\.Version\s*=\s*"([\d.]+)"', (ROOT / "src/UI/UILibrary/Util.luau").read_text())
     if version and GALLERY.exists():

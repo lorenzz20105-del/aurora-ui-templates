@@ -506,6 +506,18 @@ function animateIdle() {
 }
 
 // the accent of the active style drives the glow hover + decor
+/* How much the stage is scaled down. The launcher is chrome that has to stay
+   tappable on a phone, where the whole window shrinks to a third, so it gets
+   a device-pixel floor while everything else keeps the window's scale. */
+function applyLauncherSize() {
+  // read the scale straight off the stage's transform: the template owns the
+  // stage width, so dividing by an inline width silently reported 1x
+  const matrix = new DOMMatrixReadOnly(getComputedStyle(stage).transform);
+  const scale = Math.hypot(matrix.a, matrix.b) || 1;
+  const boost = Math.min(2.8, Math.max(1, 44 / (48 * scale)));
+  stage.style.setProperty('--launcher-size', Math.round(48 * boost) + 'px');
+}
+
 if (META.accent) stage.style.setProperty('--aurora-accent', META.accent);
 if (META.accent2) stage.style.setProperty('--aurora-accent2', META.accent2);
 if (META.accent) stage.style.setProperty('--aurora-accent-soft', META.accent + '38');
@@ -674,24 +686,74 @@ function makeInteractive() {
   const titleBar = stage.querySelector('[data-name="TitleBar"]');
   let reopen = null;
 
+  /* The launcher is the Luau's `Launcher` frame: the window's own logo in an
+     accent chip, hidden while the menu is open and back the moment it closes.
+     Closing must never be a dead end, so this is a real logo button, not a
+     text link. Metrics come from Window.luau: 48 px chip, 16 px inset,
+     centred at 50% - 60 px, config.Icon (sparkle) at 20 px. */
+  let launcherNote = null;
+
+  const openWindow = () => {
+    if (!reopen) return;
+    win.style.display = '';
+    win.classList.add('motion-entry', 'entry-' + (MOTION.Entry || 'rise'));
+    win.style.animationDuration = '0.32s';
+    stage.classList.remove('is-closed');
+    reopen.classList.add('out');
+    const el = reopen;
+    reopen = null;
+    if (launcherNote) {
+      launcherNote.classList.add('out');
+      const note = launcherNote;
+      launcherNote = null;
+      setTimeout(() => note.remove(), 220);
+    }
+    setTimeout(() => el.remove(), 220);
+  };
+
+  const showLauncher = () => {
+    applyLauncherSize();
+    reopen = document.createElement('button');
+    reopen.className = 'aurora-launcher';
+    reopen.type = 'button';
+    reopen.setAttribute('aria-label', (META.name || 'Aurora') + ' — open the menu');
+    reopen.dataset.tip = 'Open ' + (META.name || 'Aurora') + ' UI';
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('viewBox', '0 0 20 20');
+    svg.setAttribute('aria-hidden', 'true');
+    svg.classList.add('glyph');
+    const star = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    // four-point sparkle, the shape Icons.Get("sparkle") draws
+    star.setAttribute('d', 'M10 1.5c.5 3.6 2.4 5.5 6 6-3.6.5-5.5 2.4-6 6-.5-3.6-2.4-5.5-6-6 3.6-.5 5.5-2.4 6-6Z');
+    const dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    dot.setAttribute('cx', '15.6');
+    dot.setAttribute('cy', '4.4');
+    dot.setAttribute('r', '1.5');
+    svg.appendChild(star);
+    svg.appendChild(dot);
+    reopen.appendChild(svg);
+    reopen.addEventListener('click', safe(openWindow));
+    stage.appendChild(reopen);
+
+    // A closed menu should say so; the note is part of the closed state, not
+    // of the window, so it scales with the launcher rather than the window.
+    launcherNote = document.createElement('span');
+    launcherNote.className = 'aurora-launcher-note';
+    launcherNote.textContent = 'Menu closed — tap the logo to open';
+    stage.appendChild(launcherNote);
+  };
+
+  applyLauncherSize();
+  window.addEventListener('resize', safe(applyLauncherSize));
+
   if (closeBtn) {
     closeBtn.addEventListener('click', safe(() => {
       win.classList.add('is-closing');
       setTimeout(() => {
         win.style.display = 'none';
         win.classList.remove('is-closing');
-        reopen = document.createElement('button');
-        reopen.className = 'aurora-reopen';
-        reopen.type = 'button';
-        reopen.textContent = 'Reopen preview';
-        reopen.addEventListener('click', () => {
-          win.style.display = '';
-          win.classList.add('motion-entry', 'entry-' + (MOTION.Entry || 'rise'));
-          win.style.animationDuration = '0.32s';
-          reopen.remove();
-          reopen = null;
-        });
-        stage.appendChild(reopen);
+        stage.classList.add('is-closed');
+        showLauncher();
       }, 220);
     }));
   }

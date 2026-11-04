@@ -71,6 +71,24 @@ window:Modal({ Title = "T", Body = "B", ConfirmText = "Y", CancelText = "N", OnC
 window:Toggle(); window:Toggle(); window:Close(); window:Open()
 window:SetTheme("Daylight"); window:SetTheme("Emerald"); window:SetTheme("Midnight")
 
+-- Launcher: closing must never be a dead end ------------------
+-- The mock reports TouchEnabled = false, so this also proves the logo is not
+-- gated on touch any more.
+assert(window.Launcher, "launcher missing: closing the menu would be a dead end")
+assert(window.Instance and window.Launcher.Name == "Launcher", "launcher name")
+window:Close()
+task.__flush()
+assert(window.Launcher.Visible == true, "launcher hidden after Close")
+assert(window.Launcher.AbsoluteSize.X >= 44, "launcher smaller than a touch target")
+window:Open()
+task.__flush()
+assert(window.Launcher.Visible == false, "launcher still showing while the menu is open")
+window:SetLauncherVisible(true)
+assert(window.Launcher.Visible == true, "SetLauncherVisible(true) failed")
+window:SetLauncherVisible(false)
+window:Close(); task.__flush(); window:Open(); task.__flush()
+assert(window:IsOpen() == true, "reopen failed")
+
 -- Newer API surface ------------------------------------------
 window:SetAccent(Color3.fromHex("#22D3EE"))
 assert(UI.Util.ToHex(UI.Util.Theme.Accent) == "22D3EE", "SetAccent failed")

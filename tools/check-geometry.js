@@ -13,10 +13,18 @@ const STYLES = ['midnight','daylight','neon-grid','terminal','brutalist','frost'
 /* The gallery picks a template from location.hash, and `mount`/`STYLES` are
    top-level consts so they are not reachable from page.evaluate. */
 async function inspect(page, file, slug) {
-  await page.goto('file://' + file + (slug ? '#' + slug : ''), { waitUntil: 'load' });
-  await page.waitForTimeout(900);
+  // a hash-only change is a same-document navigation: the page would stay on
+  // whichever template loaded first, so every iteration would test the same one
+  const bust = '?check=' + Math.random().toString(36).slice(2);
+  await page.goto('file://' + file + bust + (slug ? '#' + slug : ''), { waitUntil: 'load' });
+  // entrance animations translate nodes for up to ~0.9 s; measuring mid-flight
+  // reports phantom overlaps and phantom overflow
+  await page.waitForTimeout(1700);
   return page.evaluate((slug) => {
     const problems = [];
+    // decorative layers are *meant* to sit under or bleed past the chrome
+    const DECOR = /Wash|Layer\d|Decor|Glow|Sheen|Backdrop|Noise|Scan|Blur/i;
+    const isDecor = (n) => DECOR.test(n || '');
     const stage = document.querySelector('.stage');
     const win = stage.querySelector('[data-name="Main"]') || stage.firstElementChild;
     if (!win) return { slug, problems: ['no window node'], nodes: 0 };
@@ -33,7 +41,7 @@ async function inspect(page, file, slug) {
     const tb = win.querySelector('[data-name="TitleBar"]');
     if (tb) {
       const kids = Array.from(tb.querySelectorAll(':scope > .n')).map(k => [k.dataset.name, k.getBoundingClientRect()])
-        .filter(([, r]) => r.width > 4 && r.height > 4);
+        .filter(([n, r]) => r.width > 4 && r.height > 4 && !isDecor(n));
       for (let i = 0; i < kids.length; i++) for (let j = i + 1; j < kids.length; j++) {
         const [an, a] = kids[i], [bn, b] = kids[j];
         const ox = Math.min(a.right, b.right) - Math.max(a.left, b.left);
@@ -53,6 +61,7 @@ async function inspect(page, file, slug) {
     for (const n of nodes) {
       const r = n.getBoundingClientRect();
       if (r.width < 2 || r.height < 2) continue;
+      if (isDecor(n.dataset.name)) continue;
       const outR = r.right - box.right, outL = box.left - r.left, outB = r.bottom - box.bottom;
       if (outR > 4) problems.push(`${n.dataset.name || '?'} overflows right by ${Math.round(outR)}px`);
       if (outL > 4) problems.push(`${n.dataset.name || '?'} overflows left by ${Math.round(outL)}px`);

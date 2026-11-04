@@ -264,21 +264,71 @@
 @keyframes aurora-toast-in { to { opacity: 1; transform: none; } }
 @keyframes aurora-toast-out { to { opacity: 0; transform: translateY(-6px); } }
 
-.aurora-reopen {
+/* The launcher: the window's logo, shown when the menu is closed. Same
+   metrics as Window.luau -- a 48 px chip with a 16 px inset, centred at
+   50% - 60 px, the config.Icon (sparkle) at 20 px on the accent gradient. */
+.aurora-launcher {
   position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  padding: 9px 16px;
+  left: 16px;
+  /* centred at 50% - 60px like the Luau launcher, whatever its size */
+  top: calc(50% - 60px - var(--launcher-size, 48px) / 2);
+  width: var(--launcher-size, 48px);
+  height: var(--launcher-size, 48px);
+  padding: 0;
+  border: 0;
   border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, .18);
-  background: rgba(12, 14, 22, .9);
-  color: #fff;
-  font: 600 12px system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  display: grid;
+  place-items: center;
   cursor: pointer;
-  z-index: 950;
+  pointer-events: auto;
+  z-index: 940;
+  background: linear-gradient(45deg, var(--aurora-accent, #7C5CFF), var(--aurora-accent2, #22D3EE));
+  box-shadow:
+    0 0 0 1.5px rgba(255, 255, 255, .22) inset,
+    0 12px 28px -12px rgba(0, 0, 0, .85);
+  animation: launcher-pop .34s cubic-bezier(.22, .9, .28, 1) both;
+  transition: transform .16s ease, box-shadow .18s ease;
 }
-.aurora-reopen:hover { border-color: rgba(255, 255, 255, .38); }
+.aurora-launcher svg { width: 42%; height: 42%; fill: #fff; display: block; }
+.aurora-launcher:hover,
+.aurora-launcher:focus-visible {
+  transform: scale(1.07);
+  box-shadow:
+    0 0 0 1.5px rgba(255, 255, 255, .42) inset,
+    0 16px 32px -12px rgba(0, 0, 0, .9),
+    0 0 26px -6px var(--aurora-accent, #7C5CFF);
+}
+.aurora-launcher:active { transform: scale(.95); }
+.aurora-launcher.out { animation: launcher-out .2s ease forwards; }
+
+/* the closed state: no decoration, no hint, just the mark and a line of text */
+.stage.is-closed .decor { opacity: 0; transition: opacity .2s ease; }
+.stage.is-closed .aurora-hint,
+.stage.is-closed .aurora-toasts { display: none; }
+.aurora-launcher-note {
+  position: absolute;
+  left: calc(16px + var(--launcher-size, 48px) + 12px);
+  top: calc(50% - 60px);
+  transform: translateY(-50%);
+  /* tied to the launcher so it stays legible on a phone-sized stage */
+  font: 500 calc(var(--launcher-size, 48px) * .26) system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  color: rgba(255, 255, 255, .66);
+  letter-spacing: .01em;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 939;
+  animation: note-in .3s ease both;
+}
+.aurora-launcher-note.out { animation: note-out .2s ease forwards; }
+@keyframes note-in { from { opacity: 0; transform: translateY(-50%) translateX(-6px); } }
+@keyframes note-out { to { opacity: 0; } }
+@keyframes launcher-pop {
+  from { opacity: 0; transform: scale(.72); }
+  to   { opacity: 1; transform: scale(1); }
+}
+@keyframes launcher-out {
+  to { opacity: 0; transform: scale(.78); }
+}
 
 .aurora-hint {
   position: absolute;

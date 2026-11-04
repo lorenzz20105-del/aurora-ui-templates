@@ -1573,13 +1573,17 @@ function Window.New(config: { [string]: any })
 	end
 
 	------------------------------------------------------------------
-	-- Mobile: floating toggle button
-	-- Phones have no RightShift, so touch devices get a draggable FAB
-	-- instead (and the keybind listener is simply never used).
+	-- Launcher: the logo that opens the UI again
+	-- Closing the window must never be a dead end. The launcher is the
+	-- window's own icon (config.Icon, default the sparkle mark) in an
+	-- accent chip; it hides while the menu is up and comes back the
+	-- moment the menu closes. It is built on every platform, not just
+	-- touch ones -- a phone has no RightShift to press and a desktop
+	-- may have rebound it, so both need something to click.
 	------------------------------------------------------------------
-	if config.MobileButton ~= false and UserInputService.TouchEnabled then
+	if config.MobileButton ~= false and config.Launcher ~= false then
 		local fab = Util.New("Frame", {
-			Name = "MobileToggle",
+			Name = "Launcher",
 			AnchorPoint = Vector2.new(0, 0.5),
 			Position = UDim2.new(0, 16, 0.5, -60),
 			Size = UDim2.fromOffset(48, 48),
@@ -1640,7 +1644,17 @@ function Window.New(config: { [string]: any })
 			end
 		end)
 
+		-- kept as _mobileToggle too: older scripts poke at that name
 		self._mobileToggle = fab
+		self.Launcher = fab
+	end
+
+	--- Show or hide the launcher directly. `Close()` and `Open()` already
+	--- do this; use it if you want the logo on screen while the menu is up.
+	function self:SetLauncherVisible(visible: boolean)
+		if self._mobileToggle and self._mobileToggle.Parent then
+			self._mobileToggle.Visible = visible ~= false
+		end
 	end
 
 	------------------------------------------------------------------

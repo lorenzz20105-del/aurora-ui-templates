@@ -8,7 +8,7 @@ geometry and typography.
 [![License: MIT](https://img.shields.io/badge/license-MIT-7C5CFF.svg)](LICENSE)
 [![Luau](https://img.shields.io/badge/language-Luau-00A2FF.svg)](https://luau.org)
 [![Rojo](https://img.shields.io/badge/Rojo-7.x-FF4757.svg)](https://rojo.space)
-[![Version](https://img.shields.io/badge/version-4.2.3-7C5CFF.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-4.3.0-7C5CFF.svg)](CHANGELOG.md)
 [![Templates](https://img.shields.io/badge/templates-10-22D3EE.svg)](https://lorenzz20105-del.github.io/aurora-ui-templates/)
 [![Tests](https://img.shields.io/badge/tests-5%20suites%20passing-34D399.svg)](.github/workflows/tests.yml)
 
@@ -280,7 +280,7 @@ local window = UI.CreateWindow({
     Scale = 1,                -- 0.5–1.6, auto-fits the viewport
     Search = true,            -- title-bar search
     Footer = true,
-    MobileButton = true,      -- on-screen toggle for touch devices
+    Launcher = true,          -- the logo that opens the menu again
     Keybind = Enum.KeyCode.RightShift,
     Status = "Connected  •  62 ms",
 })
@@ -295,6 +295,8 @@ local window = UI.CreateWindow({
 | `window:SetScale(n)` / `window:GetScale()` | user scaling |
 | `window:SetSubtitle(text)` / `window:ClearNotifications()` | small runtime helpers |
 | `window:Modal{ Title, Body, Actions }` | confirm dialog |
+| `window:Open()` / `window:Close()` / `window:Toggle()` / `window:IsOpen()` | menu visibility |
+| `window:SetLauncherVisible(bool)` | force the launcher on screen (it is automatic on close) |
 | `tab:CreateSection{ Name, Icon, Description, Badge }` | card that groups rows |
 | `tab:AddStats{ … }` / `tab:AddGrid{ Columns }` / `tab:AddSpacer(h)` | layout helpers |
 | `section:AddToggle/AddSlider/AddDropdown/AddTextBox/AddKeybind/AddColorPicker/AddButton` | controls |
@@ -397,7 +399,12 @@ scratch.
 
 - Every control is touch-friendly (44 px targets, no hover-only affordances) and
   the window auto-scales from 0.5× to 1.6× to fit the viewport.
-- `MobileButton` adds an on-screen toggle; the keybind is optional.
+- **Close is never a dead end.** The title bar carries the close control, and the
+  launcher — the window's own `Icon` (the sparkle mark) in a 48 px accent chip —
+  appears the moment the menu closes, on every platform, so a phone with no
+  Right Shift (or a desktop where the keybind was rebound) still has something
+  to tap. It is draggable, and `Launcher = false` / `MobileButton = false`
+  removes it; `window:SetLauncherVisible(true)` pins it while the menu is open.
 - No `require` of uploaded assets, no `rbxassetid://`, no `HttpService` — the whole
   kit is Frames, UICorners, UIStrokes and TextLabels, which is why it survives
   constrained executors (Delta and friends) and phones.

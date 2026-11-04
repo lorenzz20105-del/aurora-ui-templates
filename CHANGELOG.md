@@ -4,6 +4,39 @@ All notable changes to Aurora UI are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and
 the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.3.0] — 2026-11-04
+
+**Close and the logo that opens it again, on every platform.**
+
+### Added
+
+- **Launcher** — the window's own icon (`config.Icon`, the sparkle mark) in a
+  48 px accent chip, 16 px from the left, centred at 50% − 60 px. It hides while
+  the menu is up and appears the moment the menu closes, so closing is never a
+  dead end. It is draggable and tapping it reopens the window.
+- `window:SetLauncherVisible(bool)` — pin the logo on screen while the menu is
+  open if you want a permanent toggle.
+- `Launcher = false` turns the logo off; `MobileButton = false` still does too.
+- The launcher instance is now named `Launcher` (`window.Launcher`). The old
+  `_mobileToggle` field still points at it, so older scripts keep working.
+
+### Changed
+
+- The launcher is **built on every platform**, not only where
+  `UserInputService.TouchEnabled` is true. A phone has no Right Shift to press
+  and a desktop may have rebound the keybind; both need something to click.
+- The gallery's closed state is now a real launcher too: logo chip, a
+  "menu closed" line, no leftover glow. Its chip keeps a 44 px device-pixel
+  floor, so it stays tappable where the whole window is scaled to a third.
+
+### Fixed
+
+- `tools/check-geometry.js` was not actually testing ten templates: a hash-only
+  navigation is a same-document change, so every iteration measured whichever
+  template loaded first. It now cache-busts the URL, waits for the entrance
+  animations to settle before measuring, ignores decorative wash/layer nodes,
+  and passes on all ten plus the single window.
+
 ## [4.2.3] — 2026-11-04
 
 ### Fixed
