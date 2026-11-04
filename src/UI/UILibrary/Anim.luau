@@ -25,7 +25,7 @@
 local TweenService = game:GetService("TweenService")
 
 local Anim = {}
-Anim.Version = "4.2.2"
+Anim.Version = "4.2.3"
 
 ------------------------------------------------------------------
 -- easing lookup

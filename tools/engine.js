@@ -492,6 +492,9 @@ function animateIdle() {
   }[kind] || [];
   stage.querySelectorAll('[data-name]').forEach((el) => {
     if (targets.indexOf(el.dataset.name) < 0) return;
+    // Every label in the tree is called "Title"; only the window's own title
+    // shimmers in the Luau, so keep the sweep on the title bar.
+    if (kind === 'shimmer' && el.dataset.name === 'Title' && !el.closest('[data-name="TitleBar"]')) return;
     el.classList.add('motion-idle', 'idle-' + kind);
     // Roblox's shimmer is a UIGradient: over a Frame it sweeps the fill, over a
     // TextLabel it sweeps the glyphs. A leaf text node gets the clipped version,

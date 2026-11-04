@@ -4,6 +4,18 @@ All notable changes to Aurora UI are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and
 the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.2.3] — 2026-11-04
+
+### Fixed
+
+- 4.2.2 shipped a regression: the shimmer gradient was `background-repeat:
+  no-repeat`, and because the glyph fill is transparent, every character the
+  gradient did not cover disappeared — card labels read "Ses", "Act", "Qui".
+  The sweep now tiles, so the whole line stays painted while the highlight
+  travels across it.
+- Only the window's own title shimmers. Every label in the tree is called
+  `Title`, so the sweep was hitting sixteen of them at once.
+
 ## [4.2.2] — 2026-11-04
 
 ### Fixed

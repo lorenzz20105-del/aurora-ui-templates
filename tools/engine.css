@@ -152,9 +152,11 @@
 /* Text gets the gradient in its glyphs instead of a panel behind them. */
 .n.text.shimmer-text.idle-shimmer::after { display: none; }
 .n.text.shimmer-text.idle-shimmer {
-  background-image: linear-gradient(100deg, currentColor 34%, #ffffff 50%, currentColor 66%);
-  background-size: 220% 100%;
-  background-repeat: no-repeat;
+  background-image: linear-gradient(100deg, currentColor 30%, #ffffff 50%, currentColor 70%);
+  background-size: 200% 100%;
+  /* repeat, not no-repeat: with a transparent fill any glyph the gradient does
+     not cover simply vanishes, so the sweep has to tile the whole line. */
+  background-repeat: repeat;
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;

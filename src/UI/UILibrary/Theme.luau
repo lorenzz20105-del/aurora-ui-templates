@@ -12,7 +12,7 @@
 local Theme = {}
 
 Theme.Name = "Midnight"
-Theme.Version = "4.2.2"
+Theme.Version = "4.2.3"
 
 -- Typography ---------------------------------------------------------
 -- Roblox's Gotham family is used because it ships with the client and
