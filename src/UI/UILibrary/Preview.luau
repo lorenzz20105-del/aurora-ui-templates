@@ -27,7 +27,7 @@ local Window = require(script.Parent.Components.Window)
 
 local Preview = {}
 
-Preview.Version = "4.3.0"
+Preview.Version = "4.4.0"
 Preview.Window = nil
 
 local LOG_LIMIT = 9

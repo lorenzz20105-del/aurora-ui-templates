@@ -1,7 +1,7 @@
 --[[
 	Aurora UI  •  Styles.luau
 	------------------------------------------------------------------
-	Ten complete design languages built on one component library.
+	Twenty-four complete design languages built on one component library.
 
 	A *palette* only changes colours. A *style* changes colour **and**
 	form: corner radius, border weight, card treatment, button
@@ -372,6 +372,332 @@ Styles.All = {
 		},
 		Layout = { Nav = "rail", Header = "hero", Stats = "dials", Sections = "accordion", Footer = "status", Decor = "glow", NavWidth = 74 },
 		Motion = { Entry = "rise", Hover = "lift", Idle = "pulse", Duration = 0.40, Stagger = 0.05, Easing = "Sine" }
+	},	----------------------------------------------------------------
+	{
+		Slug = "sakura",
+		Name = "Sakura",
+		Tagline = "Pale blossom pinks, glass cards, floating nav",
+		Mood = "Light · Soft · Petal",
+		Palette = makePalette("Sakura", "#F0568F", {
+			backdrop = "#F7E9EF", panel = "#FFFFFF", surface = "#FDF2F6",
+			surfaceHover = "#FBE6EE", surfaceActive = "#F6D8E4", elevated = "#FFFFFF",
+			stroke = "#F0D6E1", strokeSoft = "#F6E6EC", strokeBright = "#E3AFC4",
+			text = "#3A1F2B", textMuted = "#8A6373", textDim = "#B394A0",
+			accent = "#F0568F", accent2 = "#FF9F68", accentSoft = "#FCE1EB",
+			success = "#12B76A", warning = "#E2A008", danger = "#D92D5C", info = "#2E90FA",
+			shadow = "#C58AA0", glass = 0,
+		}),
+		Metrics = {
+			Rail = "float", Card = "elevated", Button = "gradient",
+			RadiusScale = 1.25, MaxRadius = 26, TabShape = "pill", Shadow = 1.4,
+			Glow = false
+		},
+		Layout = { Nav = "float", Header = "hero", Stats = "dials", Sections = "cards", Footer = "none", Decor = "dots", NavWidth = 64 },
+		Motion = { Entry = "pop", Hover = "lift", Idle = "none", Duration = 0.28, Stagger = 0.045, Easing = "Back" }
+	},
+	----------------------------------------------------------------
+	{
+		Slug = "carbon",
+		Name = "Carbon",
+		Tagline = "Industrial graphite, hazard orange, hard 2 px edges",
+		Mood = "Dark · Industrial · Flat",
+		Palette = makePalette("Carbon", "#FF7A18", {
+			backdrop = "#0A0A0B", panel = "#121214", surface = "#17171A",
+			surfaceHover = "#1E1E22", surfaceActive = "#26262B", elevated = "#1A1A1E",
+			stroke = "#2A2A30", strokeSoft = "#1E1E23", strokeBright = "#3A3A42",
+			text = "#EDEDF0", textMuted = "#9A9AA4", textDim = "#6A6A74",
+			accent = "#FF7A18", accent2 = "#FFC53D", accentSoft = "#38220F",
+			success = "#4ADE80", warning = "#FFC53D", danger = "#FF4D4D", info = "#60A5FA",
+			shadow = "#000000", glass = 0,
+		}),
+		Metrics = {
+			Rail = "sidebar", RailWidth = 182, Card = "flat", Button = "solid",
+			RadiusScale = 0.4, MaxRadius = 8, TabShape = "square", BorderScale = 1.6,
+			BorderAlphaScale = 0.35, Shadow = 0.5, HeaderCase = "upper", Density = 0.96
+		},
+		Layout = { Nav = "sidebar", Header = "bar", Stats = "rows", Sections = "console", Footer = "ticker", Decor = "grid", NavWidth = 182 },
+		Motion = { Entry = "snap", Hover = "none", Idle = "scan", Duration = 0.18, Stagger = 0.02, Easing = "Linear" }
+	},
+	----------------------------------------------------------------
+	{
+		Slug = "vapor",
+		Name = "Vapor",
+		Tagline = "Synthwave magenta on deep violet, chrome glow, grid horizon",
+		Mood = "Dark · Neon · Retro",
+		Palette = makePalette("Vapor", "#FF4FD8", {
+			backdrop = "#140A24", panel = "#1D0F33", surface = "#26143F",
+			surfaceHover = "#321A52", surfaceActive = "#402066", elevated = "#22113A",
+			stroke = "#4B2A7A", strokeSoft = "#331C55", strokeBright = "#8B5CF6",
+			text = "#F7E8FF", textMuted = "#B79BD8", textDim = "#8165A8",
+			accent = "#FF4FD8", accent2 = "#5CE1FF", accentSoft = "#3A1350",
+			success = "#4FFFB0", warning = "#FFD166", danger = "#FF5C7A", info = "#5CE1FF",
+			shadow = "#0A0416", glass = 0.14,
+		}),
+		Metrics = {
+			Rail = "tabs", Card = "glass", Button = "gradient",
+			RadiusScale = 0.8, MaxRadius = 14, TabShape = "rounded", Shadow = 1.1,
+			Glow = true
+		},
+		Layout = { Nav = "tabs", Header = "hero", Stats = "headline", Sections = "panels", Footer = "none", Decor = "grid", NavWidth = 0 },
+		Motion = { Entry = "bounce", Hover = "glow", Idle = "pulse", Duration = 0.36, Stagger = 0.045, Easing = "Bounce" }
+	},
+	----------------------------------------------------------------
+	{
+		Slug = "paper",
+		Name = "Paper",
+		Tagline = "Warm stock, ink blue, printed rules and tight corners",
+		Mood = "Light · Editorial · Square",
+		Palette = makePalette("Paper", "#1F4E8C", {
+			backdrop = "#EFE9DC", panel = "#FBF7EE", surface = "#F5EFE3",
+			surfaceHover = "#EDE5D4", surfaceActive = "#E3D9C4", elevated = "#FFFDF7",
+			stroke = "#D8CDB6", strokeSoft = "#E6DECB", strokeBright = "#B9AB8E",
+			text = "#23201A", textMuted = "#6B6355", textDim = "#948B7A",
+			accent = "#1F4E8C", accent2 = "#C4674A", accentSoft = "#E4EBF4",
+			success = "#2F7A4F", warning = "#B8860B", danger = "#B3382C", info = "#1F4E8C",
+			shadow = "#8C7F63", glass = 0,
+		}),
+		Metrics = {
+			Rail = "sidebar", RailWidth = 190, Card = "elevated", Button = "solid",
+			RadiusScale = 0.25, MaxRadius = 4, TabShape = "square", BorderScale = 1,
+			Shadow = 0.8, Density = 1.02
+		},
+		Layout = { Nav = "sidebar", Header = "strip", Stats = "rows", Sections = "list", Footer = "ticker", Decor = "none", NavWidth = 190 },
+		Motion = { Entry = "fade", Hover = "lift", Idle = "none", Duration = 0.22, Stagger = 0.03, Easing = "Sine" }
+	},
+	----------------------------------------------------------------
+	{
+		Slug = "cobalt",
+		Name = "Cobalt",
+		Tagline = "Deep navy glass, electric blue, hairline bright borders",
+		Mood = "Dark · Corporate · Glow",
+		Palette = makePalette("Cobalt", "#3D5CFF", {
+			backdrop = "#060B1A", panel = "#0C1428", surface = "#111C36",
+			surfaceHover = "#172545", surfaceActive = "#1E2F55", elevated = "#0F1830",
+			stroke = "#22335C", strokeSoft = "#162343", strokeBright = "#3D5CFF",
+			text = "#E6EEFF", textMuted = "#8FA3CC", textDim = "#5F739B",
+			accent = "#3D5CFF", accent2 = "#00E0FF", accentSoft = "#14234D",
+			success = "#34D399", warning = "#FBBF24", danger = "#FB7185", info = "#00E0FF",
+			shadow = "#03060F", glass = 0.05,
+		}),
+		Metrics = {
+			Rail = "rail", Card = "glass", Button = "gradient",
+			RadiusScale = 1, MaxRadius = 18, TabShape = "rounded", Shadow = 1,
+			Glow = true
+		},
+		Layout = { Nav = "rail", Header = "bar", Stats = "cards", Sections = "panels", Footer = "status", Decor = "grid", NavWidth = 74 },
+		Motion = { Entry = "rise", Hover = "glow", Idle = "pulse", Duration = 0.32, Stagger = 0.035, Easing = "Quint" }
+	},
+	----------------------------------------------------------------
+	{
+		Slug = "mint",
+		Name = "Mint",
+		Tagline = "Fresh green on white, pill tabs, soft lift",
+		Mood = "Light · Fresh · Pill",
+		Palette = makePalette("Mint", "#10B981", {
+			backdrop = "#E7F5EC", panel = "#FFFFFF", surface = "#F1FBF5",
+			surfaceHover = "#E6F6EC", surfaceActive = "#D7EFE1", elevated = "#FFFFFF",
+			stroke = "#D3E9DB", strokeSoft = "#E3F2E9", strokeBright = "#A9D5B9",
+			text = "#0E2A1C", textMuted = "#557562", textDim = "#86A392",
+			accent = "#10B981", accent2 = "#22D3EE", accentSoft = "#DCF6E8",
+			success = "#0E9F6E", warning = "#D97706", danger = "#DC2626", info = "#0EA5E9",
+			shadow = "#9CC6AE", glass = 0,
+		}),
+		Metrics = {
+			Rail = "tabs", Card = "elevated", Button = "gradient",
+			RadiusScale = 1.2, MaxRadius = 24, TabShape = "pill", Shadow = 1.2,
+			Glow = false
+		},
+		Layout = { Nav = "tabs", Header = "bar", Stats = "chips", Sections = "cards", Footer = "none", Decor = "dots", NavWidth = 0 },
+		Motion = { Entry = "pop", Hover = "press", Idle = "none", Duration = 0.24, Stagger = 0.04, Easing = "Back" }
+	},
+	----------------------------------------------------------------
+	{
+		Slug = "copper",
+		Name = "Copper",
+		Tagline = "Steampunk brass on soot, riveted outlines, dial readouts",
+		Mood = "Dark · Warm · Industrial",
+		Palette = makePalette("Copper", "#C97B3C", {
+			backdrop = "#14100C", panel = "#1E1712", surface = "#271E16",
+			surfaceHover = "#33261B", surfaceActive = "#402F21", elevated = "#221A13",
+			stroke = "#4A3826", strokeSoft = "#33271A", strokeBright = "#A6653C",
+			text = "#F5E9D8", textMuted = "#B39A7C", textDim = "#856D52",
+			accent = "#C97B3C", accent2 = "#E0B14A", accentSoft = "#3A2A1A",
+			accentText = "#16100A",
+			success = "#74A45F", warning = "#E0B14A", danger = "#C75C4A", info = "#6FA8C7",
+			shadow = "#0A0705", glass = 0.03,
+		}),
+		Metrics = {
+			Rail = "dock", Card = "outline", Button = "outline",
+			RadiusScale = 0.35, MaxRadius = 6, TabShape = "square", BorderScale = 1.5,
+			BorderAlphaScale = 0.2, Shadow = 0.9, HeaderCase = "upper"
+		},
+		Layout = { Nav = "dock", Header = "strip", Stats = "dials", Sections = "accordion", Footer = "ticker", Decor = "scan", NavWidth = 0 },
+		Motion = { Entry = "bounce", Hover = "glow", Idle = "shimmer", Duration = 0.34, Stagger = 0.04, Easing = "Quad" }
+	},
+	----------------------------------------------------------------
+	{
+		Slug = "grape",
+		Name = "Grape",
+		Tagline = "Violet night, floating nav, jelly-soft corners",
+		Mood = "Dark · Soft · Float",
+		Palette = makePalette("Grape", "#9D7BFF", {
+			backdrop = "#130E22", panel = "#1B1533", surface = "#241C42",
+			surfaceHover = "#2E2451", surfaceActive = "#3A2D66", elevated = "#221A3D",
+			stroke = "#3C3068", strokeSoft = "#2A2149", strokeBright = "#7C5CFF",
+			text = "#F0EAFF", textMuted = "#A594CE", textDim = "#77679E",
+			accent = "#9D7BFF", accent2 = "#FF7BD5", accentSoft = "#2C2350",
+			success = "#4ADE80", warning = "#FBBF24", danger = "#FB7185", info = "#7DD3FC",
+			shadow = "#07040F", glass = 0.12,
+		}),
+		Metrics = {
+			Rail = "float", Card = "glass", Button = "gradient",
+			RadiusScale = 1.3, MaxRadius = 26, TabShape = "pill", Shadow = 1.2,
+			Glow = true
+		},
+		Layout = { Nav = "float", Header = "bar", Stats = "cards", Sections = "cards", Footer = "none", Decor = "glow", NavWidth = 64 },
+		Motion = { Entry = "pop", Hover = "lift", Idle = "none", Duration = 0.30, Stagger = 0.05, Easing = "Back" }
+	},
+	----------------------------------------------------------------
+	{
+		Slug = "slate",
+		Name = "Slate",
+		Tagline = "Greyscale discipline, one accent-free surface range",
+		Mood = "Dark · Mono-chrome · Quiet",
+		Palette = makePalette("Slate", "#C7CEDA", {
+			backdrop = "#0D0F12", panel = "#14171C", surface = "#1A1E24",
+			surfaceHover = "#22272F", surfaceActive = "#2B313A", elevated = "#171B21",
+			stroke = "#2C323B", strokeSoft = "#20252C", strokeBright = "#4A525E",
+			text = "#E9EDF2", textMuted = "#98A0AC", textDim = "#6A7280",
+			accent = "#C7CEDA", accent2 = "#8A93A3", accentSoft = "#2A2F37",
+			accentText = "#0D0F12",
+			success = "#22C55E", warning = "#EAB308", danger = "#EF4444", info = "#38BDF8",
+			shadow = "#000000", glass = 0.02,
+		}),
+		Metrics = {
+			Rail = "rail", Card = "flat", Button = "solid",
+			RadiusScale = 0.6, MaxRadius = 10, TabShape = "rounded", BorderScale = 1.2,
+			BorderAlphaScale = 0.4, Shadow = 0.4, Density = 0.98
+		},
+		Layout = { Nav = "rail", Header = "bar", Stats = "rows", Sections = "list", Footer = "none", Decor = "none", NavWidth = 74 },
+		Motion = { Entry = "fade", Hover = "none", Idle = "none", Duration = 0.18, Stagger = 0.02, Easing = "Sine" }
+	},
+	----------------------------------------------------------------
+	{
+		Slug = "citrus",
+		Name = "Citrus",
+		Tagline = "Lime and tangerine, bottom dock, loud and friendly",
+		Mood = "Light · Punchy · Playful",
+		Palette = makePalette("Citrus", "#A3E635", {
+			backdrop = "#F4F8E8", panel = "#FFFFFF", surface = "#F7FBEF",
+			surfaceHover = "#EFF6DF", surfaceActive = "#E4F0CC", elevated = "#FFFFFF",
+			stroke = "#DDE9C6", strokeSoft = "#E8F1D8", strokeBright = "#BCD39B",
+			text = "#1E2612", textMuted = "#5E6B45", textDim = "#8E9B74",
+			accent = "#A3E635", accent2 = "#FF8A00", accentSoft = "#EDF7D6",
+			accentText = "#17210A",
+			success = "#4C9F38", warning = "#D97706", danger = "#DC2626", info = "#0EA5E9",
+			shadow = "#AFC49A", glass = 0,
+		}),
+		Metrics = {
+			Rail = "dock", Card = "elevated", Button = "solid",
+			RadiusScale = 1.1, MaxRadius = 20, TabShape = "pill", Shadow = 1.2,
+			Glow = false
+		},
+		Layout = { Nav = "dock", Header = "hero", Stats = "chips", Sections = "list", Footer = "none", Decor = "dots", NavWidth = 0 },
+		Motion = { Entry = "bounce", Hover = "press", Idle = "pulse", Duration = 0.30, Stagger = 0.045, Easing = "Bounce" }
+	},
+	----------------------------------------------------------------
+	{
+		Slug = "noir",
+		Name = "Noir",
+		Tagline = "Black tie: gold hairlines, serif-quiet headings, no shadows",
+		Mood = "Dark · Luxury · Minimal",
+		Palette = makePalette("Noir", "#D4AF37", {
+			backdrop = "#08070A", panel = "#111014", surface = "#17151B",
+			surfaceHover = "#201D25", surfaceActive = "#2A2630", elevated = "#141218",
+			stroke = "#2E2A33", strokeSoft = "#201D24", strokeBright = "#C9A227",
+			text = "#F5F1E8", textMuted = "#A79E8C", textDim = "#6F685C",
+			accent = "#D4AF37", accent2 = "#F2D06B", accentSoft = "#2C2410",
+			accentText = "#0B0906",
+			success = "#5BD68B", warning = "#D4AF37", danger = "#E05252", info = "#6FA8DC",
+			shadow = "#000000", glass = 0.04,
+		}),
+		Metrics = {
+			Rail = "sidebar", RailWidth = 188, Card = "outline", Button = "outline",
+			RadiusScale = 0.5, MaxRadius = 8, TabShape = "square", BorderScale = 1.2,
+			BorderAlphaScale = 0.3, Shadow = 0.7, HeaderCase = "upper"
+		},
+		Layout = { Nav = "sidebar", Header = "hero", Stats = "headline", Sections = "accordion", Footer = "status", Decor = "none", NavWidth = 188 },
+		Motion = { Entry = "fade", Hover = "lift", Idle = "shimmer", Duration = 0.40, Stagger = 0.05, Easing = "Sine" }
+	},
+	----------------------------------------------------------------
+	{
+		Slug = "ocean",
+		Name = "Ocean",
+		Tagline = "Deep-sea teal, frosted panels, drifting dot field",
+		Mood = "Dark · Cool · Calm",
+		Palette = makePalette("Ocean", "#2DD4BF", {
+			backdrop = "#04141A", panel = "#082028", surface = "#0B2A33",
+			surfaceHover = "#0F3742", surfaceActive = "#144552", elevated = "#092430",
+			stroke = "#17505C", strokeSoft = "#0E3843", strokeBright = "#22D3EE",
+			text = "#DFF7FA", textMuted = "#86B7C0", textDim = "#5B8992",
+			accent = "#2DD4BF", accent2 = "#38BDF8", accentSoft = "#0C3A40",
+			success = "#4ADE80", warning = "#FBBF24", danger = "#FB7185", info = "#38BDF8",
+			shadow = "#01080B", glass = 0.08,
+		}),
+		Metrics = {
+			Rail = "float", Card = "glass", Button = "gradient",
+			RadiusScale = 1.15, MaxRadius = 22, TabShape = "pill", Shadow = 1,
+			Glow = true
+		},
+		Layout = { Nav = "float", Header = "strip", Stats = "dials", Sections = "panels", Footer = "ticker", Decor = "dots", NavWidth = 60 },
+		Motion = { Entry = "rise", Hover = "glow", Idle = "pulse", Duration = 0.34, Stagger = 0.04, Easing = "Sine" }
+	},
+	----------------------------------------------------------------
+	{
+		Slug = "candy",
+		Name = "Candy",
+		Tagline = "Pastel pop, fully pill-shaped, bouncy everything",
+		Mood = "Light · Bright · Bouncy",
+		Palette = makePalette("Candy", "#FF5FA2", {
+			backdrop = "#FFF0F6", panel = "#FFFFFF", surface = "#FFF6FA",
+			surfaceHover = "#FFECF4", surfaceActive = "#FFDDEB", elevated = "#FFFFFF",
+			stroke = "#FFD7E7", strokeSoft = "#FFE9F2", strokeBright = "#FFB3CE",
+			text = "#2B1626", textMuted = "#8A5E76", textDim = "#B48CA0",
+			accent = "#FF5FA2", accent2 = "#7C5CFF", accentSoft = "#FFE1EF",
+			success = "#22C55E", warning = "#F59E0B", danger = "#EF4444", info = "#38BDF8",
+			shadow = "#E8A9C3", glass = 0,
+		}),
+		Metrics = {
+			Rail = "tabs", Card = "elevated", Button = "gradient",
+			RadiusScale = 1.4, MaxRadius = 999, TabShape = "pill", Shadow = 1.3,
+			Glow = false
+		},
+		Layout = { Nav = "tabs", Header = "strip", Stats = "chips", Sections = "cards", Footer = "ticker", Decor = "dots", NavWidth = 0 },
+		Motion = { Entry = "bounce", Hover = "press", Idle = "pulse", Duration = 0.32, Stagger = 0.05, Easing = "Bounce" }
+	},
+	----------------------------------------------------------------
+	{
+		Slug = "retro",
+		Name = "Retro",
+		Tagline = "Desktop 95: teal wallpaper, grey chrome, bevelled buttons",
+		Mood = "Light · Nostalgic · Bevel",
+		Palette = makePalette("Retro", "#000080", {
+			backdrop = "#0E7A7A", panel = "#C0C0C0", surface = "#D4D0C8",
+			surfaceHover = "#DCD8D0", surfaceActive = "#C8C4BC", elevated = "#D4D0C8",
+			stroke = "#000000", strokeSoft = "#808080", strokeBright = "#000080",
+			text = "#000000", textMuted = "#404040", textDim = "#606060",
+			accent = "#000080", accent2 = "#1084D0", accentSoft = "#B0B0D8",
+			accentText = "#FFFFFF",
+			success = "#008000", warning = "#808000", danger = "#C00000", info = "#0000FF",
+			shadow = "#000000", glass = 0,
+		}),
+		Metrics = {
+			Rail = "tabs", Card = "flat", Button = "solid",
+			RadiusScale = 0, MaxRadius = 0, TabShape = "square", BorderScale = 1.5,
+			BorderAlphaScale = 0, Shadow = 0, HeaderCase = "upper", Density = 0.96
+		},
+		Layout = { Nav = "tabs", Header = "strip", Stats = "rows", Sections = "list", Footer = "status", Decor = "none", NavWidth = 0 },
+		Motion = { Entry = "snap", Hover = "none", Idle = "blink", Duration = 0.12, Stagger = 0, Easing = "Linear" }
 	},
 }
 

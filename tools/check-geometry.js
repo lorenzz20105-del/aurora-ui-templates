@@ -8,7 +8,13 @@
 const { chromium } = require('playwright');
 const path = require('path');
 
-const STYLES = ['midnight','daylight','neon-grid','terminal','brutalist','frost','material','arcade','executive','solar'];
+// read the catalogue off the dumps instead of hard-coding it, so a new style
+// is covered the moment it is dumped
+const fs = require('fs');
+const STYLES = fs.readdirSync(path.resolve(__dirname, '../docs/styles'))
+  .filter((f) => f.endsWith('.json'))
+  .map((f) => f.replace(/\.json$/, ''))
+  .sort();
 
 /* The gallery picks a template from location.hash, and `mount`/`STYLES` are
    top-level consts so they are not reachable from page.evaluate. */

@@ -325,7 +325,10 @@ function styleOf(node, originX, originY) {
   style.push('top:' + (node._y - originY).toFixed(2) + 'px');
   style.push('width:' + w.toFixed(2) + 'px');
   style.push('height:' + h.toFixed(2) + 'px');
-  style.push('z-index:' + (node.ZIndex || 1));
+  // ZIndex 0 is a real value (Util.Shadow puts its layers there so they sit
+  // behind the panel); `|| 1` silently promoted them over the panel and
+  // painted a grey wash across every floating surface.
+  style.push('z-index:' + (node.ZIndex === undefined || node.ZIndex === null ? 1 : node.ZIndex));
 
   const transparency = node.BackgroundTransparency === undefined ? 1 : node.BackgroundTransparency;
   const alpha = 1 - transparency;

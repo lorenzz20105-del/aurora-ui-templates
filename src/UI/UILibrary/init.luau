@@ -29,7 +29,7 @@ local Window = require(script.Components.Window)
 
 local UILibrary = {}
 
-UILibrary.Version = "4.3.0"
+UILibrary.Version = "4.4.0"
 UILibrary.Theme = Theme
 UILibrary.Util = Util
 UILibrary.Icons = Icons

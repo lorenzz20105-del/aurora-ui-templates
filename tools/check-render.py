@@ -22,7 +22,7 @@ STYLES_DIR = ROOT / "docs" / "styles"
 GALLERY = ROOT / "docs" / "index.html"
 SINGLE = ROOT / "docs" / "real-ui.html"
 
-MIN_STYLES = 10
+MIN_STYLES = 24
 MIN_INSTANCES = 600
 MIN_PAGE_BYTES = 120_000  # the gallery embeds gzipped dumps (~170 KB total)
 

@@ -4,6 +4,49 @@ All notable changes to Aurora UI are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and
 the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.4.0] — 2026-11-04
+
+**Twenty-four templates. Ten became a starting set, not the catalogue.**
+
+### Added
+
+Fourteen new styles, each a different design language — palette **and** layout
+blueprint **and** motion profile, not a recolour. No two of the 24 share a
+navigation + header + numbers + sections + footer + decor combination
+(`check-render.py` asserts that).
+
+| Style | What it is |
+| --- | --- |
+| **Sakura** | pale blossom pinks, floating rail, ring dials, drifting dots |
+| **Carbon** | industrial graphite, hazard orange, labelled sidebar, console panes, ticker |
+| **Vapor** | synthwave magenta on deep violet, tab bar, grid horizon, bouncy entry |
+| **Paper** | warm stock and ink blue, sidebar, table rows, printed rules, square corners |
+| **Cobalt** | deep navy glass, electric blue, icon rail, glowing cards |
+| **Mint** | fresh green on white, pill tabs, capsule stats, soft lift |
+| **Copper** | steampunk brass on soot, bottom dock, dials, riveted outlines |
+| **Grape** | violet night, floating rail, jelly corners, glow |
+| **Slate** | greyscale, icon rail, table rows, hairline list, no accent at all |
+| **Citrus** | lime and tangerine, bottom dock, capsule stats, hero header |
+| **Noir** | black tie: gold hairlines, hero header, headline numbers, accordion |
+| **Ocean** | deep-sea teal, floating rail, dials, frosted panels, ticker |
+| **Candy** | pastel pop, fully pill-shaped everything, bouncy |
+| **Retro** | desktop 95: grey chrome, bevelled buttons, square and dense |
+
+### Changed
+
+- `tools/readme-styles.py` regenerates the README gallery and the blueprint
+  matrix from the dumps, so the docs can no longer claim the wrong number of
+  templates. Run it after `dump-all.py`.
+- `check-render.py` requires 24 dumps, and it now fails if two styles share a
+  blueprint.
+
+### Fixed
+
+- The engine emitted `z-index: 1` for every node with `node.ZIndex || 1`, which
+  promoted `ZIndex = 0` nodes — every `Util.Shadow` layer — above the panel they
+  belong to. On light themes that painted a grey wash across floating rails and
+  cards. `0` is honoured now, so shadows sit behind their surfaces.
+
 ## [4.3.0] — 2026-11-04
 
 **Close and the logo that opens it again, on every platform.**

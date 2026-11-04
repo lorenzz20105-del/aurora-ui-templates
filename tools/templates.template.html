@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Aurora UI — ten templates, rendered from the real Luau</title>
+<title>Aurora UI — twenty-four templates, rendered from the real Luau</title>
 <meta name="aurora-version" content="/*__VERSION__*/">
 <style>
   /*__ENGINE_CSS__*/
@@ -220,10 +220,31 @@
     .top h1 { font-size: clamp(15px, 4.4vw, 17px); }
     .top, .chips { width: 100%; }
     .top p { font-size: 12px; line-height: 1.5; }
-    .chips { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
-    .chip { justify-content: flex-start; padding: 7px 9px; font-size: 11.5px; }
+    /* Twenty-four templates in a two-column grid is twelve rows of chrome
+       before the preview even starts. One swipeable strip instead. */
+    .chips {
+      display: flex;
+      flex-wrap: nowrap;
+      gap: 6px;
+      overflow-x: auto;
+      overflow-y: hidden;
+      scroll-snap-type: x proximity;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      padding-bottom: 2px;
+      margin-right: -12px;
+      padding-right: 12px;
+    }
+    .chips::-webkit-scrollbar { display: none; }
+    .chip {
+      flex: 0 0 auto;
+      justify-content: flex-start;
+      padding: 7px 11px 7px 9px;
+      font-size: 11.5px;
+      scroll-snap-align: start;
+    }
     .chip small { display: none; }
-    .chip span:nth-child(2) { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .chip span:nth-child(2) { white-space: nowrap; }
     .viewport { padding: 10px; border-radius: 12px; }
     .meta-row { gap: 10px; font-size: 11.5px; }
     .meta-row .tag, .meta-row .pill { display: none; }
@@ -276,7 +297,7 @@
 
   <div class="top">
     <div>
-      <h1>Aurora UI <span>— ten templates, one library</span></h1>
+      <h1>Aurora UI <span>— twenty-four templates, one library</span></h1>
       <p>
         Every window below is rendered from the Luau that builds it:
         <code>tools/dump.py</code> runs the real <code>CreateWindow</code> call inside a headless
@@ -454,7 +475,14 @@ async function mount(index) {
   const colours = [meta.accent, meta.accent2, meta.panel, meta.surface, meta.text].filter(Boolean);
   metaSwatches.innerHTML = colours.map((hex) => '<i style="background:' + hex + '"></i>').join('');
   [...chips.children].forEach((chip, chipIndex) => {
-    chip.setAttribute('aria-pressed', chipIndex === index ? 'true' : 'false');
+    const active = chipIndex === index;
+    chip.setAttribute('aria-pressed', active ? 'true' : 'false');
+    // the phone layout turns the 24 chips into one swipeable strip, so the
+    // active one has to be pulled into view (never scrollIntoView: that would
+    // also scroll the page and shove the preview down)
+    if (active && chips.scrollWidth > chips.clientWidth) {
+      chips.scrollTo({ left: Math.max(0, chip.offsetLeft - 12), behavior: 'smooth' });
+    }
   });
   wrap.classList.add('loading');
 

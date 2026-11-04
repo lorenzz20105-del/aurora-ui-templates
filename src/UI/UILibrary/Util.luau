@@ -15,7 +15,7 @@ local RunService = game:GetService("RunService")
 
 local Util = {}
 
-Util.Version = "4.3.0"
+Util.Version = "4.4.0"
 Util.Theme = {} -- populated through Util.ApplyTheme / Util.SetPalette
 Util.Style = {} -- active style metrics (radius, borders, rail geometry …)
 

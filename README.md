@@ -1,6 +1,6 @@
 # Aurora UI — Templates
 
-**Ten complete design languages for Roblox, built on one component library.**
+**Twenty-four complete design languages for Roblox, built on one component library.**
 Same API, same widgets, same demo script — swap one line and the whole menu
 changes its palette, radius, borders, card treatment, button treatment, tab
 geometry and typography.
@@ -8,15 +8,15 @@ geometry and typography.
 [![License: MIT](https://img.shields.io/badge/license-MIT-7C5CFF.svg)](LICENSE)
 [![Luau](https://img.shields.io/badge/language-Luau-00A2FF.svg)](https://luau.org)
 [![Rojo](https://img.shields.io/badge/Rojo-7.x-FF4757.svg)](https://rojo.space)
-[![Version](https://img.shields.io/badge/version-4.3.0-7C5CFF.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-4.4.0-7C5CFF.svg)](CHANGELOG.md)
 [![Templates](https://img.shields.io/badge/templates-10-22D3EE.svg)](https://lorenzz20105-del.github.io/aurora-ui-templates/)
 [![Tests](https://img.shields.io/badge/tests-5%20suites%20passing-34D399.svg)](.github/workflows/tests.yml)
 
-### ▶ **[Open the live preview — all ten templates, rendered from the real Luau](https://lorenzz20105-del.github.io/aurora-ui-templates/)**
+### ▶ **[Open the live preview — all twenty-four templates, rendered from the real Luau](https://lorenzz20105-del.github.io/aurora-ui-templates/)**
 
 *(offline copy: [`docs/index.html`](docs/index.html) — one self-contained file)*
 
-![All ten Aurora templates](docs/styles/hero.jpg)
+![All twenty-four Aurora templates](docs/styles/hero.jpg)
 
 Every window in this repo is a screenshot of **the Luau itself**. `tools/dump.py`
 runs the real `CreateWindow(...)` call and the real demo inside a headless Roblox
@@ -35,18 +35,27 @@ local window = UI.CreateWindow({
 
 ---
 
-## The ten templates
+<!-- styles:start -->
+## The twenty-four templates
 
 | | | |
 | --- | --- | --- |
 | ![Midnight](docs/styles/midnight.jpg) | ![Daylight](docs/styles/daylight.jpg) | ![Neon Grid](docs/styles/neon.jpg) |
-| **Midnight** · `midnight`<br>Glass panels, indigo→cyan gradient, icon rail | **Daylight** · `daylight`<br>Bright surfaces, hairline cards, friendly | **Neon Grid** · `neon`<br>Cyberpunk: outline cards, magenta glow |
+| **Midnight** · `midnight`<br>Glass panels, indigo-to-cyan gradient, icon rail | **Daylight** · `daylight`<br>Bright surfaces, soft shadows, friendly and airy | **Neon Grid** · `neon`<br>Cyberpunk: black glass, magenta and cyan glow, hairline borders |
 | ![Terminal](docs/styles/terminal.jpg) | ![Brutalist](docs/styles/brutalist.jpg) | ![Frost](docs/styles/frost.jpg) |
-| **Terminal** · `terminal`<br>Phosphor green, monospace, square and dense | **Brutalist** · `brutalist`<br>Paper white, 2 px black borders, zero radius | **Frost** · `frost`<br>Frosted pastel glass, very round |
+| **Terminal** · `terminal`<br>Phosphor green on black, monospace, squared-off and dense | **Brutalist** · `brutalist`<br>Paper white, hard black borders, offset shadows, zero radius | **Frost** · `frost`<br>Frosted pastel glass, very round, whisper-thin white borders |
 | ![Material You](docs/styles/material.jpg) | ![Arcade](docs/styles/arcade.jpg) | ![Executive](docs/styles/executive.jpg) |
-| **Material You** · `material`<br>Soft tonal surfaces, pill controls | **Arcade** · `arcade`<br>Retro cabinet: deep purple, hot pink | **Executive** · `executive`<br>Quiet corporate greys, navy accent |
-| ![Solar](docs/styles/solar.jpg) | **What changes between them** | |
-| **Solar** · `solar`<br>Warm sand and amber, sunlit gradients | **Everything.** In 4.0 a style is a palette **plus a layout blueprint plus a motion profile** — where the navigation lives, how numbers are presented, how a section is drawn, and how the whole thing enters and moves. The table below is the blueprint matrix. | |
+| **Material You** · `material`<br>Soft tonal surfaces, pill controls, calm elevation | **Arcade** · `arcade`<br>Retro cabinet: deep purple, hot pink, chunky panels | **Executive** · `executive`<br>Quiet corporate greys, hairline rules, navy accent |
+| ![Solar](docs/styles/solar.jpg) | ![Sakura](docs/styles/sakura.jpg) | ![Carbon](docs/styles/carbon.jpg) |
+| **Solar** · `solar`<br>Warm sand and amber, sunlit gradients, generous rounding | **Sakura** · `sakura`<br>Pale blossom pinks, glass cards, floating nav | **Carbon** · `carbon`<br>Industrial graphite, hazard orange, hard 2 px edges |
+| ![Vapor](docs/styles/vapor.jpg) | ![Paper](docs/styles/paper.jpg) | ![Cobalt](docs/styles/cobalt.jpg) |
+| **Vapor** · `vapor`<br>Synthwave magenta on deep violet, chrome glow, grid horizon | **Paper** · `paper`<br>Warm stock, ink blue, printed rules and tight corners | **Cobalt** · `cobalt`<br>Deep navy glass, electric blue, hairline bright borders |
+| ![Mint](docs/styles/mint.jpg) | ![Copper](docs/styles/copper.jpg) | ![Grape](docs/styles/grape.jpg) |
+| **Mint** · `mint`<br>Fresh green on white, pill tabs, soft lift | **Copper** · `copper`<br>Steampunk brass on soot, riveted outlines, dial readouts | **Grape** · `grape`<br>Violet night, floating nav, jelly-soft corners |
+| ![Slate](docs/styles/slate.jpg) | ![Citrus](docs/styles/citrus.jpg) | ![Noir](docs/styles/noir.jpg) |
+| **Slate** · `slate`<br>Greyscale discipline, one accent-free surface range | **Citrus** · `citrus`<br>Lime and tangerine, bottom dock, loud and friendly | **Noir** · `noir`<br>Black tie: gold hairlines, serif-quiet headings, no shadows |
+| ![Ocean](docs/styles/ocean.jpg) | ![Candy](docs/styles/candy.jpg) | ![Retro](docs/styles/retro.jpg) |
+| **Ocean** · `ocean`<br>Deep-sea teal, frosted panels, drifting dot field | **Candy** · `candy`<br>Pastel pop, fully pill-shaped, bouncy everything | **Retro** · `retro`<br>Desktop 95: teal wallpaper, grey chrome, bevelled buttons |
 
 ### The blueprint matrix
 
@@ -57,14 +66,30 @@ the same, and none of this is a recolour.
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | **Midnight** | icon rail | bar | 3 cards + sparklines | glass panels | status | glow | rise · glow · shimmer |
 | **Daylight** | top tab bar | hero | hero headline + fill bar | free cards | — | — | pop · lift |
-| **Neon Grid** | icon rail | strip | capsules | outline panels | ticker | grid | glitch · glow · scan |
+| **Neon Grid** | icon rail | strip | capsules | glass panels | ticker | grid | glitch · glow · scan |
 | **Terminal** | labelled sidebar | strip | table rows | console panes | status | scanlines | type · blink |
 | **Brutalist** | top tab bar | hero | table rows | hairline list | — | — | snap · press |
-| **Frost** | floating rail | bar | hero headline | free cards | — | dots | fade · lift · pulse |
+| **Frost** | floating rail | bar | hero headline + fill bar | free cards | — | dots | fade · lift · pulse |
 | **Material You** | top tab bar | bar | 3 cards + sparklines | free cards | — | — | pop · lift |
 | **Arcade** | bottom dock | strip | 3 cards + sparklines | free cards | ticker | grid | bounce · press · blink |
 | **Executive** | labelled sidebar | bar | table rows | hairline list | status | — | fade |
 | **Solar** | icon rail | hero | ring dials | pill accordion | status | glow | rise · lift · pulse |
+| **Sakura** | floating rail | hero | ring dials | free cards | — | dots | pop · lift |
+| **Carbon** | labelled sidebar | bar | table rows | console panes | ticker | grid | snap · scan |
+| **Vapor** | top tab bar | hero | hero headline + fill bar | glass panels | — | grid | bounce · glow · pulse |
+| **Paper** | labelled sidebar | strip | table rows | hairline list | ticker | — | fade · lift |
+| **Cobalt** | icon rail | bar | 3 cards + sparklines | glass panels | status | grid | rise · glow · pulse |
+| **Mint** | top tab bar | bar | capsules | free cards | — | dots | pop · press |
+| **Copper** | bottom dock | strip | ring dials | pill accordion | ticker | scanlines | bounce · glow · shimmer |
+| **Grape** | floating rail | bar | 3 cards + sparklines | free cards | — | glow | pop · lift |
+| **Slate** | icon rail | bar | table rows | hairline list | — | — | fade |
+| **Citrus** | bottom dock | hero | capsules | hairline list | — | dots | bounce · press · pulse |
+| **Noir** | labelled sidebar | hero | hero headline + fill bar | pill accordion | status | — | fade · lift · shimmer |
+| **Ocean** | floating rail | strip | ring dials | glass panels | ticker | dots | rise · glow · pulse |
+| **Candy** | top tab bar | strip | capsules | free cards | ticker | dots | bounce · press · pulse |
+| **Retro** | top tab bar | strip | table rows | hairline list | status | — | snap · blink |
+
+<!-- styles:end -->
 
 ---
 
@@ -221,7 +246,7 @@ node tools/style-shots.js                     # → docs/styles/*.jpg for this R
 2. `tools/dump-tree.luau` serialises every GUI instance with its properties and its
    `UIListLayout` / `UIGridLayout` / `UIPadding` / `UICorner` / `UIStroke` /
    `UIGradient` / `UIFlexItem` children → `docs/styles/<slug>.json`
-   (7,293 instances across the ten templates).
+   (16,027 instances across the twenty-four templates).
 3. `tools/engine.js` re-implements the parts of Roblox's layout engine that matter
    (automatic sizing, list/grid layout, padding, anchors, rotation, gradients,
    strokes, text metrics) and paints the tree into one self-contained HTML file —
@@ -309,7 +334,7 @@ local window = UI.CreateWindow({
 | | |
 | --- | --- |
 | Source | 8,169 lines of Luau across 21 files |
-| Templates | 10 styles, 4 palettes shipped, unlimited via `Styles.All` |
+| Templates | 24 styles, 4 palettes shipped, unlimited via `Styles.All` |
 | Components | 14 widgets, 31 vector icons drawn from Frames (zero assets) |
 | Layouts | icon rail, labelled sidebar, horizontal tab bar |
 | Card treatments | glass, elevated, outline, flat, brutal |
@@ -328,7 +353,7 @@ dist/                        # generated by tools/bundle.py — commit it
 └── AuroraPreview.luau       # library + preview     (runs)
 
 docs/
-├── index.html               # THE preview: all ten templates, one page (GitHub Pages)
+├── index.html               # THE preview: all 24 templates, one page (GitHub Pages)
 ├── real-ui.html             # the same engine, single window (Midnight)
 ├── styles/                  # per-template dumps (.json) and shots (.jpg)
 └── mock.html                # hand-authored design mock (legacy reference)
@@ -337,7 +362,7 @@ src/
 ├── Client/Main.client.luau  # demo: 5 tabs, live stats, every component
 └── UI/UILibrary/
     ├── init.luau            # public API (CreateWindow, SetTheme, Format …)
-    ├── Styles.luau          # ← the ten templates
+    ├── Styles.luau          # ← the twenty-four templates
     ├── Theme.luau           # palettes, type scale, spacing, layout constants
     ├── Anim.luau            # motion profiles: entry, hover, idle (TweenService)
     ├── Util.luau            # instance helpers, tweens, drag, theming, style metrics
@@ -378,6 +403,7 @@ LUAU=/path/to/luau ./tools/run-tests.sh
 The preview has its own checks:
 
 ```bash
+python3 tools/readme-styles.py          # rebuild the gallery + matrix below from the dumps
 python3 tools/check-render.py           # structure of the dumps + the page
 node tools/check-geometry.js            # real browser: every template's layout
 python3 tools/compare-dump.py a.json b.json   # structural drift, ignores live numbers
@@ -390,7 +416,7 @@ bug an error console cannot see: a single stray `position: relative` re-flows a
 whole cluster and only a render shows it.
 
 CI runs the suites, a `luau-compile` sweep, a check that `dist/` matches the
-sources, and a `render` job that rebuilds all ten dumps and the preview from
+sources, and a `render` job that rebuilds all 24 dumps and the preview from
 scratch.
 
 ---
