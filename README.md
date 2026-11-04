@@ -8,7 +8,7 @@ geometry and typography.
 [![License: MIT](https://img.shields.io/badge/license-MIT-7C5CFF.svg)](LICENSE)
 [![Luau](https://img.shields.io/badge/language-Luau-00A2FF.svg)](https://luau.org)
 [![Rojo](https://img.shields.io/badge/Rojo-7.x-FF4757.svg)](https://rojo.space)
-[![Version](https://img.shields.io/badge/version-4.2.0-7C5CFF.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-4.2.1-7C5CFF.svg)](CHANGELOG.md)
 [![Templates](https://img.shields.io/badge/templates-10-22D3EE.svg)](https://lorenzz20105-del.github.io/aurora-ui-templates/)
 [![Tests](https://img.shields.io/badge/tests-5%20suites%20passing-34D399.svg)](.github/workflows/tests.yml)
 
@@ -354,7 +354,8 @@ tools/
 ├── dump-tree.luau           # serialises the instance tree
 ├── engine.css / engine.js   # the layout engine used by both preview pages
 ├── render.js                # dump + engine → docs/real-ui.html | docs/index.html
-└── style-shots.js           # per-template screenshots (docs/styles/*.jpg)
+├── style-shots.js           # per-template screenshots (docs/styles/*.jpg)
+└── check-geometry.js        # layout sanity: absolute nodes, no overlap, no escape
 ```
 
 ---
@@ -375,9 +376,16 @@ LUAU=/path/to/luau ./tools/run-tests.sh
 The preview has its own checks:
 
 ```bash
-python3 tools/check-render.py          # structure of the dumps + the page
+python3 tools/check-render.py           # structure of the dumps + the page
+node tools/check-geometry.js            # real browser: every template's layout
 python3 tools/compare-dump.py a.json b.json   # structural drift, ignores live numbers
 ```
+
+`check-geometry.js` opens the gallery and the single window in headless Chromium
+and fails if any node has left the absolute flow, if the title bar's children
+overlap or drop below the bar, or if anything escapes the window. That is the
+bug an error console cannot see: a single stray `position: relative` re-flows a
+whole cluster and only a render shows it.
 
 CI runs the suites, a `luau-compile` sweep, a check that `dist/` matches the
 sources, and a `render` job that rebuilds all ten dumps and the preview from

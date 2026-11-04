@@ -4,6 +4,30 @@ All notable changes to Aurora UI are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and
 the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.2.1] — 2026-11-04
+
+**The window actually looks like the window.**
+
+### Fixed
+
+- A leftover `position: relative` on `[data-tip]` and `.motion-idle` was
+  overriding the engine's `.n { position: absolute }`, so every node carrying a
+  tooltip or an idle animation left the absolute flow and stacked diagonally.
+  In the gallery this showed up as the title bar collapsing: the search field,
+  moon, bell, minus and close buttons marched down the right edge on top of the
+  stat cards, and the title overlapped its own subtitle. They are back on one
+  line. `.n` is already a containing block, so the tooltip still anchors to it
+  without any `position` override.
+- `docs/real-ui.html` was rendered before that fix and kept the broken CSS;
+  it is rebuilt from the same engine now.
+
+### Added
+
+- `tools/check-geometry.js` — walks all ten templates plus the single window
+  and fails if any node is not `position: absolute`, if title-bar children
+  overlap or drop below the bar, or if a node escapes the window. This is the
+  check that would have caught the bug above; errors alone never see it.
+
 ## [4.2.0] — 2026-11-04
 
 **The preview tells you what it is, and responds like the component does.**

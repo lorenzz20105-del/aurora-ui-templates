@@ -198,6 +198,9 @@
     line-height: 1.6;
   }
   .foot code { color: #8f9ab4; }
+  /* Phones used to hide the footnote entirely, which left a band of dead
+     space under the blueprint pills. Now they get a one-paragraph version. */
+  .foot-brief { display: none; }
 
   /* ------------------------------------------- small panes & phones */
   @media (max-height: 760px) {
@@ -225,7 +228,13 @@
     .meta-row { gap: 10px; font-size: 11.5px; }
     .meta-row .tag, .meta-row .pill { display: none; }
     .swatches { margin-left: 0; }
-    .foot { display: none; }
+    .foot {
+      margin: 12px auto 0;
+      font-size: 11.5px;
+      line-height: 1.55;
+    }
+    .foot-wide { display: none; }
+    .foot-brief { display: inline; }
   }
   @media (max-width: 460px) {
     .top p { display: none; }
@@ -246,7 +255,13 @@
     .viewport { padding: 10px; border-radius: 12px; }
     .meta-row { margin-top: 8px; gap: 10px; font-size: 11.5px; }
     .meta-row .tag, .meta-row .pill { display: none; }
-    .foot { display: none; }
+    .foot {
+      margin: 10px auto 0;
+      font-size: 11px;
+      line-height: 1.5;
+    }
+    .foot-wide { display: none; }
+    .foot-brief { display: inline; }
   }
   .hint-key {
     border: 1px solid #222a3c;
@@ -293,10 +308,16 @@
   </div>
 
   <div class="foot">
-    Click a template above (or press <span class="hint-key">←</span> <span class="hint-key">→</span>) to
-    swap the design. Each one is the same demo script — the only thing that changes is
-    <code>Style = "…"</code> on <code>CreateWindow</code>. Tabs, sliders and toggles inside the
-    window are the real captured geometry.
+    <span class="foot-wide">
+      Click a template above (or press <span class="hint-key">←</span> <span class="hint-key">→</span>) to
+      swap the design. Each one is the same demo script — the only thing that changes is
+      <code>Style = "…"</code> on <code>CreateWindow</code>. Tabs, sliders and toggles inside the
+      window are the real captured geometry.
+    </span>
+    <span class="foot-brief">
+      Tap a template to swap the design. Every one runs the same demo script — only
+      <code>Style</code> changes. Everything inside the window is touch-ready.
+    </span>
   </div>
 
 <script>

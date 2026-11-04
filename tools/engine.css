@@ -133,7 +133,9 @@
 .hover-press:hover { transform: scale(.975); }
 
 /* idle ------------------------------------------------------------------- */
-.motion-idle { position: relative; overflow: hidden; }
+/* .n is already positioned; adding position:relative here re-flowed every
+   idle node and pushed the title-bar controls into a diagonal stack. */
+.motion-idle { overflow: hidden; }
 
 @keyframes idle-shimmer {
   from { background-position: -220% 0; }
@@ -326,7 +328,8 @@
 .aurora-menu-item:hover { background: rgba(255, 255, 255, .10); color: #fff; }
 .aurora-menu-item.active { color: #fff; font-weight: 700; }
 
-[data-tip] { position: relative; }
+/* .n nodes are already absolutely positioned, so a tooltip pseudo-element
+   anchors to them without touching position (see the .n rule above). */
 [data-tip]:hover::after {
   content: attr(data-tip);
   position: absolute;
