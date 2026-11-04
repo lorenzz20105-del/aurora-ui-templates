@@ -8,7 +8,7 @@ geometry and typography.
 [![License: MIT](https://img.shields.io/badge/license-MIT-7C5CFF.svg)](LICENSE)
 [![Luau](https://img.shields.io/badge/language-Luau-00A2FF.svg)](https://luau.org)
 [![Rojo](https://img.shields.io/badge/Rojo-7.x-FF4757.svg)](https://rojo.space)
-[![Version](https://img.shields.io/badge/version-4.0.0-7C5CFF.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-4.1.0-7C5CFF.svg)](CHANGELOG.md)
 [![Templates](https://img.shields.io/badge/templates-10-22D3EE.svg)](https://lorenzz20105-del.github.io/aurora-ui-templates/)
 [![Tests](https://img.shields.io/badge/tests-5%20suites%20passing-34D399.svg)](.github/workflows/tests.yml)
 
@@ -171,6 +171,29 @@ It appears in the preview chips, the docs and the README generator with no other
 edits.
 
 ---
+
+## The preview is interactive
+
+`docs/index.html` (and `docs/real-ui.html`) is not a screenshot: it is the
+instance tree the Luau built, laid out in the DOM, with its behaviour wired
+back up by `tools/engine.js`.
+
+| You do this | …and this happens |
+| --- | --- |
+| click a tab | the page switches and the rail indicator slides |
+| click a switch | the knob travels, the track takes the accent |
+| drag a slider | knob, fill and the value pill move together |
+| click a section header | the body collapses, the chevron turns |
+| click a button | it presses and raises a toast in the style's palette |
+| type in the search box | rows on the active page filter live |
+| click a colour swatch | it cycles and the hex label updates |
+| drag the title bar | the window shoves and springs back |
+| close / minimise | it hides, with a "Reopen preview" button |
+| the moon button | swaps to the next template |
+
+Every style also brings its own **motion**: the entrance stagger, the hover
+feedback and the idle loops come from the style's `Motion` profile, so Neon
+Grid glitches in while Executive simply fades.
 
 ## The preview
 

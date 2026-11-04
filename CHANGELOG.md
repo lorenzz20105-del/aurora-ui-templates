@@ -4,6 +4,33 @@ All notable changes to Aurora UI are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and
 the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.1.0] — 2026-11-03
+
+**The preview is a working menu, not a picture.**
+
+### Added
+
+- **Interactivity in `tools/engine.js`** — the rendered tree is wired back up
+  after it is laid out:
+  - tabs switch pages (and the section rail indicator slides)
+  - switches flip, with the knob travelling and the track taking the accent
+  - sliders drag: knob, fill and the value pill update together
+  - section headers collapse their body and rotate the chevron
+  - buttons press and raise a toast built from the style's own palette
+  - the search box is typable and filters the rows on the active page
+  - colour swatches cycle and update the hex label
+  - the title bar shoves the window, which springs back
+  - close hides the window and offers "Reopen preview"; minimise collapses it
+  - the moon button swaps templates in the gallery; Esc reopens a closed window
+- `docs/index.html` gains a **Live preview** row plus a hover hint inside the
+  window, and the interactive pass is covered by `tools/check-render.py`.
+
+### Fixed
+
+- Full-bleed helper frames (`Blocker`, `Overlay`, `Notifications`, `Resizer`)
+  covered the window and swallowed every pointer event; they are now
+  click-through, and the controls the preview actually wires up opt back in.
+
 ## [4.0.0] — 2026-11-03
 
 **Ten design languages, not ten recolours.** A style now decides what the

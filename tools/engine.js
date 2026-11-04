@@ -571,6 +571,344 @@ tabs.forEach((tab) => {
 });
 selectTab(activeTab ? activeTab.dataset.tab : Object.keys(pages)[0]);
 
+/* ---------------------------------------------------------- interactive
+   The dump is a snapshot of a real, working menu. These handlers hand the
+   behaviour back: switches flip, sliders drag, sections collapse, buttons
+   toast, the search filters the rows, the title bar drags the window. */
+
+const PALETTE = {
+  accent: (META.accent || '#7C5CFF'),
+  accent2: (META.accent2 || META.accent || '#22D3EE'),
+  panel: (META.panel || '#0F121B'),
+  surface: (META.surface || '#161A26'),
+  text: (META.text || '#EAEEF9'),
+  stroke: (META.stroke || '#252C3E'),
+};
+
+function withAlpha(hex, alpha) {
+  const value = String(hex).replace('#', '');
+  const big = parseInt(value.length === 3 ? value.split('').map((c) => c + c).join('') : value, 16);
+  return 'rgba(' + ((big >> 16) & 255) + ',' + ((big >> 8) & 255) + ',' + (big & 255) + ',' + alpha + ')';
+}
+
+function makeInteractive() {
+  const win = stage.querySelector('[data-name="Main"]');
+  if (!win) return;
+  const nameOf = (el) => (el && el.dataset ? el.dataset.name || '' : '');
+  const safe = (fn) => (event) => {
+    try {
+      fn(event);
+    } catch (error) {
+      /* one broken control must never take the preview down */
+      console.warn('aurora interactive:', error);
+    }
+  };
+
+  stage.classList.add('interactive');
+
+  // Full-bleed helper frames (click blocker, modal overlay, notification
+  // host, resize grip) sit above everything in Roblox but must not eat
+  // pointer events in the preview.
+  ['Blocker', 'Overlay', 'Notifications', 'Resizer'].forEach((name) => {
+    stage.querySelectorAll('[data-name="' + name + '"]').forEach((el) => {
+      el.style.pointerEvents = 'none';
+    });
+  });
+  const resizer = stage.querySelector('[data-name="Resizer"]');
+  if (resizer) resizer.style.pointerEvents = 'auto';
+
+  /* ------------------------------------------------------------ toasts */
+  let toastHost = stage.querySelector('.aurora-toasts');
+  if (!toastHost) {
+    toastHost = document.createElement('div');
+    toastHost.className = 'aurora-toasts';
+    stage.appendChild(toastHost);
+  }
+
+  function toast(title, body, tone) {
+    const el = document.createElement('div');
+    el.className = 'aurora-toast';
+    const dot = document.createElement('span');
+    dot.className = 'dot';
+    dot.style.background = tone === 'warn' ? '#FBBF24' : PALETTE.accent;
+    const wrapEl = document.createElement('div');
+    const strong = document.createElement('b');
+    strong.textContent = title;
+    const p = document.createElement('span');
+    p.textContent = body || '';
+    wrapEl.appendChild(strong);
+    if (body) wrapEl.appendChild(p);
+    el.appendChild(dot);
+    el.appendChild(wrapEl);
+    toastHost.appendChild(el);
+    setTimeout(() => {
+      el.classList.add('out');
+      setTimeout(() => el.remove(), 320);
+    }, 2600);
+    while (toastHost.children.length > 3) toastHost.firstChild.remove();
+  }
+
+  /* ---------------------------------------------------- window controls */
+  const closeBtn = stage.querySelector('[data-name="IconButton_close"]');
+  const minBtn = stage.querySelector('[data-name="IconButton_minus"]');
+  const moonBtn = stage.querySelector('[data-name="IconButton_moon"]');
+  const bellBtn = stage.querySelector('[data-name="IconButton_bell"]');
+  const titleBar = stage.querySelector('[data-name="TitleBar"]');
+  let reopen = null;
+
+  if (closeBtn) {
+    closeBtn.addEventListener('click', safe(() => {
+      win.classList.add('is-closing');
+      setTimeout(() => {
+        win.style.display = 'none';
+        win.classList.remove('is-closing');
+        reopen = document.createElement('button');
+        reopen.className = 'aurora-reopen';
+        reopen.type = 'button';
+        reopen.textContent = 'Reopen preview';
+        reopen.addEventListener('click', () => {
+          win.style.display = '';
+          win.classList.add('motion-entry', 'entry-' + (MOTION.Entry || 'rise'));
+          win.style.animationDuration = '0.32s';
+          reopen.remove();
+          reopen = null;
+        });
+        stage.appendChild(reopen);
+      }, 220);
+    }));
+  }
+
+  if (minBtn) {
+    minBtn.addEventListener('click', safe(() => {
+      win.classList.toggle('is-minimised');
+    }));
+  }
+
+  if (bellBtn) {
+    bellBtn.addEventListener('click', safe(() => {
+      toast('Notifications', 'Everything is running smoothly.');
+    }));
+  }
+
+  if (moonBtn) {
+    moonBtn.addEventListener('click', safe(() => {
+      if (typeof options.onCycleStyle === 'function') {
+        options.onCycleStyle();
+      } else {
+        toast('Theme', 'Cycle templates from the chips above.');
+      }
+    }));
+  }
+
+  /* ------------------------------------------------------ title bar drag */
+  // The stage is exactly the size of the window, so a free drag would clip.
+  // The window shoves a little and springs back -- alive, never broken.
+  if (titleBar) {
+    let start = null;
+    titleBar.style.cursor = 'grab';
+    titleBar.addEventListener('pointerdown', (event) => {
+      if (event.target.closest('[data-name^="IconButton"]') || event.target.closest('[data-name="Search"]')) return;
+      start = { x: event.clientX, y: event.clientY };
+      win.style.transition = 'none';
+      titleBar.style.cursor = 'grabbing';
+      try {
+        titleBar.setPointerCapture(event.pointerId);
+      } catch (error) {
+        /* pointer capture is best effort */
+      }
+    });
+    titleBar.addEventListener('pointermove', (event) => {
+      if (!start) return;
+      const k = scaleOfStage() || 1;
+      const dx = Math.max(-26, Math.min(26, (event.clientX - start.x) / k));
+      const dy = Math.max(-16, Math.min(16, (event.clientY - start.y) / k));
+      win.style.transform = 'translate(' + dx.toFixed(1) + 'px,' + dy.toFixed(1) + 'px)';
+    });
+    const release = () => {
+      if (!start) return;
+      start = null;
+      win.style.transition = 'transform .26s cubic-bezier(.3,1.3,.5,1)';
+      win.style.transform = '';
+      titleBar.style.cursor = 'grab';
+    };
+    titleBar.addEventListener('pointerup', release);
+    titleBar.addEventListener('pointercancel', release);
+  }
+
+  function scaleOfStage() {
+    const value = getComputedStyle(stage).transform;
+    const match = /matrix\(([\d.]+)/.exec(value || '');
+    return match ? parseFloat(match[1]) : 1;
+  }
+
+  /* ------------------------------------------------------------ switches */
+  stage.querySelectorAll('[data-name="Track"]').forEach((track) => {
+    const knob = track.querySelector('[data-name="Knob"]');
+    if (!knob) return;
+    const fill = track.querySelector('[data-name="Fill"]');
+
+    if (fill) {
+      /* -------------------------------------------------- slider */
+      const pill = track.closest('[data-name^="Slider_"]') &&
+        track.closest('[data-name^="Slider_"]').querySelector('[data-name="ValuePill"]');
+      const label = pill ? pill.querySelector('[data-name="Value"]') : null;
+      const original = label ? label.textContent : '';
+      const current = parseFloat(original) || 0;
+      const startFraction = (parseFloat(knob.style.left) || 0) / 100;
+      const max = startFraction > 0.04 ? current / startFraction : current * 2 || 100;
+      const unit = (original.match(/[a-z%]+$/i) || [''])[0];
+
+      const apply = (event) => {
+        const rect = track.getBoundingClientRect();
+        const fraction = Math.max(0, Math.min(1, (event.clientX - rect.left) / Math.max(1, rect.width)));
+        knob.style.left = fraction * 100 + '%';
+        fill.style.width = fraction * 100 + '%';
+        if (label) {
+          const step = max > 40 ? 1 : 0.1;
+          const value = Math.round(fraction * max / step) * step;
+          label.textContent = (step < 1 ? value.toFixed(1) : String(Math.round(value))) + (unit ? ' ' + unit : '');
+        }
+      };
+
+      track.style.cursor = 'pointer';
+      track.classList.add('aurora-slider');
+      track.addEventListener('pointerdown', (event) => {
+        apply(event);
+        track.setPointerCapture(event.pointerId);
+        const move = (moveEvent) => apply(moveEvent);
+        const up = () => {
+          track.removeEventListener('pointermove', move);
+          track.removeEventListener('pointerup', up);
+        };
+        track.addEventListener('pointermove', move);
+        track.addEventListener('pointerup', up);
+      });
+      return;
+    }
+
+    /* ------------------------------------------------------ toggle */
+    const row = track.closest('[data-name^="Row_"]') || track;
+    const trackBg = track.style.background;
+    const knobBg = knob.style.background;
+    let on = (parseFloat(knob.style.left) || 0) > 0.01;
+
+    const paint = () => {
+      track.style.background = on ? PALETTE.accent : trackBg;
+      knob.style.background = on ? '#FFFFFF' : knobBg;
+      track.style.boxShadow = on ? '0 0 12px -2px ' + withAlpha(PALETTE.accent, 0.75) : '';
+    };
+
+    row.style.cursor = 'pointer';
+    row.classList.add('aurora-toggle');
+    row.addEventListener('click', safe((event) => {
+      if (event.target.closest('[data-name="Track"]') || row === track || true) {
+        on = !on;
+        knob.style.left = on ? 'calc(100% - ' + (knob.offsetWidth || 20) + 'px)' : '0px';
+        track.style.transition = 'background .18s ease, box-shadow .18s ease';
+        knob.style.transition = 'left .18s cubic-bezier(.3,1.4,.5,1)';
+        paint();
+      }
+    }));
+  });
+
+  /* ---------------------------------------------------- section collapse */
+  stage.querySelectorAll('[data-name="CollapseHitbox"]').forEach((hit) => {
+    hit.style.cursor = 'pointer';
+    const header = hit.parentElement;
+    const section = header && header.parentElement;
+    if (!section) return;
+    const body = section.querySelector('[data-name="Body"]');
+    const chevron = header.querySelector('[data-name^="Icon_chevron"]');
+    if (!body) return;
+    hit.addEventListener('click', safe(() => {
+      const collapsing = body.style.display !== 'none';
+      body.style.display = collapsing ? 'none' : '';
+      if (chevron) chevron.style.transform = collapsing ? 'rotate(-90deg)' : '';
+      section.classList.toggle('is-collapsed', collapsing);
+    }));
+  });
+
+  /* ------------------------------------------------------------- buttons */
+  stage.querySelectorAll('[data-name="Sheen"]').forEach((sheen) => {
+    const button = sheen.parentElement;
+    if (!button) return;
+    button.style.cursor = 'pointer';
+    button.classList.add('aurora-button');
+    button.addEventListener('click', safe(() => {
+      const label = button.querySelector('[data-name="Label"], [data-name="Text"]');
+      const title = label ? label.textContent : (nameOf(button) || 'Action');
+      toast(title, 'Handled by the real component — this preview replays it.');
+      button.classList.add('pressed');
+      setTimeout(() => button.classList.remove('pressed'), 180);
+    }));
+  });
+
+  /* ------------------------------------------------------------- search */
+  const searchInput = stage.querySelector('[data-name="Field"]');
+  const placeholderText = searchInput ? (searchInput.textContent || '') : '';
+  if (searchInput) {
+    searchInput.dataset.placeholder = placeholderText;
+    searchInput.setAttribute('contenteditable', 'true');
+    searchInput.classList.add('editable');
+    searchInput.addEventListener('focus', () => {
+      if (searchInput.textContent === placeholderText) searchInput.textContent = '';
+      searchInput.classList.add('focused');
+    });
+    searchInput.addEventListener('blur', () => {
+      searchInput.classList.remove('focused');
+      if (!searchInput.textContent.trim()) searchInput.textContent = placeholderText;
+      filterRows('');
+    });
+    searchInput.addEventListener('input', () => filterRows(searchInput.textContent));
+    searchInput.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter') event.preventDefault();
+    });
+  }
+
+  function filterRows(term) {
+    const needle = (term || '').trim().toLowerCase();
+    const page = Object.keys(pages).map((key) => pages[key]).find((p) => p.style.display !== 'none');
+    if (!page) return;
+    page.querySelectorAll('[data-name^="Row_"], [data-name^="Slider_"], [data-name^="Section_"]').forEach((el) => {
+      const text = el.textContent.toLowerCase();
+      const hit = !needle || text.indexOf(needle) >= 0;
+      el.style.opacity = hit ? '' : '0.28';
+      el.style.filter = hit ? '' : 'grayscale(1)';
+    });
+  }
+
+  /* ------------------------------------------------------- color picker */
+  const SWATCHES = ['#7C5CFF', '#22D3EE', '#FF2E97', '#34D399', '#FFB020', '#FB7185'];
+  stage.querySelectorAll('[data-name="Trigger"]').forEach((trigger) => {
+    const swatch = trigger.querySelector('[data-name="Swatch"]');
+    const hex = trigger.querySelector('[data-name="Hex"]');
+    if (!swatch || !hex) return;
+    trigger.style.cursor = 'pointer';
+    trigger.addEventListener('click', safe(() => {
+      const now = hex.textContent.trim().toUpperCase();
+      const next = SWATCHES[(Math.max(0, SWATCHES.indexOf(now)) + 1) % SWATCHES.length];
+      hex.textContent = next;
+      swatch.style.background = next;
+      toast('Accent', next + ' applied to the swatch.');
+    }));
+  });
+
+  /* ------------------------------------------------------------ key hint */
+  if (!stage.querySelector('.aurora-hint')) {
+    const hint = document.createElement('div');
+    hint.className = 'aurora-hint';
+    hint.textContent = 'Live preview — tabs, switches, sliders, colour swatches and the search box all respond.';
+    stage.appendChild(hint);
+  }
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key !== 'Escape') return;
+    if (win.style.display === 'none' && reopen) reopen.click();
+  });
+}
+
+makeInteractive();
+
 /* ---------------------------------------------------------------- scale */
 const winW = (data.window.Size && data.window.Size.x[1]) || 900;
 const winH = (data.window.Size && data.window.Size.y[1]) || 580;
@@ -596,6 +934,6 @@ function fit() {
 window.addEventListener('resize', fit);
 fit();
 
-return { selectTab, fit, root, report, tabs, pages };
+return { selectTab, fit, root, report, tabs, pages, select: selectTab };
 
 }

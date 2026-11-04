@@ -135,6 +135,18 @@ def main():
         check(all(f'"slug":"{slug}"' in html for slug in slug_names), "every template is embedded in the gallery")
         check('aria-pressed' in html and "mountAuroraWindow" in html, "gallery switcher wired to the engine")
         check("DecompressionStream" in html, "dumps are compressed and inflated on demand")
+        interactive = [
+            "makeInteractive",
+            "function toast(",
+            "aurora-toast",
+            "contenteditable",
+            "aurora-slider",
+            "aurora-toggle",
+            "onCycleStyle",
+        ]
+        missing = [marker for marker in interactive if marker not in html]
+        check(not missing, "preview is interactive (switches, sliders, search, toasts, drag"
+                           + ("" if not missing else " — missing " + ", ".join(missing)) + ")")
 
     version = re.search(r'Util\.Version\s*=\s*"([\d.]+)"', (ROOT / "src/UI/UILibrary/Util.luau").read_text())
     if version and GALLERY.exists():

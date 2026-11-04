@@ -147,6 +147,19 @@
     font-size: 12.5px;
   }
   .meta-row .name { color: #fff; font-weight: 700; font-size: 14px; }
+  .live-row { margin-top: 8px; gap: 8px; font-size: 11.5px; color: #9aa3b8; }
+  .live-row b { color: #c9f5d9; font-weight: 700; }
+  .live-dot {
+    width: 7px; height: 7px; border-radius: 50%; background: #34d399;
+    box-shadow: 0 0 0 0 rgba(52, 211, 153, .6);
+    animation: live-pulse 2.2s ease-out infinite;
+  }
+  @keyframes live-pulse {
+    0% { box-shadow: 0 0 0 0 rgba(52, 211, 153, .55); }
+    70% { box-shadow: 0 0 0 7px rgba(52, 211, 153, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(52, 211, 153, 0); }
+  }
+  @media (max-width: 720px) { .live-row { display: none; } }
   .meta-row .tag { color: #9aa3b8; }
   .meta-row .pill {
     border: 1px solid #222a3c;
@@ -257,6 +270,11 @@
       <span class="pill" id="meta-mood">—</span>
       <div class="swatches" id="meta-swatches"></div>
     </div>
+    <div class="meta-row live-row">
+      <span class="live-dot"></span>
+      <b>Live preview</b>
+      <span class="tag">tabs switch · switches flip · sliders drag · sections collapse · the search box filters · the window drags · the moon button swaps templates</span>
+    </div>
   </div>
 
   <div class="foot">
@@ -352,6 +370,10 @@ const options = {
   wrap: wrap,
   get fixedScale() {
     return galleryScale();
+  },
+  // the moon button inside the rendered window cycles the gallery
+  onCycleStyle() {
+    mount((current + 1) % STYLES.length);
   },
 };
 

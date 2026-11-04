@@ -38,6 +38,17 @@
   }
   .n[data-name^="Tab_"] { pointer-events: auto; cursor: pointer; }
   .n[data-name="CollapseHitbox"] { pointer-events: auto; cursor: pointer; }
+  /* interactive pass: the controls the preview actually wires up */
+  .stage.interactive .n[data-name="Track"],
+  .stage.interactive .n[data-name^="Row_"],
+  .stage.interactive .n[data-name^="Button_"],
+  .stage.interactive .n[data-name="Sheen"],
+  .stage.interactive .n[data-name="Trigger"],
+  .stage.interactive .n[data-name="Hitbox"],
+  .stage.interactive .n[data-name="KeyPill"],
+  .stage.interactive .n[data-name="Field"],
+  .stage.interactive .n[data-name^="IconButton_"],
+  .stage.interactive .n[data-name="TitleBar"] { pointer-events: auto; }
   .n.text {
     display: flex;
     white-space: pre;
@@ -198,3 +209,90 @@
 @media (prefers-reduced-motion: reduce) {
   .motion-entry, .motion-idle, .motion-hover, .decor { animation: none !important; transition: none !important; }
 }
+
+/* ==================================================================
+   Interactivity — the preview is a working menu, not a picture.
+   ================================================================== */
+
+.aurora-toasts {
+  position: absolute;
+  right: 16px;
+  /* below the title bar, so a toast never covers the window controls */
+  top: 76px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-end;
+  z-index: 900;
+  pointer-events: none;
+}
+.aurora-toast {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  max-width: 260px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: rgba(9, 11, 18, .82);
+  border: 1px solid rgba(255, 255, 255, .10);
+  box-shadow: 0 16px 34px -18px #000;
+  color: #fff;
+  font: 500 11px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  transform: translateY(-6px);
+  opacity: 0;
+  animation: aurora-toast-in .22s ease forwards;
+}
+.aurora-toast .dot { width: 7px; height: 7px; border-radius: 50%; margin-top: 4px; flex: none; }
+.aurora-toast b { display: block; font-weight: 700; font-size: 11.5px; }
+.aurora-toast span { color: rgba(255, 255, 255, .70); }
+.aurora-toast.out { animation: aurora-toast-out .3s ease forwards; }
+@keyframes aurora-toast-in { to { opacity: 1; transform: none; } }
+@keyframes aurora-toast-out { to { opacity: 0; transform: translateY(-6px); } }
+
+.aurora-reopen {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  padding: 9px 16px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, .18);
+  background: rgba(12, 14, 22, .9);
+  color: #fff;
+  font: 600 12px system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  cursor: pointer;
+  z-index: 950;
+}
+.aurora-reopen:hover { border-color: rgba(255, 255, 255, .38); }
+
+.aurora-hint {
+  position: absolute;
+  left: 12px;
+  /* above the footer, not on top of it */
+  bottom: 46px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: rgba(8, 10, 16, .74);
+  border: 1px solid rgba(255, 255, 255, .08);
+  color: rgba(255, 255, 255, .72);
+  font: 500 10px system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  pointer-events: none;
+  z-index: 800;
+  opacity: 0;
+  transition: opacity .3s ease;
+}
+/* only when the pointer is actually in the preview: screenshots stay clean */
+.stage:hover .aurora-hint { opacity: 1; }
+
+[data-name="Main"] { transition: transform .24s ease, opacity .24s ease; }
+[data-name="Main"].is-closing { transform: scale(.96); opacity: 0; }
+[data-name="Main"].is-minimised > *:not([data-name="TitleBar"]) { display: none; }
+
+.aurora-button.pressed { transform: scale(.985); filter: brightness(1.06); }
+.aurora-slider [data-name="Knob"] { transition: left .08s linear; }
+.aurora-toggle:hover [data-name="Knob"] { filter: brightness(1.08); }
+
+.editable { outline: none; }
+.editable.focused { text-shadow: 0 0 12px currentColor; }
+
+[data-name="Body"] { transition: none; }
